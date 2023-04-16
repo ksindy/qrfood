@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 import psycopg2
 from psycopg2 import sql
@@ -142,3 +142,35 @@ async def create_food_item(item: FoodItem):
     conn.close()
 
     return {"status": "success", "message": "Food item has been added.", "id": item.id}
+
+@app.get("/update/{item_id}", response_class=HTMLResponse)
+async def edit_food_item(request: Request, item_id: str):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    item = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Food item not found")
+
+    food_item = FoodItem(id=item[0], food=item[1], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+
+    return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
+
+@app.post("/update/{item_id}")
+async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    update_query = sql.SQL("""
+        UPDATE food_items
+        SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
+        WHERE id = %s
+    """)
+
+    cursor.execute(update_query, (food, expiration_date,))
+
