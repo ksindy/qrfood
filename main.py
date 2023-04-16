@@ -106,7 +106,12 @@ async def get_food_items():
 async def get_qr_code(item_id: str):
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(item_id)
+    
+    # Update the data to include the full URL
+    base_url = "https://qrfood.herokuapp.com"
+    full_url = f"{base_url}/view/{item_id}"
+    qr.add_data(full_url)
+    
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
@@ -118,6 +123,7 @@ async def get_qr_code(item_id: str):
 
     # Return the image as a StreamingResponse
     return StreamingResponse(buffer, media_type="image/png")
+
 
 @app.api_route("/update/{item_id}", methods=["GET", "POST"], response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
