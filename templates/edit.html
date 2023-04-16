@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Food Item</title>
 </head>
 <body>
@@ -18,7 +20,7 @@
         <label for="suggested_expiration_date">Suggested Expiration Date:</label>
         <input type="date" id="suggested_expiration_date" name="suggested_expiration_date" value="{{ item.suggested_expiration_date }}" required>
         <br>
-        <input type="submit" value="Update">
+        <button type="submit">Update</button>
     </form>
 </body>
 </html>
