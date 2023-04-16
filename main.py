@@ -225,15 +225,20 @@ async def create_qr():
     # Redirect to the newly created QR code
     return RedirectResponse(url=f"/food_items/{item_id}/qrcode", status_code=303)
 
+@app.get("/view/{item_id}", response_class=HTMLResponse)
+async def view_food_item(request: Request, item_id: str):
+    conn = connect_to_db()
+    cursor = conn.cursor()
 
-from pydantic import BaseModel
+    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    item = cursor.fetchone()
 
-class FoodItemCreateResponse(BaseModel):
-    status: str
-    message: str
-    id: str
+    cursor.close()
+    conn.close()
 
-@app.post("/food_items/", response_model=FoodItemCreateResponse)
-async def create_food_item(item: FoodItem):
-    ...
-    return {"status": "success", "message": "Food item has been added.", "id": item.id}
+    if not item:
+        raise HTTPException(status_code=404, detail="Food item not found")
+
+    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+
+    return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
