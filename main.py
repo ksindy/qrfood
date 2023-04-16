@@ -120,10 +120,17 @@ async def get_qr_code(item_id: str):
     return StreamingResponse(buffer, media_type="image/png")
 
 @app.get("/update/{item_id}", response_class=HTMLResponse)
-async def edit_food_item(request: Request, item_id: str):
+async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
+    if request.method == "POST" and food and expiration_date and reminder_date and suggested_expiration_date:
+        update_query = sql.SQL("""
+            UPDATE food_items
+            SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
+            WHERE id = %s
+        """)
+        
     cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
 
