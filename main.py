@@ -161,7 +161,7 @@ async def edit_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
-@app.post("/update/{item_id}")
+@app.post("/update/{item_id}", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -172,5 +172,12 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
         WHERE id = %s
     """)
 
-    cursor.execute(update_query, (food, expiration_date,))
+    cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return RedirectResponse("/", status_code=303)
+
 
