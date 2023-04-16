@@ -92,7 +92,6 @@ async def get_qr_code(item_id: str):
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
-    img = Image.fromarray(img.to_pil())
 
     # Save the image to an in-memory buffer
     buffer = BytesIO()
