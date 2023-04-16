@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>View Food Item</h2>
+<table>
+    <tr>
+        <th>Food</th>
+        <td>{{ item.food }}</td>
+    </tr>
+    <tr>
+        <th>Date Added</th>
+        <td>{{ item.date_added }}</td>
+    </tr>
+    <tr>
+        <th>Expiration Date</th>
+        <td>{{ item.expiration_date }}</td>
+    </tr>
+    <tr>
+        <th>Reminder Date</th>
+        <td>{{ item.reminder_date }}</td>
+    </tr>
+    <tr>
+        <th>Suggested Expiration Date</th>
+        <td>{{ item.suggested_expiration_date }}</td>
+    </tr>
+</table>
+<a href="{{ url_for('edit_food_item', item_id=item.id) }}" class="button">Edit</a>
+{% endblock %}

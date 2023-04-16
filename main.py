@@ -206,3 +206,22 @@ async def add_food_item(
     conn.close()
 
     return RedirectResponse("/", status_code=303)
+
+@app.get("/view/{item_id}", response_class=HTMLResponse)
+async def view_food_item(request: Request, item_id: str):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    item = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Food item not found")
+
+    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+
+    return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
+
