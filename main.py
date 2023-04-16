@@ -137,23 +137,51 @@ async def edit_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
-# @app.post("/update/{item_id}", response_class=HTMLResponse)
-# async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
-#     conn = connect_to_db()
-#     cursor = conn.cursor()
+    @app.post("/update/{item_id}", response_class=HTMLResponse)
+    async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
+        conn = connect_to_db()
+        cursor = conn.cursor()
 
-#     update_query = sql.SQL("""
-#         UPDATE food_items
-#         SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
-#         WHERE id = %s
-#     """)
+        update_query = sql.SQL("""
+            UPDATE food_items
+            SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
+            WHERE id = %s
+        """)
 
-#     cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
+        cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
 
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-#     return RedirectResponse("/", status_code=303)
+        return RedirectResponse("/", status_code=303)
 
 
+@app.get("/add", response_class=HTMLResponse)
+async def add_food_item(request: Request):
+    return templates.TemplateResponse("add.html", {"request": request})
+
+@app.post("/add", response_class=HTMLResponse)
+async def add_food_item(
+    food: str = Form(...),
+    expiration_date: datetime.date = Form(...),
+    reminder_date: datetime.date = Form(...),
+    suggested_expiration_date: datetime.date = Form(...),
+):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    # Generate a unique ID for the new food item
+    item_id = str(uuid4())
+
+    # Insert the new food item into the database
+    cursor.execute(
+        "INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
+        (item_id, food, datetime.date.today(), expiration_date, reminder_date, suggested_expiration_date),
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return RedirectResponse("/", status_code=303)
