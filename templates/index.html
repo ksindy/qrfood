@@ -17,20 +17,6 @@
             <th>Reminder Date</th>
             <th>Suggested Expiration Date</th>
         </tr>
-        {% for item in food_items %}
-        <tr>
-            <td>{{ item.food }}</td>
-            <td>{{ item.date_added }}</td>
-            <td>{{ item.expiration_date }}</td>
-            <td>{{ item.reminder_date }}</td>
-            <td>{{ item.suggested_expiration_date }}</td>
-            <td>
-                <form action="/update/{{ item.id }}" method="post">
-                    <input type="submit" value="Edit">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
     </table>
 </body>
 </html>
