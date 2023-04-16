@@ -4,7 +4,7 @@ import requests
 url = "https://qrfood.herokuapp.com/food_items/"
 
 data = {
-    "food": "casserole",
+    "food": "josh ass",
     "expiration_date": "2023-04-22",
     "reminder_date": "2023-04-22",
     "suggested_expiration_date": "2123-04-21"
