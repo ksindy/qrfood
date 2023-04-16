@@ -15,9 +15,9 @@ from PIL import Image
 
 
 app = FastAPI()
-
-templates_path = os.path.join(current_path, "templates")
+templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
+
 
 # Database configuration
 # DATABASE = {
