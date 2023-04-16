@@ -9,6 +9,8 @@ from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
 import os
+from PIL import Image
+
 
 app = FastAPI()
 
