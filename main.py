@@ -106,12 +106,8 @@ async def get_food_items():
 async def get_qr_code(item_id: str):
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    
-    # Update the data to include the full URL
-    base_url = "https://qrfood.herokuapp.com"
-    full_url = f"{base_url}/view/{item_id}"
-    qr.add_data(full_url)
-    
+    view_url = f"{os.environ.get('APP_BASE_URL', '')}/view/{item_id}"
+    qr.add_data(view_url)
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
@@ -125,7 +121,7 @@ async def get_qr_code(item_id: str):
     return StreamingResponse(buffer, media_type="image/png")
 
 
-@app.api_route("/update/{item_id}", methods=["GET", "POST"], response_class=HTMLResponse)
+@app.get("/update/{item_id}", response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -136,11 +132,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
             SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
             WHERE id = %s
         """)
-
-        cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
-        conn.commit()
-        return RedirectResponse("/", status_code=303)
-
+        
     cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
 
@@ -153,7 +145,6 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     food_item = FoodItem(id=item[0], food=item[1], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
-
 
 @app.post("/update/{item_id}", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
@@ -213,33 +204,23 @@ async def add_food_item(
 
     return RedirectResponse("/", status_code=303)
 
-@app.get("/view/{item_id}", response_class=HTMLResponse)
-async def view_food_item(request: Request, item_id: str):
+@app.get("/create_qr", response_class=HTMLResponse)
+async def create_qr():
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
-    item = cursor.fetchone()
+    # Generate a unique ID for the new food item
+    item_id = str(uuid4())
 
+    # Insert the new food item into the database with empty fields
+    cursor.execute("""
+        INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date)
+        VALUES (%s, '', %s, %s, %s, %s)
+    """, (item_id, datetime.date.today(), datetime.date.today(), datetime.date.today(), datetime.date.today()))
+
+    conn.commit()
     cursor.close()
     conn.close()
 
-    if not item:
-        raise HTTPException(status_code=404, detail="Food item not found")
-
-    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
-
-    return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
-
-
-from pydantic import BaseModel
-
-class FoodItemCreateResponse(BaseModel):
-    status: str
-    message: str
-    id: str
-
-@app.post("/food_items/", response_model=FoodItemCreateResponse)
-async def create_food_item(item: FoodItem):
-    ...
-    return {"status": "success", "message": "Food item has been added.", "id": item.id}
+    # Redirect to the newly created QR code
+    return RedirectResponse(url=f"/food_items/{item_id}/qrcode", status_code=303)
