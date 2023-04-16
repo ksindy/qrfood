@@ -1,0 +1,31 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Items</title>
+</head>
+<body>
+    <h1>Food Items</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Food</th>
+            <th>Expiration Date</th>
+            <th>Reminder Date</th>
+            <th>Suggested Expiration Date</th>
+        </tr>
+        {% for item in food_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.food }}</td>
+            <td>{{ item.expiration_date }}</td>
+            <td>{{ item.reminder_date }}</td>
+            <td>{{ item.suggested_expiration_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import psycopg2
 from psycopg2 import sql
@@ -13,6 +15,7 @@ from PIL import Image
 
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 # Database configuration
 # DATABASE = {
@@ -58,6 +61,19 @@ class FoodItem(BaseModel):
     reminder_date: datetime.date
     suggested_expiration_date: datetime.date
 
+@app.get("/", response_class=HTMLResponse)
+async def read_items(request: Request):
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM food_items")
+    items = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    food_items = [FoodItem(id=row[0], food=row[1], expiration_date=row[2], reminder_date=row[3], suggested_expiration_date=row[4]) for row in items]
+
+    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
+
 @app.get("/food_items/")
 async def get_food_items():
     conn = connect_to_db()
@@ -100,7 +116,6 @@ async def get_qr_code(item_id: str):
 
     # Return the image as a StreamingResponse
     return StreamingResponse(buffer, media_type="image/png")
-
 
 # Write data to the database
 @app.post("/food_items/")
