@@ -120,35 +120,24 @@ async def get_qr_code(item_id: str):
     return StreamingResponse(buffer, media_type="image/png")
 
 # Write data to the database
-@app.post("/food_items/")
-async def create_food_item(item: FoodItem):
+@app.post("/update/{item_id}", response_class=HTMLResponse)
+async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
-
-    date_added = datetime.date.today()
-
-    if item.id is None:
-        item.id = str(uuid4())
 
     update_query = sql.SQL("""
         UPDATE food_items
         SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
         WHERE id = %s
     """)
-    cursor.execute(update_query, (item.food, item.expiration_date, item.reminder_date, item.suggested_expiration_date, item.id))
-    
-    insert_query = sql.SQL("""
-        INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """)
 
-    cursor.execute(insert_query, (item.id, item.food, date_added, item.expiration_date, item.reminder_date, item.suggested_expiration_date))
+    cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
 
     conn.commit()
     cursor.close()
     conn.close()
 
-    return {"status": "success", "message": "Food item has been added.", "id": item.id}
+    return RedirectResponse("/", status_code=303)
 
 @app.get("/update/{item_id}", response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str):
