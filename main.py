@@ -5,7 +5,8 @@ from psycopg2 import sql
 import datetime
 from uuid import uuid4
 import qrcode
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 from typing import Optional
 import os
 
@@ -80,6 +81,7 @@ async def get_food_items():
     return result
 
 #This function generates a QR code for the given unique identifier and returns it as a PNG image.
+#It returns the QR code as an in-memory image instead of saving it to the filesystem.
 @app.get("/food_items/{item_id}/qrcode")
 async def get_qr_code(item_id: str):
     # Generate QR code
@@ -88,9 +90,16 @@ async def get_qr_code(item_id: str):
     qr.make(fit=True)
 
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save(f"qrcodes/{item_id}.png")
+    img = Image.fromarray(img.to_pil())
 
-    return FileResponse(f"qrcodes/{item_id}.png", media_type="image/png")
+    # Save the image to an in-memory buffer
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    # Return the image as a StreamingResponse
+    return StreamingResponse(buffer, media_type="image/png")
+
 
 # Write data to the database
 @app.post("/food_items/")
