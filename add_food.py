@@ -1,7 +1,7 @@
 import requests
 
 # Add a new food item
-url = "http://localhost:8000/food_items/"
+url = "https://qrfood.herokuapp.com/food_items/"
 
 data = {
     "food": "Milk",
@@ -18,7 +18,7 @@ print(response_data)
 
 # Get the QR code for the new food item
 item_id = response_data["id"]
-qr_code_url = f"http://localhost:8000/food_items/{item_id}/qrcode"
+qr_code_url = f"https://qrfood.herokuapp.com/food_items/{item_id}/qrcode"
 
 qr_code_response = requests.get(qr_code_url)
 

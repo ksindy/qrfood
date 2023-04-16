@@ -14,7 +14,7 @@ app = FastAPI()
 DATABASE = {
     "user": "karlysindy",
     "password": "",
-    "host": "localhost",
+    "host": "https://qrfood.herokuapp.com/",
     "port": "5432",
     "dbname": "food"
 }
