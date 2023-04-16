@@ -224,3 +224,16 @@ async def create_qr():
 
     # Redirect to the newly created QR code
     return RedirectResponse(url=f"/food_items/{item_id}/qrcode", status_code=303)
+
+
+from pydantic import BaseModel
+
+class FoodItemCreateResponse(BaseModel):
+    status: str
+    message: str
+    id: str
+
+@app.post("/food_items/", response_model=FoodItemCreateResponse)
+async def create_food_item(item: FoodItem):
+    ...
+    return {"status": "success", "message": "Food item has been added.", "id": item.id}
