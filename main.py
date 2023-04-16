@@ -231,3 +231,15 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
+
+from pydantic import BaseModel
+
+class FoodItemCreateResponse(BaseModel):
+    status: str
+    message: str
+    id: str
+
+@app.post("/food_items/", response_model=FoodItemCreateResponse)
+async def create_food_item(item: FoodItem):
+    ...
+    return {"status": "success", "message": "Food item has been added.", "id": item.id}
