@@ -119,7 +119,7 @@ async def get_qr_code(item_id: str):
     # Return the image as a StreamingResponse
     return StreamingResponse(buffer, media_type="image/png")
 
-@app.get("/update/{item_id}", response_class=HTMLResponse)
+@app.api_route("/update/{item_id}", methods=["GET", "POST"], response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -130,7 +130,11 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
             SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
             WHERE id = %s
         """)
-        
+
+        cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
+        conn.commit()
+        return RedirectResponse("/", status_code=303)
+
     cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
 
@@ -143,6 +147,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     food_item = FoodItem(id=item[0], food=item[1], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
+
 
 @app.post("/update/{item_id}", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
