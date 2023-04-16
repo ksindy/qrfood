@@ -7,21 +7,22 @@ from uuid import uuid4
 import qrcode
 from fastapi.responses import FileResponse
 from typing import Optional
+import os
 
 app = FastAPI()
 
 # Database configuration
-DATABASE = {
-    "user": "karlysindy",
-    "password": "",
-    "host": "https://qrfood.herokuapp.com/",
-    "port": "5432",
-    "dbname": "food"
-}
+# DATABASE = {
+#     "user": "karlysindy",
+#     "password": "",
+#     "host": "https://qrfood.herokuapp.com/",
+#     "port": "5432",
+#     "dbname": "food"
+# }
 
 # Connect to the database
 def connect_to_db():
-    conn = psycopg2.connect(**DATABASE)
+    conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
     return conn
 
 # Initialize the database
