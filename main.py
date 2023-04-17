@@ -208,22 +208,26 @@ async def view_food_item(request: Request, item_id: str):
 
 @app.get("/create_qr_code/")
 async def create_qr_code():
+    # Generate a unique UUID
     item_id = str(uuid4())
+
+    # Create a QR code
     qr = qrcode.QRCode(
         version=1,
         box_size=10,
         border=4,
     )
-    url = f"/{item_id}/"
-    qr.add_data(url)
+    qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
     qr.make(fit=True)
-
     img = qr.make_image(fill_color="black", back_color="white")
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    buffered.seek(0)
 
-    return StreamingResponse(buffered, media_type="image/png")
+    # Save the QR code to a BytesIO object
+    buffer = BytesIO()
+    img.save(buffer, "PNG")
+    buffer.seek(0)
+
+    # Return the QR code image as a response
+    return StreamingResponse(buffer, media_type="image/png")
 
 @app.get("/{item_id}/")
 async def handle_qr_scan(item_id: str):
