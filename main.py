@@ -222,31 +222,56 @@ async def handle_qr_scan(item_id: str):
     else:
         return RedirectResponse(url=f"/{item_id}/update/")
 
-@app.get("/{item_id}/qr/")
-async def generate_qr_code(item_id: str):
-    # Check if the item exists in the database
+@app.get("/create_qr_code/")
+async def create_qr_code():
+    # Generate a unique UUID
+    item_id = str(uuid4())
+
+    # Create a QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(f"/{item_id}/")
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save the QR code to a BytesIO object
+    buffer = BytesIO()
+    img.save(buffer, "PNG")
+    buffer.seek(0)
+
+    # Return the QR code image as a response
+    return StreamingResponse(buffer, media_type="image/png")
+
+@app.get("/{item_id}/")
+async def handle_qr_scan(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+
+    cursor.execute("SELECT * FROM food_items WHERE id = %s", (item_id,))
     item = cursor.fetchone()
+
     cursor.close()
     conn.close()
 
-    # Generate the QR code
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
     if item:
-        url = f"https://qrfood.heroku.com/{item_id}/view"
+        return RedirectResponse(url=f"/{item_id}/view/")
     else:
-        url = f"https://qrfood.heroku.com/{item_id}/update"
-    qr.add_data(url)
-    qr.make(fit=True)
+        # Add the new UUID to the database before redirecting to the update page
+        conn = connect_to_db()
+        cursor = conn.cursor()
 
-    # Create the image
-    img = qr.make_image(fill_color="black", back_color="white")
+        cursor.execute(
+            "INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
+            (item_id, "", datetime.date.today(), datetime.date.today(), datetime.date.today(), datetime.date.today()),
+        )
 
-    # Save the image in memory
-    img_buffer = BytesIO()
-    img.save(img_buffer, "PNG")
-    img_buffer.seek(0)
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-    return StreamingResponse(img_buffer, media_type="image/png")
+        return RedirectResponse(url=f"/{item_id}/update/")
+
