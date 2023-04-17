@@ -1,28 +1,18 @@
-{% extends "base.html" %}
-
 {% block content %}
-<h2>View Food Item</h2>
-<table>
-    <tr>
-        <th>Food</th>
-        <td>{{ item.food }}</td>
-    </tr>
-    <tr>
-        <th>Date Added</th>
-        <td>{{ item.date_added }}</td>
-    </tr>
-    <tr>
-        <th>Expiration Date</th>
-        <td>{{ item.expiration_date }}</td>
-    </tr>
-    <tr>
-        <th>Reminder Date</th>
-        <td>{{ item.reminder_date }}</td>
-    </tr>
-    <tr>
-        <th>Suggested Expiration Date</th>
-        <td>{{ item.suggested_expiration_date }}</td>
-    </tr>
-</table>
-<a href="{{ url_for('edit_food_item', item_id=item.id) }}" class="button">Edit</a>
+    <h1>Edit Food Item</h1>
+    <form action="/update/{{ item.id }}" method="post">
+        <label for="food">Food:</label>
+        <input type="text" id="food" name="food" value="{{ item.food }}" required>
+        <br>
+        <label for="expiration_date">Expiration Date:</label>
+        <input type="date" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
+        <br>
+        <label for="reminder_date">Reminder Date:</label>
+        <input type="date" id="reminder_date" name="reminder_date" value="{{ item.reminder_date }}" required>
+        <br>
+        <label for="suggested_expiration_date">Suggested Expiration Date:</label>
+        <input type="date" id="suggested_expiration_date" name="suggested_expiration_date" value="{{ item.suggested_expiration_date }}" required>
+        <br>
+        <button type="submit">Update</button>
+    </form>
 {% endblock %}
