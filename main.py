@@ -258,3 +258,4 @@ async def handle_qr_scan(item_id: str):
 
         return RedirectResponse(url=f"/{item_id}/update/")
 
+
