@@ -206,22 +206,6 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-@app.get("/{item_id}/")
-async def handle_qr_scan(item_id: str):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM food_items WHERE id = %s", (item_id,))
-    item = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    if item:
-        return RedirectResponse(url=f"/{item_id}/view/")
-    else:
-        return RedirectResponse(url=f"/{item_id}/update/")
-
 @app.get("/create_qr_code/")
 async def create_qr_code():
     # Generate a unique UUID
@@ -230,7 +214,6 @@ async def create_qr_code():
     # Create a QR code
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
         box_size=10,
         border=4,
     )
