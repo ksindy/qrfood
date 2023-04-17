@@ -206,21 +206,47 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-#This function generates a QR code for the given unique identifier and returns it as a PNG image.
-#It returns the QR code as an in-memory image instead of saving it to the filesystem.
-@app.get("/food_items/{item_id}/qrcode")
-async def get_qr_code(item_id: str):
-    # Generate QR code
+@app.get("/{item_id}/")
+async def handle_qr_scan(item_id: str):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM food_items WHERE id = %s", (item_id,))
+    item = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    if item:
+        return RedirectResponse(url=f"/{item_id}/view/")
+    else:
+        return RedirectResponse(url=f"/{item_id}/update/")
+
+@app.get("/{item_id}/qr/")
+async def generate_qr_code(item_id: str):
+    # Check if the item exists in the database
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    item = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # Generate the QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(item_id)
+    if item:
+        url = f"https://qrfood.heroku.com/{item_id}/view"
+    else:
+        url = f"https://qrfood.heroku.com/{item_id}/update"
+    qr.add_data(url)
     qr.make(fit=True)
 
+    # Create the image
     img = qr.make_image(fill_color="black", back_color="white")
 
-    # Save the image to an in-memory buffer
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
+    # Save the image in memory
+    img_buffer = BytesIO()
+    img.save(img_buffer, "PNG")
+    img_buffer.seek(0)
 
-    # Return the image as a StreamingResponse
-    return StreamingResponse(buffer, media_type="image/png")
+    return StreamingResponse(img_buffer, media_type="image/png")
