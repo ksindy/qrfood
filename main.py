@@ -100,7 +100,7 @@ async def get_food_items():
 
     return result
 
-@app.api_route("/update/{item_id}", methods=["GET", "POST"], response_class=HTMLResponse)
+@app.api_route("/{item_id}/update/", methods=["GET", "POST"], response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
