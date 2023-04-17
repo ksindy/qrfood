@@ -100,25 +100,6 @@ async def get_food_items():
 
     return result
 
-#This function generates a QR code for the given unique identifier and returns it as a PNG image.
-#It returns the QR code as an in-memory image instead of saving it to the filesystem.
-@app.get("/food_items/{item_id}/qrcode")
-async def get_qr_code(item_id: str):
-    # Generate QR code
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    qr.add_data(item_id)
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    # Save the image to an in-memory buffer
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-
-    # Return the image as a StreamingResponse
-    return StreamingResponse(buffer, media_type="image/png")
-
 @app.api_route("/update/{item_id}", methods=["GET", "POST"], response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
@@ -149,7 +130,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
 
-@app.post("/update/{item_id}", response_class=HTMLResponse)
+@app.post("/{item_id}/update/", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -207,7 +188,7 @@ async def add_food_item(
 
     return RedirectResponse("/", status_code=303)
 
-@app.get("/view/{item_id}", response_class=HTMLResponse)
+@app.get("/{item_id}/view/", response_class=HTMLResponse)
 async def view_food_item(request: Request, item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -225,3 +206,21 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
+#This function generates a QR code for the given unique identifier and returns it as a PNG image.
+#It returns the QR code as an in-memory image instead of saving it to the filesystem.
+@app.get("/food_items/{item_id}/qrcode")
+async def get_qr_code(item_id: str):
+    # Generate QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(item_id)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save the image to an in-memory buffer
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    # Return the image as a StreamingResponse
+    return StreamingResponse(buffer, media_type="image/png")
