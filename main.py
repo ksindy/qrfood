@@ -103,7 +103,7 @@ async def get_food_items():
     return result
 
 @app.api_route("/{item_id}/update/", methods=["GET", "POST"], response_class=HTMLResponse)
-async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), date_added:Optional[datetime.date] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
+async def update_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), date_added: Optional[datetime.date] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
     
@@ -113,7 +113,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
             SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
             WHERE id = %s
         """)
-        
+
         cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
         conn.commit()
     
@@ -127,30 +127,12 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
         raise HTTPException(status_code=404, detail="Food item not found")
 
     food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
-
-    return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
-
-
-@app.post("/{item_id}/update/", response_class=HTMLResponse)
-async def update_food_item(item_id: str, food: str = Form(...), date_added: datetime.date = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    update_query = sql.SQL("""
-        UPDATE food_items
-        SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
-        WHERE id = %s
-    """)
-
-    cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return RedirectResponse("/", status_code=303)
-
-
+    
+    if request.method == "POST":
+        return RedirectResponse("/", status_code=303)
+    else:
+        return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
+    
 @app.get("/add", response_class=HTMLResponse)
 async def view_add_food_item(request: Request):
     conn = connect_to_db()
