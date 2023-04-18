@@ -106,10 +106,10 @@ async def get_food_items():
 async def update_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), date_added: Optional[datetime.date] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
-    item = cursor.fetchone()
+    # item = cursor.fetchone()
     
-    if not item:
-        raise HTTPException(status_code=404, detail="Food item not found")
+    # if not item:
+    #     raise HTTPException(status_code=404, detail="Food item not found")
 
     food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
     
