@@ -73,7 +73,7 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(id=row[0], date_added=row[1], food=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
+    food_items = [FoodItem(id=row[0], food=row[1], date_added=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
