@@ -63,6 +63,7 @@ class FoodItem(BaseModel):
     expiration_date: datetime.date
     reminder_date: datetime.date
     suggested_expiration_date: datetime.date
+    days_old: Optional[int] = None
 
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request):
@@ -203,7 +204,9 @@ async def view_food_item(request: Request, item_id: str):
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+    days_old = (datetime.date.today() - item[2]).days
+
+    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], days_old=days_old ,expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
