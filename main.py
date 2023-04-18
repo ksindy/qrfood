@@ -59,6 +59,7 @@ init_db()
 class FoodItem(BaseModel):
     id: Optional[str] = None
     food: str
+    date_added: datetime.date
     expiration_date: datetime.date
     reminder_date: datetime.date
     suggested_expiration_date: datetime.date
@@ -72,7 +73,7 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(id=row[0], food=row[1], expiration_date=row[2], reminder_date=row[3], suggested_expiration_date=row[4]) for row in items]
+    food_items = [FoodItem(id=row[0], date_added=row[1], food=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
@@ -101,18 +102,18 @@ async def get_food_items():
     return result
 
 @app.api_route("/{item_id}/update/", methods=["GET", "POST"], response_class=HTMLResponse)
-async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
+async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), date_added:Optional[datetime.date] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    if request.method == "POST" and food and expiration_date and reminder_date and suggested_expiration_date:
+    if request.method == "POST" and food and date_added and expiration_date and reminder_date and suggested_expiration_date:
         update_query = sql.SQL("""
             UPDATE food_items
-            SET food = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
+            SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
             WHERE id = %s
         """)
 
-        cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
+        cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
         conn.commit()
         return RedirectResponse("/", status_code=303)
 
@@ -125,13 +126,13 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[0], food=item[1], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
 
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
-async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
+async def update_food_item(item_id: str, food: str = Form(...), date_added: datetime.date = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
@@ -141,7 +142,7 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
         WHERE id = %s
     """)
 
-    cursor.execute(update_query, (food, expiration_date, reminder_date, suggested_expiration_date, item_id))
+    cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
 
     conn.commit()
     cursor.close()
@@ -159,7 +160,7 @@ async def view_add_food_item(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(id=row[0], food=row[1], expiration_date=row[2], reminder_date=row[3], suggested_expiration_date=row[4]) for row in items]
+    food_items = [FoodItem(id=row[0], food=row[1], date_added=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
 
     return templates.TemplateResponse("add.html", {"request": request})
 
