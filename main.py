@@ -102,7 +102,7 @@ async def get_food_items():
 
     return result
 
-@app.get("/update/{item_id}", response_class=HTMLResponse)
+@app.get("/{item_id}/update/", response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -127,7 +127,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
-@app.post("/update/{item_id}", response_class=HTMLResponse)
+@app.post("/{item_id}/update/", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), reminder_date: datetime.date = Form(...), suggested_expiration_date: datetime.date = Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
