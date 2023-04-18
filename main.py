@@ -113,6 +113,9 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
             SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
             WHERE id = %s
         """)
+        
+        cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
+        conn.commit()
     
     cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
