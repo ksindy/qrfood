@@ -19,7 +19,7 @@
         </tr>
         {% for item in food_items %}
         <tr>
-            <td>{{ item.food }}</td>
+            <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
             <td>{{ item.date_added }}</td>
             <td>{{ item.expiration_date }}</td>
             <td>{{ item.reminder_date }}</td>
