@@ -110,10 +110,10 @@ async def edit_food_item(request: Request, item_id: str):
     if request.method == "POST":
         form_data = await request.form()
         food = form_data.get("food")
-        date_added = datetime.datetime.strptime(form_data.get("date_added"), "%Y-%m-%d").date()
-        expiration_date = datetime.datetime.strptime(form_data.get("expiration_date"), "%Y-%m-%d").date()
-        reminder_date = datetime.datetime.strptime(form_data.get("reminder_date"), "%Y-%m-%d").date()
-        suggested_expiration_date = datetime.datetime.strptime(form_data.get("suggested_expiration_date"), "%Y-%m-%d").date()
+        date_added = datetime.datetime.strptime(str(form_data.get("date_added")), "%Y-%m-%d").date()
+        expiration_date = datetime.datetime.strptime(str(form_data.get("expiration_date")), "%Y-%m-%d").date()
+        reminder_date = datetime.datetime.strptime(str(form_data.get("reminder_date")), "%Y-%m-%d").date()
+        suggested_expiration_date = datetime.datetime.strptime(str(form_data.get("suggested_expiration_date")), "%Y-%m-%d").date()
 
         update_query = sql.SQL("""
             UPDATE food_items
