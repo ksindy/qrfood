@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Edit Food Item</h1>
-    <form action="/update/{{ item.id }}" method="post">
+    <form action="/{{ item.id }}/update/" method="post">
         <label for="food">Food:</label>
         <input type="text" id="food" name="food" value="{{ item.food }}" required>
         <br>
