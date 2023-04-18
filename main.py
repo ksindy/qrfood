@@ -110,21 +110,33 @@ async def edit_food_item(request: Request, item_id: str):
     if request.method == "POST":
         form_data = await request.form()
         food = form_data.get("food")
-        date_added = datetime.datetime.strptime(str(form_data.get("date_added")), "%Y-%m-%d").date()
-        expiration_date = datetime.datetime.strptime(str(form_data.get("expiration_date")), "%Y-%m-%d").date()
-        reminder_date = datetime.datetime.strptime(str(form_data.get("reminder_date")), "%Y-%m-%d").date()
-        suggested_expiration_date = datetime.datetime.strptime(str(form_data.get("suggested_expiration_date")), "%Y-%m-%d").date()
+        date_added = form_data.get("date_added")
+        if date_added:
+            date_added = datetime.datetime.strptime(str(date_added), "%Y-%m-%d").date()
+        
+        expiration_date = form_data.get("expiration_date")
+        if expiration_date:
+            expiration_date = datetime.datetime.strptime(str(expiration_date), "%Y-%m-%d").date()
 
-        update_query = sql.SQL("""
-            UPDATE food_items
-            SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
-            WHERE id = %s
-        """)
+        reminder_date = form_data.get("reminder_date")
+        if reminder_date:
+            reminder_date = datetime.datetime.strptime(str(reminder_date), "%Y-%m-%d").date()
 
-        cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
-        conn.commit()
+        suggested_expiration_date = form_data.get("suggested_expiration_date")
+        if suggested_expiration_date:
+            suggested_expiration_date = datetime.datetime.strptime(str(suggested_expiration_date), "%Y-%m-%d").date()
 
-        return RedirectResponse("/", status_code=303)
+        if food and date_added and expiration_date and reminder_date and suggested_expiration_date:
+            update_query = sql.SQL("""
+                UPDATE food_items
+                SET food = %s, date_added = %s, expiration_date = %s, reminder_date = %s, suggested_expiration_date = %s
+                WHERE id = %s
+            """)
+
+            cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
+            conn.commit()
+
+            return RedirectResponse("/", status_code=303)
 
     cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
@@ -138,13 +150,17 @@ async def edit_food_item(request: Request, item_id: str):
     food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
+
     
 @app.get("/add", response_class=HTMLResponse)
 async def view_add_food_item(request: Request):
     conn = connect_to_db()
     cur = conn.cursor()
+
     cur.execute("SELECT * FROM food_items")
-    items = cur.fetchall()
+    items = cur.fetchall(
+
+    )
     cur.close()
     conn.close()
 
