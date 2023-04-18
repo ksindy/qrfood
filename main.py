@@ -106,13 +106,7 @@ async def get_food_items():
 async def update_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), date_added: Optional[datetime.date] = Form(None), expiration_date: Optional[datetime.date] = Form(None), reminder_date: Optional[datetime.date] = Form(None), suggested_expiration_date: Optional[datetime.date] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
-    # item = cursor.fetchone()
-    
-    # if not item:
-    #     raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
-    
     if request.method == "POST" and food and date_added and expiration_date and reminder_date and suggested_expiration_date:
         update_query = sql.SQL("""
             UPDATE food_items
@@ -120,18 +114,24 @@ async def update_food_item(request: Request, item_id: str, food: Optional[str] =
             WHERE id = %s
         """)
 
-        #cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
-        cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+        cursor.execute(update_query, (food, date_added, expiration_date, reminder_date, suggested_expiration_date, item_id))
         conn.commit()
-    
-    else:
-        return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
-    
+
+    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    item = cursor.fetchone()
+
     cursor.close()
     conn.close()
-    
 
+    if not item:
+        raise HTTPException(status_code=404, detail="Food item not found")
 
+    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+
+    if request.method == "POST":
+        return RedirectResponse("/", status_code=303)
+    else:
+        return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
     
 @app.get("/add", response_class=HTMLResponse)
