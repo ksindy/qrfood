@@ -202,7 +202,7 @@ async def view_food_item(request: Request, item_id: str):
 #     aws_access_key_id="YOUR_AWS_ACCESS_KEY",
 #     aws_secret_access_key="YOUR_AWS_SECRET_KEY",
 # )
-s3_client = boto3.client('s3')
+s3 = boto3.resource(service_name='s3', region_name='us-east-2')
 BUCKET_NAME = "qrfoodcodes"
 
 @app.get("/create_qr_code/")
@@ -228,7 +228,7 @@ async def create_qr_code():
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
     try:
-        s3_client.put_object(
+        s3.put_object(
             Body=buffer,
             Bucket=BUCKET_NAME,
             Key=object_key,
