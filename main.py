@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pydantic import BaseModel
 import psycopg2
 from psycopg2 import sql
@@ -196,14 +196,16 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-# Initialize the S3 client with your AWS access and secret keys
+# Configure the S3 client
 s3_client = boto3.client(
     "s3",
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_IDAWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=["AWS_SECRET_ACCESS_KEY"],
+    region_name="us-east-2",
 )
 
 BUCKET_NAME = "qrfoodcodes"
+
 
 @app.get("/create_qr_code/")
 async def create_qr_code():
@@ -228,21 +230,24 @@ async def create_qr_code():
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
     try:
-        s3_client.put_object(
-            Body=buffer,
-            Bucket=BUCKET_NAME,
-            Key=object_key,
-            ContentType="image/png",
-            ACL="public-read",
+        s3_client.upload_fileobj(
+            buffer,
+            BUCKET_NAME,
+            object_key,
+            ExtraArgs={
+                "ACL": "public-read",
+                "ContentType": "image/png",
+            },
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to upload QR code to S3")
 
-    # Get the public URL of the saved QR code
+    # Build the public URL for the uploaded QR code
     qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_key}"
 
     # Return the QR code URL as a response
-    return {"qr_code_url": qr_code_url}
+    return JSONResponse(content={"qr_code_url": qr_code_url})
+
 
 # BUCKET_NAME = "qrfoodcodes"
 # # Initialize the S3 client
