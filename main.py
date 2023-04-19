@@ -231,8 +231,8 @@ async def create_qr_code():
     object_key = f"{item_id}.png"
     try:
         s3_client.upload_file(
-BUCKET_NAME,
   file_name,
+  BUCKET_NAME,
             object_key,
             ExtraArgs={
                 "ACL": "public-read",
