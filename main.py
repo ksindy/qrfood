@@ -12,21 +12,13 @@ from io import BytesIO
 from typing import Optional
 import os
 from PIL import Image
-from google.cloud import storage
+import os
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 app = FastAPI()
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
-
-
-# Database configuration
-# DATABASE = {
-#     "user": "karlysindy",
-#     "password": "",
-#     "host": "https://qrfood.herokuapp.com/",
-#     "port": "5432",
-#     "dbname": "food"
-# }
 
 # Connect to the database
 def connect_to_db():
@@ -204,11 +196,9 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-
-storage_client = storage.Client()
-bucket_name = "qrfoodcodes"
-bucket = storage_client.get_bucket(bucket_name)
-
+BUCKET_NAME = "qrfoodcodes"
+# Initialize the S3 client
+s3 = boto3.client('s3')
 @app.get("/create_qr_code/")
 async def create_qr_code():
     # Generate a unique UUID
@@ -229,16 +219,18 @@ async def create_qr_code():
     img.save(buffer, "PNG")
     buffer.seek(0)
 
-    # Save the QR code image to the GCP bucket
-    file_name = f"{item_id}.png"
-    blob = bucket.blob(file_name)
-    blob.upload_from_file(buffer, content_type="image/png")
+    # Save the QR code to the S3 bucket
+    object_name = f"{item_id}.png"
+    try:
+        s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/png'})
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not found")
 
-    # Make the QR code image publicly accessible
-    blob.make_public()
+    # Generate the public URL for the QR code
+    qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_name}"
 
-    # Redirect to the public URL of the QR code image
-    return RedirectResponse(blob.public_url)
+    # Return a redirect to the QR code image
+    return RedirectResponse(qr_code_url)
 
 
 @app.get("/{item_id}/")
