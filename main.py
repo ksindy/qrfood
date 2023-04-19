@@ -223,7 +223,7 @@ async def create_qr_code():
     object_name = f"{item_id}.png"
     try:
         #s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/png'})
-        s3.upload_filobj(buffer, BUCKET_NAME, object_name)
+        s3.upload_fileobj(buffer, BUCKET_NAME, object_name)
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not found")
 
