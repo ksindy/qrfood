@@ -13,7 +13,6 @@ from typing import Optional
 import os
 from PIL import Image
 import os
-from google.cloud import storage
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -207,9 +206,6 @@ s3_client = boto3.client(
 
 BUCKET_NAME = "qrfoodcodes"
 
-storage_client = storage.Client()
-bucket_name = "qrfoodcodes"
-bucket = storage_client.get_bucket(bucket_name)
 
 @app.get("/create_qr_code/")
 async def create_qr_code():
@@ -231,15 +227,11 @@ async def create_qr_code():
     img.save(buffer, "PNG")
     buffer.seek(0)
     file_name = f"{item_id}.png"
-    blob = bucket.blob(file_name)
-    blob.upload_from_file(buffer, content_type="image/png")
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
     try:
-        s3_client.upload_fileobj(
-            buffer,
-            BUCKET_NAME,
-            object_key,
+        s3_client.upload_file(
+  BUCKET_NAME,file_name
             ExtraArgs={
                 "ACL": "public-read",
                 "ContentType": "image/png",
