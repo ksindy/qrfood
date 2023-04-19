@@ -222,6 +222,11 @@ async def create_qr_code():
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
 
+    # Save the image to an in-memory buffer
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
     # Save QR code to temporary file
     temp_file = tempfile.NamedTemporaryFile(delete=False)
     img.save(temp_file, "PNG")
@@ -231,8 +236,8 @@ async def create_qr_code():
     with open(temp_file.name, "rb") as file:
         s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
 
-    # Display QR code using FastAPI
-    return FileResponse(temp_file.name, media_type="image/png")
+    # Return the image as a StreamingResponse
+    return StreamingResponse(buffer, media_type="image/png")
     #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
 
 
