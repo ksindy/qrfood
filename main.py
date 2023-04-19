@@ -13,6 +13,7 @@ from typing import Optional
 import os
 from PIL import Image
 import os
+import io
 import boto3
 from botocore.exceptions import NoCredentialsError
 
@@ -196,96 +197,34 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-# Configure the S3 client
-s3_client = boto3.client(
-    "s3",
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=["AWS_SECRET_ACCESS_KEY"],
-    region_name="us-east-2",
-)
+class QRRequest(BaseModel):
+    data: str
+    file_name: str
 
-BUCKET_NAME = "qrfoodcodes"
+aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
+aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+#aws_session_token = 'YOUR_AWS_SESSION_TOKEN'  # Optional
+s3 = boto3.client('s3',
+                  aws_access_key_id=aws_access_key_id,
+                  aws_secret_access_key=aws_secret_access_key)
 
+@app.post("/create_qr_code/")
+async def create_qr_code(request: QRRequest):
+    # Generate QR code
+    img = qrcode.make(request.data)
 
-@app.get("/create_qr_code/")
-async def create_qr_code():
-    # Generate a unique UUID
-    item_id = str(uuid4())
+    # Save QR code to a file
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
 
-    # Create a QR code
-    qr = qrcode.QRCode(
-        version=1,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    # Upload the file to the S3 bucket
+    s3.upload_fileobj(buffer, 'qrfoodcodes', request.file_name)
 
-    # Save the QR code to a BytesIO object
-    # buffer = BytesIO()
-    # img.save(buffer, "PNG")
-    # buffer.seek(0)
-    file_name = f"{item_id}.png"
-    # Save the QR code to the S3 bucket
-    object_key = f"{item_id}.png"
-    img.save(file_name)
-    try:
-        s3_client.upload_file(
-  file_name,
-  BUCKET_NAME,
-            object_key,
-            ExtraArgs={
-                "ACL": "public-read",
-                "ContentType": "image/png",
-            },
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
-
-    # Build the public URL for the uploaded QR code
-    qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_key}"
-
-    # Return the QR code URL as a response
-    return JSONResponse(content={"qr_code_url": qr_code_url})
-
-
-# BUCKET_NAME = "qrfoodcodes"
-# # Initialize the S3 client
-# s3 = boto3.client('s3')
-# @app.get("/create_qr_code/")
-# async def create_qr_code():
-#     # Generate a unique UUID
-#     item_id = str(uuid4())
-
-#     # Create a QR code
-#     qr = qrcode.QRCode(
-#         version=1,
-#         box_size=10,
-#         border=4,
-#     )
-#     qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
-#     qr.make(fit=True)
-#     img = qr.make_image(fill_color="black", back_color="white")
-
-#     # Save the QR code to a BytesIO object
-#     buffer = BytesIO()
-#     img.save(buffer, "PNG")
-#     buffer.seek(0)
-
-#     # Save the QR code to the S3 bucket
-#     object_name = f"{item_id}.png"
-#     try:
-#         #s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/png'})
-#         s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read'})
-#     except NoCredentialsError:
-#         raise HTTPException(status_code=500, detail="AWS credentials not found")
-
-#     # Generate the public URL for the QR code
-#     qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_name}"
-
-#     # Return a redirect to the QR code image
-#     return RedirectResponse(qr_code_url)
+    # Return the QR code as a PNG image
+    img_data = buffer.getvalue()
+    return Response(content=img_data, media_type="image/png")
+    #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
 
 
 @app.get("/{item_id}/")
