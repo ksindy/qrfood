@@ -212,7 +212,7 @@ s3 = boto3.client('s3',
 async def create_qr_code(request: QRRequest):
     # Generate QR code
     item_id = str(uuid4())
-    img = qrcode.make(f"https://qrfood.herokuapp.com/{item_id}/")
+    img = qrcode.make(f"https://qrfood.herokuapp.com/{item_id}/test")
 
     # Save QR code to a file
     buffer = io.BytesIO()
