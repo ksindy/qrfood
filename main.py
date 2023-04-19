@@ -6,10 +6,12 @@ import psycopg2
 from psycopg2 import sql
 import datetime
 from uuid import uuid4
+from qrcode import QRCode
 import qrcode
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
+import tempfile
 import os
 from PIL import Image
 import os
@@ -208,23 +210,29 @@ s3 = boto3.client('s3',
                   aws_access_key_id=aws_access_key_id,
                   aws_secret_access_key=aws_secret_access_key)
 
-@app.post("/create_qr_code/")
-async def create_qr_code(request: QRRequest):
-    # Generate QR code
+@app.get("/create_qr_code/")
+async def create_qr_code():
+    # Generate UUID
     item_id = str(uuid4())
-    img = qrcode.make(f"https://qrfood.herokuapp.com/{item_id}/test")
+    bucket_name = "qrfoodcodes"
 
-    # Save QR code to a file
-    buffer = io.BytesIO()
-    img.save(buffer, format='PNG')
-    buffer.seek(0)
+    # Create QR code
+    qr = qrcode.make(fill_color="black", back_color="white")
+    qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
 
-    # Upload the file to the S3 bucket
-    s3.upload_fileobj(buffer, 'qrfoodcodes', request.file_name)
+    # Save QR code to temporary file
+    temp_file = tempfile.NamedTemporaryFile(delete=False)
+    img.save(temp_file, "PNG")
+    temp_file.close()
 
-    # Return the QR code as a PNG image
-    img_data = buffer.getvalue()
-    return Response(content=img_data, media_type="image/png")
+    # Upload QR code to S3
+    with open(temp_file.name, "rb") as file:
+        s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
+
+    # Display QR code using FastAPI
+    return FileResponse(temp_file.name, media_type="image/png")
     #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
 
 
