@@ -196,9 +196,9 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-s3 = boto3.client("s3")
-bucket_name = "qrfoodcodes"
-
+BUCKET_NAME = "qrfoodcodes"
+# Initialize the S3 client
+s3 = boto3.client('s3')
 @app.get("/create_qr_code/")
 async def create_qr_code():
     # Generate a unique UUID
@@ -219,15 +219,18 @@ async def create_qr_code():
     img.save(buffer, "PNG")
     buffer.seek(0)
 
-    # Upload the QR code to the S3 bucket
-    object_key = f"{item_id}.png"
-    s3.upload_fileobj(buffer, bucket_name, object_key, ExtraArgs={"ContentType": "image/png", "ACL": "public-read"})
+    # Save the QR code to the S3 bucket
+    object_name = f"{item_id}.png"
+    try:
+        s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/png'})
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not found")
 
-    # Generate the public URL for the QR code image
-    public_url = f"https://{bucket_name}.s3.amazonaws.com/{object_key}"
+    # Generate the public URL for the QR code
+    qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_name}"
 
-    return {"qr_code_url": public_url}
-
+    # Return a redirect to the QR code image
+    return RedirectResponse(qr_code_url)
 
 
 @app.get("/{item_id}/")
