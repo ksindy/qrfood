@@ -200,7 +200,7 @@ async def view_food_item(request: Request, item_id: str):
 s3_client = boto3.client(
     "s3",
     aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
-    aws_secret_access_key=os.environ["YOUR_AWS_SECRET_KEY"],
+    aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
 )
 
 BUCKET_NAME = "qrfoodcodes"
