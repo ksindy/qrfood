@@ -224,14 +224,14 @@ async def create_qr_code():
 
     # Save the QR code to a BytesIO object
     buffer = BytesIO()
-    img.save(buffer, "PNG")
+    image = img.save(buffer, "PNG")
     buffer.seek(0)
 
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
     try:
         s3_client.upload_fileobj(
-            buffer,
+            image,
             BUCKET_NAME,
             object_key,
             ExtraArgs={
