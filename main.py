@@ -222,7 +222,8 @@ async def create_qr_code():
     # Save the QR code to the S3 bucket
     object_name = f"{item_id}.png"
     try:
-        s3.upload_fileobj(buffer, BUCKET_NAME, object_name)
+        #s3.upload_fileobj(buffer, BUCKET_NAME, object_name, ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/png'})
+        s3.put_object(Bucket='my-bucket', Key='foo.html', ContentType='text/html')
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not found")
 
