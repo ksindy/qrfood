@@ -223,9 +223,9 @@ async def create_qr_code():
     img = qr.make_image(fill_color="black", back_color="white")
 
     # Save the QR code to a BytesIO object
-    buffer = BytesIO()
-    img.save(buffer, "PNG")
-    buffer.seek(0)
+    # buffer = BytesIO()
+    # img.save(buffer, "PNG")
+    # buffer.seek(0)
     file_name = f"{item_id}.png"
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
