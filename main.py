@@ -196,13 +196,13 @@ async def view_food_item(request: Request, item_id: str):
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
-# # Initialize the S3 client with your AWS access and secret keys
-# s3_client = boto3.client(
-#     "s3",
-#     aws_access_key_id="YOUR_AWS_ACCESS_KEY",
-#     aws_secret_access_key="YOUR_AWS_SECRET_KEY",
-# )
-s3 = boto3.resource(service_name='s3', region_name='us-east-2')
+# Initialize the S3 client with your AWS access and secret keys
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+    aws_secret_access_key=os.environ["YOUR_AWS_SECRET_KEY"],
+)
+
 BUCKET_NAME = "qrfoodcodes"
 
 @app.get("/create_qr_code/")
@@ -228,7 +228,7 @@ async def create_qr_code():
     # Save the QR code to the S3 bucket
     object_key = f"{item_id}.png"
     try:
-        s3.put_object(
+        s3_client.put_object(
             Body=buffer,
             Bucket=BUCKET_NAME,
             Key=object_key,
