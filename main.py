@@ -199,7 +199,7 @@ async def view_food_item(request: Request, item_id: str):
 # Configure the S3 client
 s3_client = boto3.client(
     "s3",
-    aws_access_key_id=os.environ["AWS_ACCESS_KEY_IDAWS_ACCESS_KEY_ID"],
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
     aws_secret_access_key=["AWS_SECRET_ACCESS_KEY"],
     region_name="us-east-2",
 )
