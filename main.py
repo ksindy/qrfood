@@ -231,7 +231,7 @@ async def create_qr_code():
     object_key = f"{item_id}.png"
     try:
         s3_client.upload_file(
-            image,
+            object_key,
             BUCKET_NAME,
             object_key,
             ExtraArgs={
