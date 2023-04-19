@@ -217,7 +217,7 @@ async def create_qr_code():
     bucket_name = "qrfoodcodes"
 
     # Create QR code
-    qr = qrcode.make(fill_color="black", back_color="white")
+    qr = QRCode()
     qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
