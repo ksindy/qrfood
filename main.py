@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Form, HTTPException, Response
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, FileResponse
 from pydantic import BaseModel
 import psycopg2
 from psycopg2 import sql
@@ -211,7 +211,8 @@ s3 = boto3.client('s3',
 @app.post("/create_qr_code/")
 async def create_qr_code(request: QRRequest):
     # Generate QR code
-    img = qrcode.make(request.data)
+    item_id = str(uuid4())
+    img = qrcode.make(f"https://qrfood.herokuapp.com/{item_id}/")
 
     # Save QR code to a file
     buffer = io.BytesIO()
