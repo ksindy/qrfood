@@ -240,7 +240,7 @@ async def create_qr_code():
             },
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to upload QR code to S3")
+        raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
 
     # Build the public URL for the uploaded QR code
     qr_code_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{object_key}"
