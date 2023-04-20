@@ -147,14 +147,15 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
     
 @app.get("/{item_id}/add", response_class=HTMLResponse)
 async def view_add_food_item(request: Request):
+#async def view_add_food_item(request: Request):
     # conn = connect_to_db()
     # cur = conn.cursor()
     # cur.execute("SELECT * FROM food_items")
     # items = cur.fetchall()
     # cur.close()
     # conn.close()
-
-    food_items = [FoodItem(id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], reminder_date=row[5], suggested_expiration_date=row[6]) for row in items]
+    
+    #food_items = [FoodItem(id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], reminder_date=row[5], suggested_expiration_date=row[6]) for row in items]
 
     return templates.TemplateResponse("add.html", {"request": request})
 
