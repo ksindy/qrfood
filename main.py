@@ -35,7 +35,8 @@ def init_db():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS food_items (
-            id UUID PRIMARY KEY,
+            pk UUID PRIMARY KEY,
+            id UUID NOT NULL,
             food VARCHAR(255) NOT NULL,
             date_added DATE NOT NULL,
             expiration_date DATE NOT NULL,
@@ -52,6 +53,7 @@ init_db()
 
 # Define the request model
 class FoodItem(BaseModel):
+    pk: Optional[str] = None
     id: Optional[str] = None
     food: str
     date_added: datetime.date
@@ -70,7 +72,7 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(id=row[0], food=row[1], date_added=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], reminder_date=row[5], suggested_expiration_date=row[6]) for row in items]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
@@ -88,12 +90,12 @@ async def get_food_items():
     result = []
     for item in items:
         result.append({
-            "id": item[0],
-            "food": item[1],
-            "date_added": item[2],
-            "expiration_date": item[3],
-            "reminder_date": item[4],
-            "suggested_expiration_date": item[5]
+            "id": item[1],
+            "food": item[2],
+            "date_added": item[3],
+            "expiration_date": item[4],
+            "reminder_date": item[5],
+            "suggested_expiration_date": item[6]
         })
 
     return result
@@ -119,7 +121,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], reminder_date=item[5], suggested_expiration_date=item[6])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
@@ -151,7 +153,7 @@ async def view_add_food_item(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(id=row[0], food=row[1], date_added=row[2], expiration_date=row[3], reminder_date=row[4], suggested_expiration_date=row[5]) for row in items]
+    food_items = [FoodItem(id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], reminder_date=row[5], suggested_expiration_date=row[6]) for row in items]
 
     return templates.TemplateResponse("add.html", {"request": request})
 
@@ -194,10 +196,10 @@ async def view_food_item(request: Request, item_id: str):
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    days_old = (datetime.date.today() - item[2]).days
-    days_left = (item[3] - datetime.date.today()).days
+    days_old = (datetime.date.today() - item[3]).days
+    days_left = (item[4] - datetime.date.today()).days
 
-    food_item = FoodItem(id=item[0], food=item[1], date_added=item[2], days_old=days_old, days_left=days_left ,expiration_date=item[3], reminder_date=item[4], suggested_expiration_date=item[5])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], reminder_date=item[5], suggested_expiration_date=item[6])
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
