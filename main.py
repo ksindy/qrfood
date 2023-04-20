@@ -28,6 +28,7 @@ def connect_to_db():
     conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
     return conn
 
+
 # Initialize the database
 def init_db():
     conn = connect_to_db()
@@ -144,7 +145,7 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
 
     return RedirectResponse("/", status_code=303)
     
-@app.get("/add", response_class=HTMLResponse)
+@app.get("/{item_id}/add", response_class=HTMLResponse)
 async def view_add_food_item(request: Request):
     conn = connect_to_db()
     cur = conn.cursor()
@@ -157,8 +158,9 @@ async def view_add_food_item(request: Request):
 
     return templates.TemplateResponse("add.html", {"request": request})
 
-@app.post("/add", response_class=HTMLResponse)
+@app.post("/{item_id}/add/", response_class=HTMLResponse)
 async def add_food_item(
+    item_id: str,
     food: str = Form(...),
     expiration_date: datetime.date = Form(...),
     reminder_date: datetime.date = Form(...),
@@ -168,12 +170,13 @@ async def add_food_item(
     cursor = conn.cursor()
 
     # Generate a unique ID for the new food item
-    item_id = str(uuid4())
+    #item_id = str(uuid4())
+    item_pk = str(uuid4())
 
     # Insert the new food item into the database
     cursor.execute(
         "INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
-        (item_id, food, datetime.date.today(), expiration_date, reminder_date, suggested_expiration_date),
+        (item_pk, item_id, food, datetime.date.today(), expiration_date, reminder_date, suggested_expiration_date),
     )
 
     conn.commit()
@@ -260,11 +263,12 @@ async def handle_qr_scan(item_id: str):
         return RedirectResponse(url=f"/{item_id}/view/")
     else:
         # Add the new UUID to the database before redirecting to the update page
+        return RedirectResponse(url=f"/{item_id}/add/")
         conn = connect_to_db()
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO food_items (id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
+            "INSERT INTO food_items (pk, id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
             (item_id, "", datetime.date.today(), datetime.date.today(), datetime.date.today(), datetime.date.today()),
         )
 
