@@ -167,7 +167,7 @@ async def add_food_item(
 
     # Insert the new food item into the database
     cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s)",
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, reminder_date, suggested_expiration_date) VALUES (%s, %s, %s, %s, %s, %s, %s)",
         (item_pk, item_id, food, datetime.date.today(), expiration_date, reminder_date, suggested_expiration_date),
     )
 
