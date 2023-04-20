@@ -1,6 +1,6 @@
 {% block content %}
   <h1>Add New Food Item</h1>
-  <form action="/add" method="post">
+  <form action="/{{ item.id }}/add" method="post">
     <label for="food">Food:</label>
     <input type="text" id="food" name="food" required>
     <br>
