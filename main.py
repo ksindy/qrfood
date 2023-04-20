@@ -145,7 +145,7 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
 
     return RedirectResponse("/", status_code=303)
     
-@app.get("/{item_id}/add", response_class=HTMLResponse)
+@app.get("/{item_id}/add/", response_class=HTMLResponse)
 async def view_add_food_item(request: Request):
 #async def view_add_food_item(request: Request):
     # conn = connect_to_db()
