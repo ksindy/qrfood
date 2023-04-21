@@ -42,7 +42,7 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255) NOT NULL,
             update_time TIMESTAMP NOT NULL,
-            date_consumed DATE NOT NULL,
+            date_consumed DATE NOT NULL
             )
     """)
 
