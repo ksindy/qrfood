@@ -260,18 +260,5 @@ async def handle_qr_scan(item_id: str):
     else:
         # Add the new UUID to the database before redirecting to the update page
         return RedirectResponse(url=f"/{item_id}/add/")
-        conn = connect_to_db()
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "INSERT INTO food_items (pk, id, food, date_added, expiration_date) VALUES (%s, %s, %s, %s)",
-            (item_id, "", datetime.date.today(), datetime.date.today()),
-        )
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return RedirectResponse(url=f"/{item_id}/update/")
 
 
