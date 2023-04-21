@@ -42,7 +42,7 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255) NOT NULL,
             update_time TIMESTAMP NOT NULL,
-            date_consumed DATE NOT NULL
+            date_consumed DATE
             )
     """)
     conn.commit()
@@ -79,8 +79,6 @@ async def read_items(request: Request):
     rows = cur.fetchall()
     cur.close()
     conn.close()
-
-    #initialize the food_items variable to an empty list before the if statement that checks if row is None. This ensures that food_items is always defined, even if there are no records in the food_items table.
     
     
     food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
