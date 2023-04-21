@@ -28,7 +28,6 @@ def connect_to_db():
     conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
     return conn
 
-
 # Initialize the database
 def init_db():
     conn = connect_to_db()
