@@ -48,7 +48,6 @@ def init_db():
     conn.commit()
     cursor.close()
     conn.close()
-
 init_db()
 
 # Define the request model
@@ -61,6 +60,7 @@ class FoodItem(BaseModel):
     notes: Optional[str] = None
     days_old: Optional[int] = None
     days_left: Optional[int] = None
+    update_time: Optional[datetime.datetime] = None
 
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request):
