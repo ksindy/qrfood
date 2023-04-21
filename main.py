@@ -66,8 +66,16 @@ class FoodItem(BaseModel):
 async def read_items(request: Request):
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM food_items ORDER BY update_time DESC LIMIT 1")
-    row = cur.fetchone()
+    cur.execute("""
+        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time
+        FROM food_items fi
+        INNER JOIN (
+            SELECT id, MAX(update_time) AS max_update_time
+            FROM food_items
+            GROUP BY id
+        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
+    """)
+    row = cur.fetchall()
     cur.close()
     conn.close()
 
@@ -76,7 +84,6 @@ async def read_items(request: Request):
     print(row)
     if row is not None:
         food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
-        print(food_item)
         food_items.append(food_item)
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
