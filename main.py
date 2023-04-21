@@ -42,7 +42,7 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255)
     """)
-
+    
     conn.commit()
     cursor.close()
     conn.close()
