@@ -71,11 +71,14 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
 
-    if row:
-        food_items = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
-    else:
-        food_item = None
-    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
+    #initialize the food_items variable to an empty list before the if statement that checks if row is None. This ensures that food_items is always defined, even if there are no records in the food_items table.
+    food_items = []
+
+    if row is not None:
+        food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
+        food_items.append(food_item)
+
+    return templates.TemplateResponse("index.html", {"request": request, "item": food_items})
 
 @app.get("/food_items/")
 async def get_food_items():
