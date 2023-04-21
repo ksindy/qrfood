@@ -159,6 +159,9 @@ async def add_food_item(
     # Generate a unique ID for the new food item
     #item_id = str(uuid4())
     item_pk = str(uuid4())
+    print(type(notes))
+    notes = str(notes)
+    print(type(notes))
 
     # Insert the new food item into the database
     cursor.execute(
