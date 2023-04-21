@@ -90,9 +90,7 @@ async def get_food_items():
             "id": item[1],
             "food": item[2],
             "date_added": item[3],
-            "expiration_date": item[4],
-            "reminder_date": item[5],
-            "suggested_expiration_date": item[6]
+            "expiration_date": item[4]
         })
 
     return result
