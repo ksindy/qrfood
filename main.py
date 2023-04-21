@@ -109,14 +109,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    if request.method == "POST" and food and expiration_date:
-        update_query = sql.SQL("""
-            UPDATE food_items
-            SET food = %s, expiration_date = %s
-            WHERE id = %s
-        """)
-        
-    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    cursor.execute("SELECT * FROM food_items ORDER BY update_time DESC LIMIT 1")
     item = cursor.fetchone()
 
     cursor.close()
