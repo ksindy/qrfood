@@ -67,12 +67,14 @@ async def read_items(request: Request):
     conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM food_items ORDER BY update_time DESC LIMIT 1")
-    item = cur.fetchone()
+    row = cur.fetchone()
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6]) for row in item]
-
+    if row:
+        food_items = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
+    else:
+        food_item = None
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/food_items/")
