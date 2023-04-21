@@ -76,6 +76,7 @@ async def read_items(request: Request):
     print(row)
     if row is not None:
         food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
+        print(food_item)
         food_items.append(food_item)
 
     return templates.TemplateResponse("index.html", {"request": request, "item": food_items})
