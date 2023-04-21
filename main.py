@@ -186,7 +186,7 @@ async def view_food_item(request: Request, item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM food_items WHERE id=%s", (item_id,))
+    cursor.execute("SELECT * FROM food_items ORDER BY update_time DESC LIMIT 1")
     item = cursor.fetchone()
 
     cursor.close()
