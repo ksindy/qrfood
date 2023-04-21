@@ -129,7 +129,7 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
 
     update_query = sql.SQL("""
         UPDATE food_items
-        SET food = %s, expiration_date = %s, notes = %s
+        SET food = %s, expiration_date = %s, item_id = %s, notes = %s
         WHERE id = %s
     """)
 
