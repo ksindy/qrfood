@@ -151,7 +151,7 @@ async def add_food_item(
     item_id: str,
     food: str = Form(...),
     expiration_date: datetime.date = Form(...),
-    notes: Optional[str] = Form(None)
+    notes: Optional[str] = Form(...)
 ):
     conn = connect_to_db()
     cursor = conn.cursor()
