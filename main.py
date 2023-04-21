@@ -39,8 +39,8 @@ def init_db():
             id UUID NOT NULL,
             food VARCHAR(255) NOT NULL,
             date_added DATE NOT NULL,
-            expiration_date DATE NOT NULL
-        )
+            expiration_date DATE NOT NULL,
+            notes VARCHAR(255)
     """)
 
     conn.commit()
@@ -56,6 +56,7 @@ class FoodItem(BaseModel):
     food: str
     date_added: datetime.date
     expiration_date: datetime.date
+    notes: Optional[str] = None
     days_old: Optional[int] = None
     days_left: Optional[int] = None
 
@@ -68,7 +69,7 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4]) for row in items]
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5])for row in items]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
@@ -89,13 +90,14 @@ async def get_food_items():
             "id": item[1],
             "food": item[2],
             "date_added": item[3],
-            "expiration_date": item[4]
+            "expiration_date": item[4],
+            "notes": item[5]
         })
 
     return result
 
 @app.get("/{item_id}/update/", response_class=HTMLResponse)
-async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None)):
+async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), notes: Optional[str] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
@@ -115,22 +117,22 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=item[5])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
-async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...)):
+async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
     update_query = sql.SQL("""
         UPDATE food_items
-        SET food = %s, expiration_date = %s
+        SET food = %s, expiration_date = %s, notes = %s
         WHERE id = %s
     """)
 
-    cursor.execute(update_query, (food, expiration_date, item_id))
+    cursor.execute(update_query, (food, expiration_date, item_id, notes))
 
     conn.commit()
     cursor.close()
@@ -141,13 +143,14 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
 @app.get("/{item_id}/add/", response_class=HTMLResponse)
 async def view_add_food_item(request: Request, item_id:str):
 
-    return templates.TemplateResponse("add.html", {"request": request, "item_id": item_id})
+    return templates.TemplateResponse("add.html", {"request": request, "item_id": item_id, "notes": None})
 
 @app.post("/{item_id}/add/", response_class=HTMLResponse)
 async def add_food_item(
     item_id: str,
     food: str = Form(...),
-    expiration_date: datetime.date = Form(...)
+    expiration_date: datetime.date = Form(...),
+    notes: Optional[str] = Form(None)
 ):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -158,8 +161,8 @@ async def add_food_item(
 
     # Insert the new food item into the database
     cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date) VALUES (%s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, datetime.date.today(), expiration_date),
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes) VALUES (%s, %s, %s, %s, %s)",
+        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes),
     )
 
     conn.commit()
@@ -185,7 +188,7 @@ async def view_food_item(request: Request, item_id: str):
     days_old = (datetime.date.today() - item[3]).days
     days_left = (item[4] - datetime.date.today()).days
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5])
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
