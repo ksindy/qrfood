@@ -48,7 +48,7 @@ def init_db():
     conn.commit()
     cursor.close()
     conn.close()
-init_db()
+    init_db()
 
 # Define the request model
 class FoodItem(BaseModel):
