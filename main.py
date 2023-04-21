@@ -79,7 +79,7 @@ async def read_items(request: Request):
         print(food_item)
         food_items.append(food_item)
 
-    return templates.TemplateResponse("index.html", {"request": request, "item": food_items})
+    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/food_items/")
 async def get_food_items():
