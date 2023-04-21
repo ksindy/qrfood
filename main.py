@@ -75,15 +75,15 @@ async def read_items(request: Request):
             GROUP BY id
         ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
     """)
-    row = cur.fetchall()
+    rows = cur.fetchall()
     cur.close()
     conn.close()
 
     #initialize the food_items variable to an empty list before the if statement that checks if row is None. This ensures that food_items is always defined, even if there are no records in the food_items table.
     food_items = []
     print(row)
-    if row is not None:
-        food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6])
+    if rows is not None:
+        food_item =  [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6]) for row in rows]
         food_items.append(food_item)
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
