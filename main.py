@@ -123,17 +123,17 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
-async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None)):
+async def update_food_item(food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
     update_query = sql.SQL("""
         UPDATE food_items
-        SET food = %s, expiration_date = %s, item_id = %s, notes = %s
+        SET food = %s, expiration_date = %s, notes = %s
         WHERE id = %s
     """)
 
-    cursor.execute(update_query, (food, expiration_date, item_id, notes))
+    cursor.execute(update_query, (food, expiration_date, notes))
 
     conn.commit()
     cursor.close()
