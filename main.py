@@ -42,13 +42,13 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255) NOT NULL,
             update_time TIMESTAMP NOT NULL,
-            date_consumed DATE NOT NULL
+            date_consumed DATE NOT NULL,
             )
     """)
     conn.commit()
     cursor.close()
     conn.close()
-    init_db()
+init_db()
 
 # Define the request model
 class FoodItem(BaseModel):
