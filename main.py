@@ -159,14 +159,11 @@ async def add_food_item(
     # Generate a unique ID for the new food item
     #item_id = str(uuid4())
     item_pk = str(uuid4())
-    print(type(notes))
-    notes = str(notes)
-    print(type(notes))
 
     # Insert the new food item into the database
     cursor.execute(
         "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes) VALUES (%s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes),
+        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes,),
     )
 
     conn.commit()
