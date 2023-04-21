@@ -107,7 +107,7 @@ async def get_food_items():
             "food": item[2],
             "date_added": item[3],
             "expiration_date": item[4],
-            "notes": item[5]
+            "notes": item[5],
             "date_consumed": item[6]
         })
 
