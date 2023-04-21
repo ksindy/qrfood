@@ -123,24 +123,31 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
-async def update_food_item(food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None)):
+async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    update_query = sql.SQL("""
-        UPDATE food_items
-        SET food = %s, expiration_date = %s, notes = %s
-        WHERE id = %s
-    """)
+    # create new entry for edit so needs a new PK
+    item_pk = str(uuid4())
+    # capture time of edit
+    dt = datetime.datetime.now()
 
-    cursor.execute(update_query, (food, expiration_date, notes))
+    # get date_added from original entry and add to updated entry
+    cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
+    date_added_row = cursor.fetchone()
+    date_added = date_added_row[0] if date_added_row is not None else None
+
+    cursor.execute(
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, food, date_added, expiration_date, notes, dt),
+    )
 
     conn.commit()
     cursor.close()
     conn.close()
 
     return RedirectResponse("/", status_code=303)
-    
+
 @app.get("/{item_id}/add/", response_class=HTMLResponse)
 async def view_add_food_item(request: Request, item_id:str):
 
