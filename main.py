@@ -40,7 +40,7 @@ def init_db():
             food VARCHAR(255) NOT NULL,
             date_added DATE NOT NULL,
             expiration_date DATE NOT NULL,
-            notes VARCHAR(255) NOT NULL,
+            notes VARCHAR(255) NOT NULL)
     """)
 
     conn.commit()
