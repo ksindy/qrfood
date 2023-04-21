@@ -41,7 +41,7 @@ def init_db():
             date_added DATE NOT NULL,
             expiration_date DATE NOT NULL,
             notes VARCHAR(255) NOT NULL,
-            update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            update_time TIMESTAMP NOT NULL
             )
     """)
 
