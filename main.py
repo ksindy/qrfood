@@ -45,7 +45,6 @@ def init_db():
             date_consumed DATE NOT NULL
             )
     """)
-
     conn.commit()
     cursor.close()
     conn.close()
