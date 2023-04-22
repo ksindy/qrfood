@@ -111,7 +111,6 @@ async def get_food_items():
 
 @app.get("/{item_id}/update/", response_class=HTMLResponse)
 async def edit_food_item(request: Request, item_id: str, food: Optional[str] = Form(None), expiration_date: Optional[datetime.date] = Form(None), notes: Optional[str] = Form(None)):
-    
     conn = connect_to_db()
     cursor = conn.cursor()
 
