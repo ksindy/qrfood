@@ -85,23 +85,23 @@
     </header>
     {% block content %}
     {% endblock %}
-    {% block food_items_table %}
-    <h1>Food Items</h1>
-    <table>
-        <tr>
-            <th>Food</th>
-            <th>Date Added</th>
-            <th>Expiration Date</th>
-            <th>Notes</th>
-            <th>Date Consumed</th>
-            <th>Action</th>
-        </tr>
-        {% for item in food_items %}
-        <tr>
-            <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
-            <td>{{ item.date_added }}</td>
-            <td>{{ item.expiration_date }}</td>
-            <td>{{ item.notes }}</td>
-            <td>{{ item.date_consumed }}</td>
-            <td>
-                <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">
+    {% block table %}
+        <h1>Food Items</h1>
+        <table>
+            <tr>
+                <th>Food</th>
+                <th>Date Added</th>
+                <th>Expiration Date</th>
+                <th>Notes</th>
+                <th>Date Consumed</th>
+                <th>Action</th>
+            </tr>
+            {% for item in food_items %}
+            <tr>
+                <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
+                <td>{{ item.date_added }}</td>
+                <td>{{ item.expiration_date }}</td>
+                <td>{{ item.notes }}</td>
+                <td>{{ item.date_consumed }}</td>
+                <td>
+                    <button><a href="{{ url_for('edit_food_item', item_id
