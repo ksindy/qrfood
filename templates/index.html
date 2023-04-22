@@ -18,6 +18,10 @@
             padding: 10px;
             display: flex;
             justify-content: center;
+            align-items: center;
+        }
+        header img {
+            height: 40px;
         }
         h1 {
             color: #2E2E2E;
@@ -78,7 +82,7 @@
 <body>
     <header>
         <a href="https://qrfood.herokuapp.com/">
-            <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo" height="40px">
+            <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
         </a>
     </header>
     <h1>Food Items</h1>
@@ -103,8 +107,4 @@
             </td>
         </tr>
         {% endfor %}
-    </table>
-    {% block content %}
-    {% endblock %}
-</body>
-</html>
+   
