@@ -1,3 +1,5 @@
+<!-- templates/add_food_item.html -->
+{% extends "index.html" %}
 {% block content %}
   <h1>Add New Food Item</h1>
   <form action="/{{ item_id }}/add" method="post">
@@ -12,4 +14,39 @@
     <br>
     <input type="submit" value="Add">
   </form>
+  <style>
+    form {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #FFFFFF;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+    label {
+        display: inline-block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #2E2E2E;
+    }
+    input[type="text"], input[type="date"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #CCCCCC;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+    input[type="submit"] {
+        background-color: #4CAF50;
+        border: none;
+        color: #FFFFFF;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    input[type="submit"]:hover {
+        background-color: #2E8B57;
+    }
+  </style>
 {% endblock %}
