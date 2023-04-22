@@ -16,6 +16,10 @@
         <input type="text" id="notes" name="notes" value="{{ item.notes }}" required>
         <br>
         <input type="submit" value="Update">
+        <form id="variable-form">
+            <input type="hidden" id="my-variable" name="variable_value" value="{{ variable_value }}">
+            <button type="submit">Send variable to FastAPI</button>
+        </form>
     </form>
 </body>
 </html>
