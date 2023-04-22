@@ -1,25 +1,6 @@
 <!-- templates/edit_food_item.html -->
 {% extends "index.html" %}
 {% block content %}
-    <div class="container">
-        <h1>Edit Food Item</h1>
-        <form action="/{{ item.id }}/update/" method="post">
-            <div class="mb-3">
-                <label for="food" class="form-label">Food:</label>
-                <input type="text" class="form-control" id="food" name="food" value="{{ item.food }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="expiration_date" class="form-label">Expiration Date:</label>
-                <input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="notes" class="form-label">Notes:</label>
-                <input type="text" class="form-control" id="notes" name="notes" value="{{ item.notes }}" required>
-            </div>
-            <input type="submit" class="btn btn-primary" value="Update">
-            <button class="btn btn-secondary"><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item</a></button>
-        </form>
-    </div>
     <style>
         .container {
             max-width: 600px;
@@ -43,4 +24,34 @@
             text-decoration: none;
         }
     </style>
+{% endblock %}
+
+{% block header %}
+    <header>
+        <a href="https://qrfood.herokuapp.com/">
+            <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
+        </a>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Edit Food Item</h1>
+        <form action="/{{ item.id }}/update/" method="post">
+            <div class="mb-3">
+                <label for="food" class="form-label">Food:</label>
+                <input type="text" class="form-control" id="food" name="food" value="{{ item.food }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="expiration_date" class="form-label">Expiration Date:</label>
+                <input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes:</label>
+                <input type="text" class="form-control" id="notes" name="notes" value="{{ item.notes }}" required>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Update">
+            <button class="btn btn-secondary"><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item</a></button>
+        </form>
+    </div>
 {% endblock %}
