@@ -61,20 +61,36 @@
             text-decoration: none;
         }
 
-        /* Responsive design for mobile devices */
-        @media screen and (max-width: 480px) {
+        /* Media queries */
+        @media screen and (max-width: 768px) {
             h1 {
                 font-size: 28px;
+            }
+            table {
+                margin: 20px auto;
+            }
+            th, td {
+                padding: 8px 10px;
+            }
+            button {
+                padding: 6px 12px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+                margin-top: 20px;
             }
             table {
                 margin: 20px auto;
                 font-size: 14px;
             }
             th, td {
-                padding: 8px;
+                padding: 6px 8px;
             }
             button {
-                padding: 6px 12px;
+                padding: 4px 8px;
             }
         }
     </style>
@@ -97,13 +113,4 @@
         </tr>
         {% for item in food_items %}
         <tr>
-            <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
-            <td>{{ item.date_added }}</td>
-            <td>{{ item.expiration_date }}</td>
-            <td>{{ item.notes }}</td>
-            <td>{{ item.date_consumed }}</td>
-            <td>
-                <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
-            </td>
-        </tr>
-        {% endfor %}
+            <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td
