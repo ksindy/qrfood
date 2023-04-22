@@ -16,10 +16,7 @@
         <input type="text" id="notes" name="notes" value="{{ item.notes }}" required>
         <br>
         <input type="submit" value="Update">
-        <form id="variable-form">
-            <input type="hidden" id="my-variable" name="variable_value" value="{{ variable_value }}">
-            <button type="submit">Send variable to FastAPI</button>
-        </form>
+        <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Add New Food</a></button>
     </form>
 </body>
 </html>
