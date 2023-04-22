@@ -76,16 +76,16 @@
             }
         }
     </style>
-
+</head>
 <body>
     <header>
         <a href="https://qrfood.herokuapp.com/">
             <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
         </a>
     </header>
-</head>
     {% block content %}
     {% endblock %}
+    {% block food_items_table %}
     <h1>Food Items</h1>
     <table>
         <tr>
@@ -104,10 +104,4 @@
             <td>{{ item.notes }}</td>
             <td>{{ item.date_consumed }}</td>
             <td>
-                <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html
+                <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">
