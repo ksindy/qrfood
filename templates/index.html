@@ -104,4 +104,12 @@
                 <td>{{ item.notes }}</td>
                 <td>{{ item.date_consumed }}</td>
                 <td>
-                    <button><a href="{{ url }}/{{ item.id }}/edit/">Edit</a></button>
+                    <form action="/update/{{ item.id }}" method="post">
+                        <input type="submit" value="Edit">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+    </html>
