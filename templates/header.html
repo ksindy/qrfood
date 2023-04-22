@@ -7,9 +7,6 @@
         <div style="width: 20px;"></div>
     </div>
 </header>
-<nav>
-    <ul>
-        <li><a href="{{ url_for('edit_food_item'), item_id=item.id }}">Home</a></li>
-    </ul>
-</nav>
+{% block content %}
+{% endblock %}
 
