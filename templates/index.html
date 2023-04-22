@@ -6,8 +6,68 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Items</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F7F7F7;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #FFC107;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        h1 {
+            color: #2E2E2E;
+            text-align: center;
+            margin-top: 40px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 40px auto;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        tr:nth-child(even) {
+            background-color: #F2F2F2;
+        }
+        a {
+            text-decoration: none;
+            color: #2E2E2E;
+            font-weight: bold;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: #FFFFFF;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button a {
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <a href="https://qrfood.herokuapp.com/">
+            <img src="path/to/logo.png" alt="Logo" height="40px">
+        </a>
+    </header>
     <h1>Food Items</h1>
     <table>
         <tr>
@@ -16,6 +76,7 @@
             <th>Expiration Date</th>
             <th>Notes</th>
             <th>Date Consumed</th>
+            <th>Action</th>
         </tr>
         {% for item in food_items %}
         <tr>
@@ -25,12 +86,12 @@
             <td>{{ item.notes }}</td>
             <td>{{ item.date_consumed }}</td>
             <td>
-            <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
+                <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
             </td>
         </tr>
         {% endfor %}
     </table>
     {% block content %}
-{% endblock %}
+    {% endblock %}
 </body>
 </html>
