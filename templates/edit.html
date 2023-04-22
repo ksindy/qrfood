@@ -1,4 +1,4 @@
-<!-- templates/edit_food_item.html -->
+<!-- templates/edit.html -->
 {% extends "header.html" %}
 {% block content %}
     <div class="container">
@@ -16,8 +16,7 @@
                 <label for="notes" class="form-label">Notes:</label>
                 <input type="text" class="form-control" id="notes" name="notes" value="{{ item.notes }}" required>
             </div>
-            <input type="submit" class="btn btn-primary" value="Update">
-            <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item</a></button>
+            <button type="submit">Update</button>
         </form>
     </div>
     <style>
