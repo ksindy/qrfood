@@ -3,10 +3,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Items</title>
     <style>
-        /* Mobile-first styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #F7F7F7;
@@ -22,15 +22,13 @@
         h1 {
             color: #2E2E2E;
             text-align: center;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin-top: 40px;
         }
         table {
             border-collapse: collapse;
-            margin: 20px auto;
+            margin: 40px auto;
             background-color: #FFFFFF;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            max-width: 100%;
         }
         th, td {
             padding: 12px 15px;
@@ -63,10 +61,20 @@
             text-decoration: none;
         }
 
-        /* Media queries for larger screens */
-        @media only screen and (min-width: 600px) {
+        /* Responsive design for mobile devices */
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
             table {
-                max-width: 80%;
+                margin: 20px auto;
+                font-size: 14px;
+            }
+            th, td {
+                padding: 8px;
+            }
+            button {
+                padding: 6px 12px;
             }
         }
     </style>
@@ -99,8 +107,3 @@
             </td>
         </tr>
         {% endfor %}
-    </table>
-    {% block content %}
-    {% endblock %}
-</body>
-</html>
