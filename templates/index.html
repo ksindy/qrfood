@@ -60,6 +60,24 @@
             color: #FFFFFF;
             text-decoration: none;
         }
+        
+        /* Mobile Styles */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+            table {
+                margin: 20px auto;
+            }
+            th, td {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -89,9 +107,4 @@
                 <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
             </td>
         </tr>
-        {% endfor %}
-    </table>
-    {% block content %}
-    {% endblock %}
-</body>
-</html>
+        {%
