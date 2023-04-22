@@ -17,7 +17,7 @@
                 <input type="text" class="form-control" id="notes" name="notes" value="{{ item.notes }}" required>
             </div>
             <input type="submit" class="btn btn-primary" value="Update">
-            <button class="btn btn-secondary"><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item</a></button>
+            <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item</a></button>
         </form>
     </div>
     <style>
