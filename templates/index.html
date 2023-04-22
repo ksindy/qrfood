@@ -83,6 +83,8 @@
             <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
         </a>
     </header>
+    {% block content %}
+    {% endblock %}
     <h1>Food Items</h1>
     <table>
         <tr>
@@ -106,7 +108,5 @@
         </tr>
         {% endfor %}
     </table>
-    {% block content %}
-    {% endblock %}
 </body>
 </html
