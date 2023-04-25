@@ -40,7 +40,7 @@ def init_db():
             food VARCHAR(255) NOT NULL,
             date_added DATE NOT NULL,
             expiration_date DATE NOT NULL,
-            notes VARCHAR(255),
+            notes VARCHAR(255) NOT NULL,
             update_time TIMESTAMP NOT NULL,
             date_consumed DATE
             )
@@ -119,7 +119,8 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
 
     cursor.close()
     conn.close()
-
+    if not notes:
+        notes = "-"
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
