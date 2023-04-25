@@ -81,14 +81,7 @@ async def read_items(request: Request):
     conn.close()
 
     for row in rows:
-        if not row[5]:
-            notes = "-"
-        else:
-            notes = row[5]
-        if not row[7]:
-            date_consumed = "-"
-        else:
-            date_consumed = row[7]
+        notes = row[5] if row[5] else "-"
     
     food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=notes, update_time=row[6], date_consumed=date_consumed) for row in rows]
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
