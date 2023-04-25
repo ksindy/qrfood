@@ -40,7 +40,7 @@ def init_db():
             food VARCHAR(255) NOT NULL,
             date_added DATE NOT NULL,
             expiration_date DATE NOT NULL,
-            notes VARCHAR(255) NOT NULL,
+            notes VARCHAR(255),
             update_time TIMESTAMP NOT NULL,
             date_consumed DATE
             )
@@ -136,8 +136,6 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
     item_pk = str(uuid4())
     # capture time of edit
     dt = datetime.datetime.now()
-    if not notes:
-        notes = "-"
 
     # get date_added from original entry and add to updated entry
     cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
@@ -176,8 +174,6 @@ async def add_food_item(
     # Capture the current time
     update_time = datetime.datetime.now()
     date_consumed = None
-    if not notes:
-        notes = "-"
 
     # Insert the new food item into the database
     cursor.execute(
