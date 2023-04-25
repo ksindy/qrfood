@@ -13,7 +13,7 @@
                 <input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
             </div>
             <div class="mb-3">
-                <label for="notes" class="form-label">Notes:</label>
+                <input type="text" name="notes" value="{{ item.notes|default('', true) }}" />
                 <input type="text" class="form-control" id="notes" name="notes" value="{{ item.notes }}">
             </div>
             <input type="submit" class="btn btn-primary" value="Update">
