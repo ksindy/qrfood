@@ -101,7 +101,7 @@
                 <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
                 <td>{{ item.date_added }}</td>
                 <td>{{ item.expiration_date }}</td>
-                <input type="text" name="notes" value="{{ item.notes|default('', true) }}" />
+                <td> {{ item.notes|default('', true) }} </td>
                 <td>{{ item.date_consumed }}</td>
                 <td>
                     <form action="/{{ item.id }}/update/" method="get">
