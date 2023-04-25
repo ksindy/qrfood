@@ -119,8 +119,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
 
     cursor.close()
     conn.close()
-    if not notes:
-        notes = "-"
+
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
@@ -177,6 +176,8 @@ async def add_food_item(
     # Capture the current time
     update_time = datetime.datetime.now()
     date_consumed = None
+    if not notes:
+        notes = "-"
 
     # Insert the new food item into the database
     cursor.execute(
