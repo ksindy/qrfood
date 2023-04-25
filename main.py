@@ -137,6 +137,8 @@ async def update_food_item(item_id: str, food: str = Form(...), expiration_date:
     item_pk = str(uuid4())
     # capture time of edit
     dt = datetime.datetime.now()
+    if not notes:
+        notes = "-"
 
     # get date_added from original entry and add to updated entry
     cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
