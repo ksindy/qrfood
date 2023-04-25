@@ -121,9 +121,9 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=None, date_consumed=item[6])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=item[5], date_consumed=item[6])
 
-    return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
+    return templates.TemplateResponse("edit.html", {"request": request, "item": food_item, "notes": None})
 
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
 async def update_food_item(item_id: str, food: str = Form(...), expiration_date: datetime.date = Form(...), notes: Optional[str] = Form(None), date_consumed: Optional[datetime.date] = Form(None)):
