@@ -114,7 +114,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM food_items ORDER BY update_time DESC LIMIT 1")
+    cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
     item = cursor.fetchone()
 
     cursor.close()
