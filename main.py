@@ -121,7 +121,7 @@ async def edit_food_item(request: Request, item_id: str, food: Optional[str] = F
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=(item[5] if item[5] != "None" else None), date_consumed=item[6])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=(None if item[5] == "None" else item[5]), date_consumed=item[6])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
