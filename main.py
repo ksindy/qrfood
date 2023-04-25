@@ -80,7 +80,7 @@ async def read_items(request: Request):
     cur.close()
     conn.close()
     
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=(row[5] if row[5] != "None" else "-"), update_time=row[6], date_consumed=row[7]) for row in rows]
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=(row[5]), update_time=row[6], date_consumed=row[7]) for row in rows]
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/food_items/")
