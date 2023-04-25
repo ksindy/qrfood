@@ -176,6 +176,7 @@ async def add_food_item(
     # Capture the current time
     update_time = datetime.datetime.now()
     date_consumed = None
+    print(type(notes))
     if not notes:
         notes = "-"
 
