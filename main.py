@@ -275,6 +275,6 @@ async def handle_qr_scan(item_id: str):
         return RedirectResponse(url=f"/{item_id}/view/")
     else:
         # Add the new UUID to the database before redirecting to the update page
-        return RedirectResponse(url=f"/{item_id}/update/")
+        return RedirectResponse(url=f"/{item_id}/add/")
 
 
