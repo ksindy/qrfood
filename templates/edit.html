@@ -1,65 +1,46 @@
 <!-- templates/edit.html -->
 {% extends "header.html" %}
 {% block content %}
-    <div class="container">
-        <h1>Edit Food Item</h1>
-        <form action="/{{ item.id }}/update/" method="post">
-            <div class="mb-3">
-                <label for="food" class="form-label">Food:</label>
-                <input type="text" class="form-control" id="food" name="food" value="{{ item.food }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="expiration_date" class="form-label">Expiration Date:</label>
-                <input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="notes" class="form-label">Notes:</label>
-                <input type="text" name="notes" value="{{ item.notes|default('', true) }}" />
-            </div>
-            <input type="submit" class="btn btn-primary" value="Update">
-            <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item to QR Code</a></button>
-        </form>
-    </div>
-{% endblock %}
-
-{% block head %}
-    <style>
-        .container {
-            max-width: 600px;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 10px;
-            margin-top: 50px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-        }
-        label {
-            font-weight: bold;
-        }
-        input, button {
-            margin-top: 10px;
-        }
-        a {
-            text-decoration: none;
-        }
-        @media (max-width: 768px) {
-            .container {
-                max-width: 90%;
-                margin-top: 30px;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            label {
-                font-size: 0.9rem;
-            }
-            input, button {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<div class="container">
+<h1>Edit Food Item</h1>
+<form action="/{{ item.id }}/update/" method="post">
+<div class="mb-3">
+<label for="food" class="form-label">Food:</label>
+<input type="text" class="form-control" id="food" name="food" value="{{ item.food }}" required>
+</div>
+<div class="mb-3">
+<label for="expiration_date" class="form-label">Expiration Date:</label>
+<input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ item.expiration_date }}" required>
+</div>
+<div class="mb-3">
+<label for="notes" class="form-label">Notes:</label>
+<input type="text" class="form-control" name="notes" value="{{ item.notes|default('', true) }}" />
+</div>
+<input type="submit" class="btn btn-primary" value="Update">
+<button class="btn btn-secondary"><a href="{{ url_for('view_add_food_item', item_id=item.id) }}" class="text-decoration-none text-light">Add New Item to QR Code</a></button>
+</form>
+</div>
+<style>
+.container {
+max-width: 600px;
+padding: 2rem;
+background-color: #fff;
+border-radius: 10px;
+margin-top: 50px;
+box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+h1 {
+font-size: 2rem;
+margin-bottom: 1.5rem;
+}
+label {
+font-weight: bold;
+}
+input, button {
+margin-top: 10px;
+}
+a {
+text-decoration: none;
+}
+</style>
 {% endblock %}
