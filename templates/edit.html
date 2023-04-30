@@ -20,6 +20,9 @@
             <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item to QR Code</a></button>
         </form>
     </div>
+{% endblock %}
+
+{% block head %}
     <style>
         .container {
             max-width: 600px;
@@ -42,5 +45,21 @@
         a {
             text-decoration: none;
         }
+        @media (max-width: 768px) {
+            .container {
+                max-width: 90%;
+                margin-top: 30px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            label {
+                font-size: 0.9rem;
+            }
+            input, button {
+                font-size: 0.9rem;
+            }
+        }
     </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 {% endblock %}
