@@ -263,7 +263,7 @@ async def handle_qr_scan(item_id: str):
         # Add the new UUID to the database before redirecting to the update page
         return RedirectResponse(url=f"/{item_id}/add/")
     
-@app.get("/{item_id}/delete/")
+@app.get("/{item_id}/consumed/")
 async def add_consumed_date(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
