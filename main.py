@@ -264,7 +264,7 @@ async def handle_qr_scan(item_id: str):
         return RedirectResponse(url=f"/{item_id}/add/")
     
 @app.get("/{item_id}/delete/")
-async def add_consumed_date(item_id: int):
+async def add_consumed_date(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
 
