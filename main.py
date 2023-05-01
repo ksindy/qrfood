@@ -26,19 +26,6 @@ templates = Jinja2Templates(directory=templates_path)
 def sort_food_items_by_expiration_date(food_items):
     return sorted(food_items, key=lambda x: x.expiration_date)
 
-def add_consumed_date(food_item):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE food_items
-        SET date_consumed = %s
-        WHERE pk = %s
-    """, (datetime.date.today(), food_item.pk))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
 # Connect to the database
 def connect_to_db():
     conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
@@ -276,4 +263,17 @@ async def handle_qr_scan(item_id: str):
         # Add the new UUID to the database before redirecting to the update page
         return RedirectResponse(url=f"/{item_id}/add/")
 
+@app.get("/{item_id}/delete/")
+async def add_consumed_date(food_item):
+    conn = connect_to_db()
+    cursor = conn.cursor()
 
+    cursor.execute("""
+        UPDATE food_items
+        SET date_consumed = %s
+        WHERE pk = %s
+    """, (datetime.date.today(), food_item.pk))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return RedirectResponse(url=f"/")
