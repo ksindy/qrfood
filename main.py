@@ -262,18 +262,36 @@ async def handle_qr_scan(item_id: str):
     else:
         # Add the new UUID to the database before redirecting to the update page
         return RedirectResponse(url=f"/{item_id}/add/")
-
+    
 @app.get("/{item_id}/delete/")
-async def add_consumed_date(food_item):
+async def add_consumed_date(item_id: int):
     conn = connect_to_db()
     cursor = conn.cursor()
 
+    # Find the latest entry based on the "update_time" column for the passed in item.id
     cursor.execute("""
-        UPDATE food_items
-        SET date_consumed = %s
-        WHERE pk = %s
-    """, (datetime.date.today(), food_item.pk))
+        SELECT * FROM food_items
+        WHERE id = %s
+        ORDER BY update_time DESC
+        LIMIT 1
+    """, (item_id,))
+    item = cursor.fetchone()
+    # create new entry for edit so needs a new PK
+    item_pk = str(uuid4())
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    # Create a new entry with the same info, but add the current time to the "update_time" column and "date_consumed" column
+    current_time = datetime.datetime.now()
+    cursor.execute(
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, item[2], item[3], item[4], item[5], current_time, current_time),
+    )
+
     conn.commit()
     cursor.close()
     conn.close()
-    return RedirectResponse(url=f"/")
+
+    return RedirectResponse(url="/")
+
