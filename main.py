@@ -45,7 +45,8 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255),
             update_time TIMESTAMP NOT NULL,
-            date_consumed DATE
+            date_consumed DATE,
+            item_active BOOLEAN NOT NULL DEFAULT TRUE
             )
     """)
     conn.commit()
@@ -92,30 +93,6 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False):
     food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
-
-@app.get("/food_items/")
-async def get_food_items():
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM food_items")
-    items = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
-
-    result = []
-    for item in items:
-        result.append({
-            "id": item[1],
-            "food": item[2],
-            "date_added": item[3],
-            "expiration_date": item[4],
-            "notes": item[5],
-            "date_consumed": item[6]
-        })
-
-    return result
 
 @app.get("/{item_id}/update/", response_class=HTMLResponse)
 async def edit_food_item(
