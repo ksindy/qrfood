@@ -99,7 +99,7 @@
                     </form>
                 </th>
                 <th>Notes</th>
-                <th>Date Consumed <span id="collapse-btn" style="cursor:pointer;">+</span></th>
+                <th>Date Consumed <span id="collapse-btn" style="cursor:pointer;">-</span></th>
                 <th>Action</th>
             </tr>
             {% for item in food_items %}
@@ -124,22 +124,25 @@
         </table>
         {% endblock %}
     </body>
-<script>
-    const collapseBtn = document.getElementById('collapse-btn');
-    let isCollapsed = false;
-
-    collapseBtn.addEventListener('click', () => {
-        isCollapsed = !isCollapsed;
-        const rows = document.getElementsByClassName('collapse');
-
-        for (const row of rows) {
-            const dateConsumed = row.getElementsByClassName('date-consumed')[0].innerText;
-            if (isCollapsed && dateConsumed.trim() !== '') {
-                row.style.display = 'none';
-            } else {
-                row.style.display = '';
+    <script>
+        const collapseBtn = document.getElementById('collapse-btn');
+        let isCollapsed = false;
+    
+        collapseBtn.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            const rows = document.getElementsByClassName('collapse');
+    
+            for (const row of rows) {
+                const dateConsumed = row.getElementsByClassName('date-consumed')[0].innerText;
+                if (isCollapsed && dateConsumed.trim() !== '') {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
             }
-        }
-    });
-</script>
+            
+            // Update the symbol for the collapsible element
+            collapseBtn.innerHTML = isCollapsed ? '►' : '▼';
+        });
+    </script>    
     </html>
