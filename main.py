@@ -23,6 +23,9 @@ app = FastAPI()
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
+def sort_food_items_by_expiration_date(food_items):
+    return sorted(food_items, key=lambda x: x.expiration_date)
+
 # Connect to the database
 def connect_to_db():
     conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
@@ -64,7 +67,7 @@ class FoodItem(BaseModel):
     date_consumed: Optional[datetime.date] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def read_items(request: Request):
+async def read_items(request: Request, sort_by_expiration_date: bool = False):
     conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("""
@@ -79,8 +82,9 @@ async def read_items(request: Request):
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    
     food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
+    if sort_by_expiration_date:
+        food_items = sort_food_items_by_expiration_date(food_items)
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/food_items/")
