@@ -99,7 +99,7 @@
                     </form>
                 </th>
                 <th>Notes</th>
-                <th>Date Consumed <span id="collapse-btn" style="cursor:pointer;">▼</span></th>
+                <th>Date Consumed <span id="collapse-btn" style="cursor:pointer;">-</span></th>
                 <th>Action</th>
             </tr>
             {% for item in food_items %}
@@ -142,7 +142,7 @@
             }
             
             // Update the symbol for the collapsible element
-            collapseBtn.innerHTML = isCollapsed ? '►' : '▼';
+            collapseBtn.innerHTML = isCollapsed ? '+' : '-';
         });
     </script>    
     </html>
