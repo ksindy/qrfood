@@ -108,7 +108,7 @@
                 <td>{{ item.date_added }}</td>
                 <td>{{ item.expiration_date }}</td>
                 <td> {{ item.notes|default('', true) }} </td>
-                <td> {{ item.date_consumed|default('', true) }} </td>
+                <td class="date-consumed"> {{ item.date_consumed|default('', true) }} </td>
                 <td>
                     <form action="/{{ item.id }}/update/" method="get">
                         <input type="submit" value="Edit">
