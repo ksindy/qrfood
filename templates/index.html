@@ -111,6 +111,8 @@
                     <form action="/{{ item.id }}/update/" method="get">
                         <input type="submit" value="Edit">
                     </form>
+                </td>
+                <td>
                     <form action="{{ item.id }}/consumed/" method="get">
                         <input type="submit" value="Consumed">
                     </form>
@@ -141,27 +143,26 @@
             collapseBtn.innerHTML = isCollapsed ? '+' : '-';
         });
     </script>
-    <script>
-        const expirationSortBtn = document.getElementById('expiration-sort-btn');
-        let sortDescending = true;
-    
-        expirationSortBtn.addEventListener('click', () => {
-            sortDescending = !sortDescending;
-            const sortOrder = sortDescending ? 'desc' : 'asc';
-    
-            // Use JavaScript to submit the form with the desired sort order
-            const form = document.createElement('form');
-            form.method = 'get';
-            form.action = '/';
-    
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'sort_by_expiration_date';
-            hiddenInput.value = sortOrder;
-    
-            form.appendChild(hiddenInput);
-            document.body.appendChild(form);
-            form.submit();
-        });
-    </script>        
+<script>
+    const expirationSortBtn = document.getElementById('expiration-sort-btn');
+    let sortAscending = false;
+
+    expirationSortBtn.addEventListener('click', () => {
+        sortAscending = !sortAscending;
+
+        // Use JavaScript to submit the form with the desired sort order
+        const form = document.createElement('form');
+        form.method = 'get';
+        form.action = '/';
+
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'sort_by_expiration_date';
+        hiddenInput.value = sortAscending; // Send a boolean value instead of 'desc' or 'asc'
+
+        form.appendChild(hiddenInput);
+        document.body.appendChild(form);
+        form.submit();
+    });
+</script>     
     </html>
