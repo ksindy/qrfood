@@ -87,17 +87,17 @@
     {% endblock %}
     {% block food_items_table %}
         <h1>Food Items</h1>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <form action="/food_items/" method="get">
-                <input type="hidden" name="sort_by_expiration_date" value="true">
-                <button type="submit">Sort by Expiration Date</button>
-            </form>
-        </div>
         <table>
             <tr>
                 <th>Food</th>
                 <th>Date Added</th>
-                <th>Expiration Date</th>
+                <th>
+                    Expiration Date
+                    <form action="/food_items/" method="get" style="display:inline;">
+                        <input type="hidden" name="sort_by_expiration_date" value="true">
+                        <button type="submit" class="dropdown-btn">&#x25BC;</button>
+                    </form>
+                </th>
                 <th>Notes</th>
                 <th>Date Consumed</th>
                 <th>Action</th>
