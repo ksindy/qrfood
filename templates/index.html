@@ -93,9 +93,7 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <form action="/" method="get" style="display:inline;">
-                        <input type="hidden" name="sort_by_expiration_date" value="true">
-                        <button type="submit" class="dropdown-btn">&#x25BC;</button>
+                    <span id="expiration-sort-btn" style="cursor:pointer;">▼</span>
                     </form>
                 </th>
                 <th>Notes</th>
@@ -113,8 +111,6 @@
                     <form action="/{{ item.id }}/update/" method="get">
                         <input type="submit" value="Edit">
                     </form>
-                </td>
-                <td>
                     <form action="{{ item.id }}/consumed/" method="get">
                         <input type="submit" value="Consumed">
                     </form>
@@ -144,5 +140,28 @@
             // Update the symbol for the collapsible element
             collapseBtn.innerHTML = isCollapsed ? '+' : '-';
         });
-    </script>    
+    </script>
+    <script>
+        const expirationSortBtn = document.getElementById('expiration-sort-btn');
+        let sortDescending = true;
+    
+        expirationSortBtn.addEventListener('click', () => {
+            sortDescending = !sortDescending;
+            const sortOrder = sortDescending ? 'desc' : 'asc';
+    
+            // Use JavaScript to submit the form with the desired sort order
+            const form = document.createElement('form');
+            form.method = 'get';
+            form.action = '/';
+    
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'sort_by_expiration_date';
+            hiddenInput.value = sortOrder;
+    
+            form.appendChild(hiddenInput);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>        
     </html>
