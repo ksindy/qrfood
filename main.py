@@ -265,31 +265,34 @@ async def handle_qr_scan(item_id: str):
         return RedirectResponse(url=f"/{item_id}/add/")
     
 @app.get("/{item_id}/consumed/")
-async def read_consumed_items(request: Request, sort_by_expiration_date: bool = False):
+async def add_consumed_date(item_id: str):
     conn = connect_to_db()
-    cur = conn.cursor()
+    cursor = conn.cursor()
 
-    query = """
-        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed
-        FROM food_items fi
-        INNER JOIN (
-            SELECT id, MAX(update_time) AS max_update_time
-            FROM food_items
-            GROUP BY id
-        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
-        WHERE fi.date_consumed IS NOT NULL;
-    """
+    # Find the latest entry based on the "update_time" column for the passed in item.id
+    cursor.execute("""
+        SELECT * FROM food_items
+        WHERE id = %s
+        ORDER BY update_time DESC
+        LIMIT 1
+    """, (item_id,))
+    item = cursor.fetchone()
+    # create new entry for edit so needs a new PK
+    item_pk = str(uuid4())
 
-    if sort_by_expiration_date:
-        query += " ORDER BY fi.expiration_date"
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
 
-    cur.execute(query)
-    rows = cur.fetchall()
-    cur.close()
+    # Create a new entry with the same info, but add the current time to the "update_time" column and "date_consumed" column
+    current_time = datetime.datetime.now()
+    cursor.execute(
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, item[2], item[3], item[4], item[5], current_time, current_time),
+    )
+
+    conn.commit()
+    cursor.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
-
-    return templates.TemplateResponse("consumed.html", {"request": request, "food_items": food_items})
-
+    return RedirectResponse(url="/")
 
