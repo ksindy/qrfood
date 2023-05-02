@@ -23,9 +23,6 @@ app = FastAPI()
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
-def sort_food_items_by_expiration_date(food_items):
-    return sorted(food_items, key=lambda x: x.expiration_date)
-
 # Connect to the database
 def connect_to_db():
     conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
@@ -67,7 +64,7 @@ class FoodItem(BaseModel):
     date_consumed: Optional[datetime.date] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def read_items(request: Request, sort_by_expiration_date: bool = False):
+async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: str = "asc"):
     conn = connect_to_db()
     cur = conn.cursor()
 
@@ -83,7 +80,10 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False):
     """
 
     if sort_by_expiration_date:
-        query += " ORDER BY fi.expiration_date"
+        sort_order = sort_order.lower()
+        if sort_order not in ["asc", "desc"]:
+            sort_order = "asc"
+        query += f" ORDER BY fi.expiration_date {sort_order}"
 
     cur.execute(query)
     rows = cur.fetchall()
@@ -247,7 +247,7 @@ async def create_qr_code():
     #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
-async def read_items(request: Request, sort_by_expiration_date: bool = False):
+async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
     conn = connect_to_db()
     cur = conn.cursor()
 
