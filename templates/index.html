@@ -69,10 +69,6 @@
         .arrow {
         font-size: 12px;
         cursor: pointer;
-        display: none;
-        }
-        .arrow-container {
-            display: inline;
         }
         @media (max-width: 768px) {
             table {
@@ -101,10 +97,7 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <span class="arrow-container">
-                        <span id="up-arrow" class="arrow">&#x2191;</span>
-                        <span id="down-arrow" class="arrow">&#x2193;</span>
-                    </span>
+                    <span id="expiration-sort-arrow" class="arrow">&#x2193;</span>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -132,17 +125,12 @@
         {% endblock %}
     </body>
     <script>
-        const upArrow = document.getElementById('up-arrow');
-        const downArrow = document.getElementById('down-arrow');
+        const expirationSortArrow = document.getElementById('expiration-sort-arrow');
         let sortOrder = 'asc';
-    
-        // Show the down arrow initially
-        downArrow.style.display = 'inline';
     
         const toggleSortOrder = () => {
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            upArrow.style.display = sortOrder === 'asc' ? 'none' : 'inline';
-            downArrow.style.display = sortOrder === 'asc' ? 'inline' : 'none';
+            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2193;' : '&#x2191;';
     
             const form = document.createElement('form');
             form.method = 'get';
@@ -164,7 +152,6 @@
             form.submit();
         };
     
-        upArrow.addEventListener('click', toggleSortOrder);
-        downArrow.addEventListener('click', toggleSortOrder);
+        expirationSortArrow.addEventListener('click', toggleSortOrder);
     </script>
     </html>
