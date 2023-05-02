@@ -99,8 +99,7 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <button id="expiration-sort-btn-asc" type="button" style="display: none;">&#x25B2;</button>
-                    <button id="expiration-sort-btn-desc" type="button">&#x25BC;</button>
+                    <button id="expiration-sort-btn" type="button">&#x2195;</button>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -128,31 +127,20 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
-        const expirationSortBtnDesc = document.getElementById('expiration-sort-btn-desc');
+        const expirationSortBtn = document.getElementById('expiration-sort-btn');
         let sortOrder = 'asc';
     
-        function redirectToSortUrl() {
+        expirationSortBtn.addEventListener('click', () => {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            expirationSortBtn.innerHTML = sortOrder === 'asc' ? '&#x2193;' : '&#x2191;'; // Update the arrow
+    
+            // Construct the URL with the desired query parameters
             const url = new URL(window.location.href);
             url.searchParams.set('sort_by_expiration_date', 'true');
             url.searchParams.set('sort_order', sortOrder);
     
-            window.location.href = url.toString();
-        }
-    
-        expirationSortBtnAsc.addEventListener('click', () => {
-            sortOrder = 'asc';
-            expirationSortBtnAsc.style.display = 'none';
-            expirationSortBtnDesc.style.display = 'inline';
-            redirectToSortUrl();
-        });
-    
-        expirationSortBtnDesc.addEventListener('click', () => {
-            sortOrder = 'desc';
-            expirationSortBtnAsc.style.display = 'inline';
-            expirationSortBtnDesc.style.display = 'none';
-            redirectToSortUrl();
+            // Redirect the browser to the updated URL
+            window.location.href = url.href;
         });
     </script>
-    
     </html>
