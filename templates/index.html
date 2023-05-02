@@ -95,10 +95,7 @@
             <tr>
                 <th>Food</th>
                 <th>Date Added</th>
-                <th>
-                    Expiration Date
-                    <span id="expiration-sort-arrow" class="arrow">&#x2193;</span>
-                </th>
+                <th id="expiration-sort-arrow" data-sort-order="desc">Expiration Date &#x2191;</th>
                 <th>Notes</th>
                 <th>Edit Item</th>
                 <th><a href="/consumed_items/"> Consumed</a></th>
@@ -126,11 +123,12 @@
     </body>
     <script>
         const expirationSortArrow = document.getElementById('expiration-sort-arrow');
-        let sortOrder = 'desc'; // Change this line
 
         const toggleSortOrder = () => {
-            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2193;' : '&#x2191;';
+            const currentSortOrder = expirationSortArrow.getAttribute('data-sort-order');
+            const newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            expirationSortArrow.setAttribute('data-sort-order', newSortOrder);
+            expirationSortArrow.innerHTML = newSortOrder === 'asc' ? 'Expiration Date &#x2193;' : 'Expiration Date &#x2191;';
 
             const form = document.createElement('form');
             form.method = 'get';
@@ -144,7 +142,7 @@
             const sortOrderInput = document.createElement('input');
             sortOrderInput.type = 'hidden';
             sortOrderInput.name = 'sort_order';
-            sortOrderInput.value = sortOrder;
+            sortOrderInput.value = newSortOrder;
 
             form.appendChild(hiddenInput);
             form.appendChild(sortOrderInput);
