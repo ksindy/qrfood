@@ -128,7 +128,7 @@
             const currentSortOrder = expirationSortArrow.getAttribute('data-sort-order');
             const newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
             expirationSortArrow.setAttribute('data-sort-order', newSortOrder);
-            expirationSortArrow.innerHTML = newSortOrder === 'asc' ? 'Expiration Date &#x2193;' : 'Expiration Date &#x2191;';
+            expirationSortArrow.innerHTML = newSortOrder === 'asc' ? 'Expiration Date ↓' : 'Expiration Date ↑';
 
             const form = document.createElement('form');
             form.method = 'get';
