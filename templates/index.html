@@ -69,6 +69,10 @@
         .arrow {
         font-size: 12px;
         cursor: pointer;
+        display: none;
+        }
+        .arrow-container {
+            display: inline;
         }
         @media (max-width: 768px) {
             table {
@@ -97,7 +101,10 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <span id="expiration-sort-arrow" class="arrow">&#x2195;</span>
+                    <span class="arrow-container">
+                        <span id="up-arrow" class="arrow">&#x2191;</span>
+                        <span id="down-arrow" class="arrow">&#x2193;</span>
+                    </span>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -125,12 +132,17 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortArrow = document.getElementById('expiration-sort-arrow');
+        const upArrow = document.getElementById('up-arrow');
+        const downArrow = document.getElementById('down-arrow');
         let sortOrder = 'asc';
     
-        expirationSortArrow.addEventListener('click', () => {
+        // Show the down arrow initially
+        downArrow.style.display = 'inline';
+    
+        const toggleSortOrder = () => {
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2191;' : '&#x2193;'; // Update the arrow correctly
+            upArrow.style.display = sortOrder === 'asc' ? 'none' : 'inline';
+            downArrow.style.display = sortOrder === 'asc' ? 'inline' : 'none';
     
             const form = document.createElement('form');
             form.method = 'get';
@@ -150,6 +162,9 @@
             form.appendChild(sortOrderInput);
             document.body.appendChild(form);
             form.submit();
-        });
+        };
+    
+        upArrow.addEventListener('click', toggleSortOrder);
+        downArrow.addEventListener('click', toggleSortOrder);
     </script>
     </html>
