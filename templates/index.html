@@ -66,9 +66,11 @@
             color: #FFFFFF;
             text-decoration: none;
         }
-        .arrow {
-        font-size: 12px;
-        cursor: pointer;
+        .up-arrow::before {
+        content: '\25B2';
+        }
+        .down-arrow::before {
+            content: '\25BC';
         }
         @media (max-width: 768px) {
             table {
@@ -97,7 +99,7 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <button id="expiration-sort-btn" type="button" class="dropdown-btn">&#x25BC;</button>
+                    <span id="expiration-sort-arrow" class="down-arrow"></span>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -125,22 +127,20 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortBtn = document.getElementById('expiration-sort-btn');
-        let sortOrder = 'asc';
-    
-        expirationSortBtn.addEventListener('click', async () => {
-            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortBtn.innerHTML = sortOrder === 'asc' ? '&#x25BC;' : '&#x25B2;'; // Update the arrow
-    
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort_by_expiration_date', 'true');
-            url.searchParams.set('sort_order', sortOrder);
-    
-            // Wait for a brief moment to allow the arrow update
-            await new Promise(resolve => setTimeout(resolve, 100));
-    
-            window.location.href = url.toString();
-        });
+    let sortOrder = 'asc';
+
+    expirationSortArrow.addEventListener('click', () => {
+        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+
+        // Toggle the arrow's direction by updating its class
+        expirationSortArrow.className = sortOrder === 'asc' ? 'down-arrow' : 'up-arrow';
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort_by_expiration_date', 'true');
+        url.searchParams.set('sort_order', sortOrder);
+
+        window.location.href = url.toString();
+    });
     </script>
     
     </html>
