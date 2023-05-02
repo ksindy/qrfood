@@ -79,7 +79,7 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False):
             FROM food_items
             GROUP BY id
         ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
-        WHERE fi.date_consumed IS NOT NULL;
+        WHERE fi.date_consumed IS NULL;
     """
 
     if sort_by_expiration_date:
