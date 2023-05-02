@@ -83,7 +83,6 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
         query += f" ORDER BY fi.expiration_date {sort_order};"
     else:
         query+= ";"
-    print(query)
         
     cur.execute(query)
     rows = cur.fetchall()
