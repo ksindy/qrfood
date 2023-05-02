@@ -258,7 +258,7 @@ async def handle_qr_scan(item_id: str):
     cursor.close()
     conn.close()
 
-    if item:
+    if item and item[7] is None:
         return RedirectResponse(url=f"/{item_id}/view/")
     else:
         # Add the new UUID to the database before redirecting to the update page
