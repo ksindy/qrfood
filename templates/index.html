@@ -130,7 +130,7 @@
     
         expirationSortArrow.addEventListener('click', () => {
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2191;' : '&#x2193;'; // Update the arrow
+            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2191;' : '&#x2193;'; // Update the arrow correctly
     
             const form = document.createElement('form');
             form.method = 'get';
