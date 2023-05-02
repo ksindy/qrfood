@@ -99,7 +99,8 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <button id="expiration-sort-btn" type="button">&#x2195;</button>
+                    <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
+                    <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -127,20 +128,36 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortBtn = document.getElementById('expiration-sort-btn');
-        let sortOrder = 'asc';
+        const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
+        const expirationSortBtnDesc = document.getElementById('expiration-sort-btn-desc');
     
-        expirationSortBtn.addEventListener('click', () => {
-            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortBtn.innerHTML = sortOrder === 'asc' ? '&#x2193;' : '&#x2191;'; // Update the arrow
+        function submitFormWithSortOrder(sortOrder) {
+            const form = document.createElement('form');
+            form.method = 'get';
+            form.action = '/';
     
-            // Construct the URL with the desired query parameters
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort_by_expiration_date', 'true');
-            url.searchParams.set('sort_order', sortOrder);
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'sort_by_expiration_date';
+            hiddenInput.value = 'true';
     
-            // Redirect the browser to the updated URL
-            window.location.href = url.href;
+            const sortOrderInput = document.createElement('input');
+            sortOrderInput.type = 'hidden';
+            sortOrderInput.name = 'sort_order';
+            sortOrderInput.value = sortOrder;
+    
+            form.appendChild(hiddenInput);
+            form.appendChild(sortOrderInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    
+        expirationSortBtnAsc.addEventListener('click', () => {
+            submitFormWithSortOrder('asc');
+        });
+    
+        expirationSortBtnDesc.addEventListener('click', () => {
+            submitFormWithSortOrder('desc');
         });
     </script>
     </html>
