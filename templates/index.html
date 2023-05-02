@@ -85,6 +85,22 @@
         .down-arrow::before {
             content: '\25BC';
         }
+            /* Add styles for the arrow container */
+        .arrow-container {
+            display: inline-block;
+            position: relative;
+            top: -1px;
+            margin-left: 5px;
+        }
+        /* Style buttons inside the container */
+        .arrow-container button {
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+            line-height: 16px;
+            margin: 0;
+        }
         @media (max-width: 768px) {
             table {
                 margin: 20px auto;
@@ -115,8 +131,10 @@
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
-                    <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
+                    <div class="arrow-container">
+                        <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
+                        <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
+                    </div>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
