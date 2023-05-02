@@ -128,7 +128,7 @@
         const expirationSortBtn = document.getElementById('expiration-sort-btn');
         let sortOrder = 'asc';
     
-        expirationSortBtn.addEventListener('click', () => {
+        expirationSortBtn.addEventListener('click', async () => {
             sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             expirationSortBtn.innerHTML = sortOrder === 'asc' ? '&#x25BC;' : '&#x25B2;'; // Update the arrow
     
@@ -136,7 +136,11 @@
             url.searchParams.set('sort_by_expiration_date', 'true');
             url.searchParams.set('sort_order', sortOrder);
     
+            // Wait for a brief moment to allow the arrow update
+            await new Promise(resolve => setTimeout(resolve, 100));
+    
             window.location.href = url.toString();
         });
     </script>
+    
     </html>
