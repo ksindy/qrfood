@@ -7,6 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Items</title>
     <style>
+        /* Add styles for Flexbox */
+        .table-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        /* Add overflow-y:hidden to disable vertical scrolling on mobile */
+        .table-responsive {
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+            margin-bottom: 40px;
+        }
         body {
             font-family: Arial, sans-serif;
             background-color: #F7F7F7;
@@ -84,6 +97,9 @@
     </style>
 </head>
 <body>
+<!-- Wrap the table with a div container for Flexbox -->
+<div class="table-container">
+    <div class="table-responsive">
     <header>
         <a href="https://qrfood.herokuapp.com/">
             <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
@@ -126,6 +142,8 @@
             {% endfor %}
         </table>
         {% endblock %}
+    </div>
+</div>
     </body>
     <script>
         const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
