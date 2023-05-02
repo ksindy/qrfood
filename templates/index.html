@@ -66,6 +66,10 @@
             color: #FFFFFF;
             text-decoration: none;
         }
+        .arrow {
+        font-size: 12px;
+        cursor: pointer;
+        }
         @media (max-width: 768px) {
             table {
                 margin: 20px auto;
@@ -87,24 +91,13 @@
     {% endblock %}
     {% block food_items_table %}
         <h1>Food Items</h1>
-        <div style="text-align: center; margin-bottom: 20px;">
-            <form action="/" method="get">
-                <input type="hidden" name="sort_by_expiration_date" value="true">
-                <select name="sort_order">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                </select>
-                <button type="submit">Sort by Expiration Date</button>
-            </form>
-        </div>
         <table>
             <tr>
                 <th>Food</th>
                 <th>Date Added</th>
                 <th>
                     Expiration Date
-                    <span id="expiration-sort-btn" style="cursor:pointer;">▼</span>
-                    </form>
+                    <span id="expiration-sort-arrow" class="arrow">&#x2195;</span>
                 </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
@@ -132,25 +125,31 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortBtn = document.getElementById('expiration-sort-btn');
-        let sortAscending = false;
-
-        expirationSortBtn.addEventListener('click', () => {
-            sortAscending = !sortAscending;
-
-            // Use JavaScript to submit the form with the desired sort order
+        const expirationSortArrow = document.getElementById('expiration-sort-arrow');
+        let sortOrder = 'asc';
+    
+        expirationSortArrow.addEventListener('click', () => {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            expirationSortArrow.innerHTML = sortOrder === 'asc' ? '&#x2193;' : '&#x2191;'; // Update the arrow
+    
             const form = document.createElement('form');
             form.method = 'get';
             form.action = '/';
-
+    
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'sort_by_expiration_date';
-            hiddenInput.value = sortAscending; // Send a boolean value instead of 'desc' or 'asc'
-
+            hiddenInput.value = 'true';
+    
+            const sortOrderInput = document.createElement('input');
+            sortOrderInput.type = 'hidden';
+            sortOrderInput.name = 'sort_order';
+            sortOrderInput.value = sortOrder;
+    
             form.appendChild(hiddenInput);
+            form.appendChild(sortOrderInput);
             document.body.appendChild(form);
             form.submit();
         });
-    </script>     
+    </script>
     </html>
