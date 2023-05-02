@@ -95,7 +95,10 @@
             <tr>
                 <th>Food</th>
                 <th>Date Added</th>
-                <th id="expiration-sort-arrow" data-sort-order="desc">Expiration Date &#x2191;</th>
+                <th>
+                    Expiration Date
+                    <button id="expiration-sort-btn" type="button" class="dropdown-btn">&#x25BC;</button>
+                </th>
                 <th>Notes</th>
                 <th>Edit Item</th>
                 <th><a href="/consumed_items/"> Consumed</a></th>
@@ -122,35 +125,18 @@
         {% endblock %}
     </body>
     <script>
-        const expirationSortArrow = document.getElementById('expiration-sort-arrow');
-
-        const toggleSortOrder = () => {
-            const currentSortOrder = expirationSortArrow.getAttribute('data-sort-order');
-            const newSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-            expirationSortArrow.setAttribute('data-sort-order', newSortOrder);
-            expirationSortArrow.innerHTML = newSortOrder === 'asc' ? 'Expiration Date ↓' : 'Expiration Date ↑';
-
-            const form = document.createElement('form');
-            form.method = 'get';
-            form.action = '/';
-
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'sort_by_expiration_date';
-            hiddenInput.value = 'true';
-
-            const sortOrderInput = document.createElement('input');
-            sortOrderInput.type = 'hidden';
-            sortOrderInput.name = 'sort_order';
-            sortOrderInput.value = newSortOrder;
-
-            form.appendChild(hiddenInput);
-            form.appendChild(sortOrderInput);
-            document.body.appendChild(form);
-            form.submit();
-        };
-
-        expirationSortArrow.addEventListener('click', toggleSortOrder);
-
+        const expirationSortBtn = document.getElementById('expiration-sort-btn');
+        let sortOrder = 'asc';
+    
+        expirationSortBtn.addEventListener('click', () => {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            expirationSortBtn.innerHTML = sortOrder === 'asc' ? '&#x25BC;' : '&#x25B2;'; // Update the arrow
+    
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort_by_expiration_date', 'true');
+            url.searchParams.set('sort_order', sortOrder);
+    
+            window.location.href = url.toString();
+        });
     </script>
     </html>
