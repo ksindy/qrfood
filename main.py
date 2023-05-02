@@ -74,7 +74,7 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False):
     query = """
         SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed
         FROM food_items fi
-        LEFT JOIN (
+        INNER JOIN (
             SELECT id, MAX(update_time) AS max_update_time
             FROM food_items
             GROUP BY id
