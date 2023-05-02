@@ -64,7 +64,7 @@ class FoodItem(BaseModel):
     date_consumed: Optional[datetime.date] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: str = "asc"):
+async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
     conn = connect_to_db()
     cur = conn.cursor()
 
@@ -80,9 +80,9 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
     """
 
     if sort_by_expiration_date:
-        query += f" ORDER BY fi.expiration_date {sort_order};"
-    else:
-        query+= ";"
+        order = "ASC" if sort_order == "asc" else "DESC"
+        query += f" ORDER BY fi.expiration_date {order}"
+    query += ";"
         
     cur.execute(query)
     rows = cur.fetchall()
