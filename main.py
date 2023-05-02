@@ -296,3 +296,30 @@ async def add_consumed_date(item_id: str):
 
     return RedirectResponse(url="/")
 
+@app.get("/consumed_items/", response_class=HTMLResponse)
+async def read_items(request: Request, sort_by_expiration_date: bool = False):
+    conn = connect_to_db()
+    cur = conn.cursor()
+
+    query = """
+        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed
+        FROM food_items fi
+        INNER JOIN (
+            SELECT id, MAX(update_time) AS max_update_time
+            FROM food_items
+            GROUP BY id
+        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
+        WHERE fi.date_consumed IS NOT NULL;
+    """
+
+    if sort_by_expiration_date:
+        query += " ORDER BY fi.expiration_date"
+
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
+
+    return templates.TemplateResponse("consumed.html", {"request": request, "food_items": food_items})
