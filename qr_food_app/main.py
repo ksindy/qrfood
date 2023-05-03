@@ -17,7 +17,6 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from .routers import background_tasks
 
-
 app = FastAPI()
 app.include_router(background_tasks.router)
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
