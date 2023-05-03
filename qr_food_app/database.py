@@ -15,7 +15,7 @@ def check_date_range(conn, days_range):
         min_date = current_date - timedelta(days=days_range)
         max_date = current_date + timedelta(days=days_range)
 
-        query = f"SELECT * FROM your_table WHERE date_column >= '{min_date}' AND date_column <= '{max_date}';"
+        query = f"SELECT * FROM qrfood WHERE expiration_date >= '{min_date}' AND expiration_date <= '{max_date}';"
         cur.execute(query)
         results = cur.fetchall()
 
