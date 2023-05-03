@@ -8,7 +8,7 @@ from twilio.rest import Client
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
-templates_path = os.path.join(os.path.dirname(__file__), "templates")
+templates_path = os.path.join(os.path.dirname(__file__), "../templates")
 templates = Jinja2Templates(directory=templates_path)
 
 app = FastAPI()
@@ -26,7 +26,7 @@ def send_text_alert(to_phone_number, message):
 
 @router.get("/send-notification/", response_class=HTMLResponse)
 async def test_notification(request: Request):
-    return templates.TemplateResponse("../tempaltes/alert.html", {"request": request})
+    return templates.TemplateResponse("alert.html", {"request": request})
 
 @router.post("/send-notification/", response_class=HTMLResponse)
 async def send_notification(request: Request, user_phone_number: str, background_tasks: BackgroundTasks):
