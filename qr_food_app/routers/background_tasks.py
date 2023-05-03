@@ -20,7 +20,7 @@ def send_text_alert(to_phone_number, message):
         to=to_phone_number
     )
 
-@router.get("/send-notification/{user_phone_number}/")
+@router.post("/send-notification/{user_phone_number}/")
 async def send_notification(user_phone_number: str, background_tasks: BackgroundTasks):
     while True:
         conn = connect_to_db()
