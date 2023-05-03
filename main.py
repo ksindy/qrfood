@@ -15,7 +15,7 @@ from PIL import Image
 import os
 import boto3
 from botocore.exceptions import NoCredentialsError
-from .routers import background_tasks
+from routers import background_tasks
 
 
 app = FastAPI()
