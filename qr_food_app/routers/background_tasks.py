@@ -1,6 +1,7 @@
 # background_tasks.py
 from ..database import connect_to_db, check_date_range
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi import APIRouter
 import os
 from twilio.rest import Client
@@ -23,12 +24,12 @@ def send_text_alert(to_phone_number, message):
         to=to_phone_number
     )
 
-@router.get("/send-notification/")
-async def test_notification():
-    return templates.TemplateResponse("alert.html")
+@router.get("/send-notification/", response_class=HTMLResponse)
+async def test_notification(request: Request):
+    return templates.TemplateResponse("alert.html", {"request": request})
 
-@router.post("/send-notification/")
-async def send_notification(user_phone_number: str, background_tasks: BackgroundTasks):
+@router.post("/send-notification/", response_class=HTMLResponse)
+async def send_notification(request: Request, user_phone_number: str, background_tasks: BackgroundTasks):
     while True:
         conn = connect_to_db()
         results = check_date_range(conn, 7)
