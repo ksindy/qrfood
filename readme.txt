@@ -3,6 +3,7 @@ Heroku
 - attach to heroku postgres db: `heroku pg:psql -a qrfood`
 - show tables: `\d`
 - show items in table: `SELECT * FROM food_items;`
+- set env vars heroku config:set GITHUB_USERNAME=joesmith
 
 Delete Fx
 Date consumed will act as a flag. 

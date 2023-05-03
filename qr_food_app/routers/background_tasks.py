@@ -10,13 +10,13 @@ router = APIRouter()
 app = FastAPI()
 TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
 TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
-TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
+# TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
 
 def send_text_alert(to_phone_number, message):
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     message = client.messages.create(
         body=message,
-        from_=TWILIO_PHONE_NUMBER,
+        # from_=TWILIO_PHONE_NUMBER,
         to=to_phone_number
     )
 
