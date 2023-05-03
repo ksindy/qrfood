@@ -3,7 +3,6 @@ from ..database import connect_to_db, check_date_range
 from fastapi import BackgroundTasks, FastAPI
 from fastapi import APIRouter
 import os
-import twilio
 from twilio.rest import Client
 
 router = APIRouter()
