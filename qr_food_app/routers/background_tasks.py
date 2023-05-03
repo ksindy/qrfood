@@ -4,8 +4,11 @@ from fastapi import BackgroundTasks, FastAPI
 from fastapi import APIRouter
 import os
 from twilio.rest import Client
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
+templates_path = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=templates_path)
 
 app = FastAPI()
 TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
@@ -20,7 +23,11 @@ def send_text_alert(to_phone_number, message):
         to=to_phone_number
     )
 
-@router.post("/send-notification/{user_phone_number}/")
+@router.get("/send-notification/")
+async def test_notification():
+    return templates.TemplateResponse("alert.html")
+
+@router.post("/send-notification/")
 async def send_notification(user_phone_number: str, background_tasks: BackgroundTasks):
     while True:
         conn = connect_to_db()
