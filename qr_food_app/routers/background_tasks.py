@@ -11,7 +11,7 @@ def write_notification(email: str, message=""):
         content = f"notification for {email}: {message}"
         email_file.write(content)
 
-@app.get("/send-notification/{email}/")
+@router.get("/send-notification/{email}/")
 async def send_notification(email: str, background_tasks: BackgroundTasks):
     while True:
         conn = connect_to_db()
