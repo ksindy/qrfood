@@ -1,6 +1,6 @@
 # background_tasks.py
 from ..database import connect_to_db, check_date_range
-from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi import APIRouter
 import os
@@ -29,7 +29,7 @@ async def test_notification(request: Request):
     return templates.TemplateResponse("alert.html", {"request": request})
 
 @router.post("/send-notification/", response_class=HTMLResponse)
-async def send_notification(request: Request, user_phone_number: str, background_tasks: BackgroundTasks):
+async def send_notification(request: Request, background_tasks: BackgroundTasks, user_phone_number: str = Form(...)):
     while True:
         conn = connect_to_db()
         results = check_date_range(conn, 7)
