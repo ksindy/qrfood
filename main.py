@@ -3,11 +3,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 import psycopg2
-from psycopg2 import sql
 import datetime
 from uuid import uuid4
 from qrcode import QRCode
-import qrcode
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
@@ -15,11 +13,13 @@ import tempfile
 import os
 from PIL import Image
 import os
-import io
 import boto3
 from botocore.exceptions import NoCredentialsError
+from .routers import background_tasks
+
 
 app = FastAPI()
+app.include_router(background_tasks.router)
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 

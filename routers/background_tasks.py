@@ -2,6 +2,9 @@
 from database import connect_to_db, check_date_range
 import time
 from fastapi import BackgroundTasks, FastAPI
+from fastapi import APIRouter
+
+router = APIRouter()
 
 app = FastAPI()
 def write_notification(email: str, message=""):
@@ -9,7 +12,8 @@ def write_notification(email: str, message=""):
         content = f"notification for {email}: {message}"
         email_file.write(content)
 
-async def check_database_task(days_range):
+@app.post("/send-notification/{email}/")
+async def send_notification(email: str, background_tasks: BackgroundTasks):
     while True:
         conn = connect_to_db()
         results = check_date_range(conn, 7)
@@ -19,10 +23,7 @@ async def check_database_task(days_range):
             print("Found results!")
             for result in results:
                 message = f"Alert: A date within the specified range was found: {result}"
-                write_notification("karlysindy@gmail.com", message)
+                write_notification(email, message)
 
-        time.sleep(24 * 60 * 60)  # Sleep for a day
-
-@app.post("/send-notification/{email}")
-async def on_startup(email:str, background_tasks: BackgroundTasks):
-    background_tasks.add_task(check_database_task, email)  # Replace 7 with the desired range in days
+        background_tasks.add_task(write_notification, email, message="some notification")
+        return {"message": "Notification sent in the background"}
