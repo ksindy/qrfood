@@ -32,7 +32,7 @@ async def test_notification(request: Request):
 async def send_notification(request: Request, background_tasks: BackgroundTasks, user_phone_number: str = Form(...)):
     while True:
         conn = connect_to_db()
-        results = check_date_range(conn, 7)
+        results = check_date_range(conn, 5)
         conn.close()
         if results:
             print("Found results!")
