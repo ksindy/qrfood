@@ -53,7 +53,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
         for row in results:
             food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
             days_to_expiration = food_item.expiration_date - datetime.date.today()
-            message = f"Alert: The {food_item.food} will expire in {days_to_expiration} days!"    
+            message = f"Alert: The {food_item.food} will expire in {days_to_expiration.days} days."    
             send_text_alert(user_phone_number, message)
             # food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in results]
             # message = f"Alert: The {food} will expire in {days_food_expires} days!"
