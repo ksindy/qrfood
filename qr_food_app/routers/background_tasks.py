@@ -7,6 +7,19 @@ import os
 from twilio.rest import Client
 from fastapi.templating import Jinja2Templates
 
+# Define the request model
+class FoodItem(BaseModel):
+    pk: Optional[str] = None
+    id: Optional[str] = None
+    food: str
+    date_added: datetime.date
+    expiration_date: datetime.date
+    notes: Optional[str] = None
+    days_old: Optional[int] = None
+    days_left: Optional[int] = None
+    update_time: Optional[datetime.datetime] = None
+    date_consumed: Optional[datetime.date] = None
+
 router = APIRouter()
 templates_path = os.path.join(os.path.dirname(__file__), "../templates")
 templates = Jinja2Templates(directory=templates_path)
@@ -34,9 +47,10 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
         results = check_date_range(conn, days_food_expires)
         conn.close()
         if results:
+            food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in results]
             print("Found results!")
             for result in results:
-                message = f"Alert: The {results[2]} will expire in {days_food_expires} days!"
+                message = f"Alert: The {food_items[2]} will expire in {days_food_expires} days!"
                 send_text_alert(user_phone_number, message)
 
         # background_tasks.add_task(write_notification, email, message="some notification")
