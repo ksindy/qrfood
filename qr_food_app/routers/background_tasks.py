@@ -53,7 +53,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
             food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in results]
             print("Found results!")
             for food in food_items:
-                message = f"Alert: The {food[2]} will expire in {days_food_expires} days!"
+                message = f"Alert: The {food.food} will expire in {days_food_expires} days!"
                 send_text_alert(user_phone_number, message)
 
         # background_tasks.add_task(write_notification, email, message="some notification")
