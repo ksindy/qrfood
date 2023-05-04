@@ -16,12 +16,26 @@ def check_date_range(conn, days_range):
         max_date = current_date + timedelta(days=days_range)
 
         query = f"""SELECT *
-                    FROM food_items
-                    WHERE expiration_date >= '{min_date}' AND expiration_date <= '{max_date}' AND id = %s
-                    AND date_consumed is NULL
-                    ORDER BY update_time DESC
-                    LIMIT 1;"""
+                        FROM (
+                            SELECT DISTINCT ON (id) *
+                            FROM food_items
+                            WHERE expiration_date >= '{min_date}' AND expiration_date <= '{max_date}'
+                            ORDER BY id, update_time DESC
+                        ) AS recent_items
+                        WHERE date_consumed IS NULL;
+                        """
         cur.execute(query)
         results = cur.fetchall()
 
     return results
+
+
+
+# SELECT *
+# FROM (
+#     SELECT DISTINCT ON (id) *
+#     FROM food_items
+#     WHERE expiration_date >= '2023-04-21' AND expiration_date <= '2023-05-21'
+#     ORDER BY id, update_time DESC
+# ) AS recent_items
+# WHERE date_consumed IS NULL;
