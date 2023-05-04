@@ -12,14 +12,13 @@ def connect_to_db():
 def check_date_range(conn, days_range):
     with conn.cursor() as cur:
         current_date = datetime.now().date()
-        min_date = current_date - timedelta(days=days_range)
         max_date = current_date + timedelta(days=days_range)
 
         query = f"""SELECT *
                         FROM (
                             SELECT DISTINCT ON (id) *
                             FROM food_items
-                            WHERE expiration_date >= '{min_date}' AND expiration_date <= '{max_date}'
+                            WHERE expiration_date >= '{current_date}' AND expiration_date <= '{max_date}'
                             ORDER BY id, update_time DESC
                         ) AS recent_items
                         WHERE date_consumed IS NULL;
