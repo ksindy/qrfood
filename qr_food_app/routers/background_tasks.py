@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 router = APIRouter()
 templates_path = os.path.join(os.path.dirname(__file__), "../templates")
 templates = Jinja2Templates(directory=templates_path)
-
+days_food_expires = 3
 app = FastAPI()
 TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
 TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
@@ -32,12 +32,12 @@ async def test_notification(request: Request):
 async def send_notification(request: Request, background_tasks: BackgroundTasks, user_phone_number: str = Form(...)):
     while True:
         conn = connect_to_db()
-        results = check_date_range(conn, 5)
+        results = check_date_range(conn, days_food_expires)
         conn.close()
         if results:
             print("Found results!")
             for result in results:
-                message = f"Alert: A date within the specified range was found: {result}"
+                message = f"Alert: The {results[2]} will expire in {days_food_expires} days!"
                 send_text_alert(user_phone_number, message)
 
         # background_tasks.add_task(write_notification, email, message="some notification")
