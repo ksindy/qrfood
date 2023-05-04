@@ -6,6 +6,9 @@ from fastapi import APIRouter
 import os
 from twilio.rest import Client
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from typing import Optional
+import datetime
 
 # Define the request model
 class FoodItem(BaseModel):
