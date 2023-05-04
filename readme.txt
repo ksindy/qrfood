@@ -17,3 +17,8 @@ when a new item is added to a qr code, add date consume and new entry date consu
 UPDATE food_items
 SET date_consumed = NULL
 WHERE id = '2e038253-4391-4336-9041-d11d731ed366';
+
+Ideas
+- make an entry for quantity (IE # of spinach of muffins left)
+- Improve UX to view screen
+- add feature location to items and ability to quickly move between locaitons (ie freezing spinach muffins)
