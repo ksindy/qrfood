@@ -45,16 +45,16 @@ async def test_notification(request: Request):
 
 @router.post("/send-notification/", response_class=HTMLResponse)
 async def send_notification(request: Request, background_tasks: BackgroundTasks, user_phone_number: str = Form(...), days_food_expires: int = Form(...)):
-    while True:
-        conn = connect_to_db()
-        results = check_date_range(conn, days_food_expires)
-        conn.close()
-        food_items = []
-        if results:
-            for row in results:
-                food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
-                message = f"Alert: The {food_item.food} will expire in {days_food_expires} days!"    
-                send_text_alert(user_phone_number, message)
+    # while True:
+    conn = connect_to_db()
+    results = check_date_range(conn, days_food_expires)
+    conn.close()
+    if results:
+        for row in results:
+            food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
+            days_to_expiration = food_item.expiration_date - datetime.date.today()
+            message = f"Alert: The {food_item.food} will expire in {days_to_expiration} days!"    
+            send_text_alert(user_phone_number, message)
             # food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in results]
             # message = f"Alert: The {food} will expire in {days_food_expires} days!"
             # print(f"Found results! {results}")
