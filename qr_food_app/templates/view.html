@@ -33,10 +33,9 @@
 </style>
 <div class="container">
     <h1>{{ item.food }}</h1>
-    <h2>{{ item.days_old }}</h2>
-    <p class="bold-num"> Days Old <span class="small-text">({{ item.date_added }})</span></p>
+    <h2>{{ item.days_old }}<p class="bold-num"> Days Old <span class="small-text">(added {{ item.date_added }})</span></p></h2>
     <h2>{{ item.days_left }}</h2>
-    <p class="bold-num"> Days Left <span class="small-text">days until expire ({{ item.expiration_date }})</span></p>
+    <p class="bold-num"> Days Left <span class="small-text">(expires {{ item.expiration_date }})</span></p>
     <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
     <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item to QR Code</a></button>
 </div>
