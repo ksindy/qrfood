@@ -1,35 +1,6 @@
 <!-- templates/view.html -->
 {% extends "header.html" %}
 {% block content %}
-<h2>View Food Item</h2>
-<table>
-    <tr>
-        <th>Food</th>
-        <td>{{ item.food }}</td>
-    </tr>
-    <tr>
-        <th>Date Added</th>
-        <td>{{ item.date_added }}</td>
-    </tr>
-    <tr>
-        <th>Days Old</th>
-        <td>{{ item.days_old }}</td>
-    </tr>
-    <tr>
-        <th>Expiration Date</th>
-        <td>{{ item.expiration_date }}</td>
-    </tr>
-    <tr>
-        <th>Days Left</th>
-        <td>{{ item.days_left }}</td>
-    </tr>
-    <tr>
-        <th>Notes</th>
-        <td>{{ item.notes }}</td>
-    </tr>
-</table>
-<button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
-<button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item to QR Code</a></button>
 <style>
     .container {
         max-width: 600px;
@@ -43,14 +14,30 @@
         font-size: 2rem;
         margin-bottom: 1.5rem;
     }
-    label {
-        font-weight: bold;
+    h2 {
+        font-size: 1.5rem;
     }
-    input, button {
+    .bold-num {
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+    .small-text {
+        font-size: 0.9rem;
+    }
+    button {
         margin-top: 10px;
     }
     a {
         text-decoration: none;
     }
 </style>
+<div class="container">
+    <h1>{{ item.food }}</h1>
+    <h2>Days Old</h2>
+    <p class="bold-num">{{ item.days_old }} <span class="small-text">({{ item.date_added }})</span></p>
+    <h2>Days Left</h2>
+    <p class="bold-num">{{ item.days_left }} <span class="small-text">days until expire ({{ item.expiration_date }})</span></p>
+    <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
+    <button><a href="{{ url_for('view_add_food_item', item_id=item.id) }}">Add New Item to QR Code</a></button>
+</div>
 {% endblock %}
