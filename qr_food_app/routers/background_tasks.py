@@ -63,7 +63,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
             foods = days_dict[day]
             remaining_foods = len(foods) - 2
             if remaining_foods > 0:
-                message += f"{','.join(foods[:2])} and {remaining_foods} more will expire in {day} days.\n\n" 
+                message += f"{', '.join(foods[:2])}and {remaining_foods} more will expire in {day} days.\n\n" 
             else:
                 message += f"{''.join(foods)} will expire in {day} days.\n\n"
         send_text_alert(user_phone_number, message)
