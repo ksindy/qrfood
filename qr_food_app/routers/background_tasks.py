@@ -56,7 +56,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
             food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
             days_to_expiration = food_item.expiration_date - datetime.date.today()
             if days_to_expiration.days not in days_dict:
-                days_dict[days_to_expiration.days] = food_item.food        
+                days_dict[days_to_expiration.days] = [food_item.food]        
             else:
                 days_dict[days_to_expiration.days].append(food_item.food)
         lowest_day = sorted(days_dict.keys())[0]
