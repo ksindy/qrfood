@@ -51,7 +51,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
     conn.close()
     if results:
         days_dict = {}
-        message = "Alert: \n"
+        message = "QR Food App Alert: \n"
         for row in results:
             food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
             days_to_expiration = food_item.expiration_date - datetime.date.today()
@@ -61,9 +61,9 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
                 days_dict[days_to_expiration.days].append(food_item.food)
         for day in sorted(days_dict.keys()):
             foods = days_dict[day]
-            remaining_foods = len(foods) - 3
+            remaining_foods = len(foods) - 2
             if remaining_foods > 0:
-                message += f"{','.join(foods[:3])} and {remaining_foods} more will expire in {day} days.\n" 
+                message += f"{','.join(foods[:2])} and {remaining_foods} more will expire in {day} days.\n\n" 
             else:
-                message += f"{''.join(foods)} will expire in {day} days.\n"
+                message += f"{''.join(foods)} will expire in {day} days.\n\n"
         send_text_alert(user_phone_number, message)
