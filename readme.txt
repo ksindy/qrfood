@@ -1,5 +1,5 @@
 Heroku
-- list environmental varaibles: ``
+- list environmental varaibles: `heroku config -a qrfood`
 - attach to heroku postgres db: `heroku pg:psql -a qrfood`
 - show tables: `\d`
 - show items in table: `SELECT * FROM food_items;`
@@ -22,3 +22,5 @@ Ideas
 - make an entry for quantity (IE # of spinach of muffins left)
 - Improve UX to view screen
 - add feature location to items and ability to quickly move between locaitons (ie freezing spinach muffins)
+- add location feature
+- ability to add picture
