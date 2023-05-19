@@ -51,7 +51,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
     conn.close()
     if results:
         days_dict = {}
-        message = "QR Food App Alert: \n"
+        message = "QR Food App Alert: \n\n"
         for row in results:
             food_item = FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) 
             days_to_expiration = food_item.expiration_date - datetime.date.today()
