@@ -59,6 +59,7 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
                 days_dict[days_to_expiration.days] = [food_item.food]        
             else:
                 days_dict[days_to_expiration.days].append(food_item.food)
+        print(days_dict)
         for day in sorted(days_dict.keys()):
             foods = days_dict[day]
             remaining_foods = len(foods) - 3
