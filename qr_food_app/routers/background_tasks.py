@@ -59,20 +59,10 @@ async def send_notification(request: Request, background_tasks: BackgroundTasks,
                 days_dict[days_to_expiration.days] = [food_item.food]        
             else:
                 days_dict[days_to_expiration.days].append(food_item.food)
-        lowest_day = sorted(days_dict.keys())[0]
-        foods = days_dict[lowest_day]
-        remaining_foods = len(foods) - 3
-        if remaining_foods > 0:
-            message += f"{','.join(foods[:3])} and {remaining_foods} more will expire in {lowest_day} days.\n" 
-        else:
-            message += f"{''.join(foods)} will expire in {lowest_day} days.\n"
-        send_text_alert(user_phone_number, message)
-            # food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in results]
-            # message = f"Alert: The {food} will expire in {days_food_expires} days!"
-            # print(f"Found results! {results}")
-            # for food in food_items:
-            #     message = f"Alert: The {food.food} will expire in {days_food_expires} days!"
-            #     send_text_alert(user_phone_number, message)
-
-        # background_tasks.add_task(write_notification, email, message="some notification")
-        # return {"message": "Notification sent in the background"}
+        for day in sorted(days_dict.keys()):
+            foods = days_dict[day]
+            remaining_foods = len(foods) - 3
+            if remaining_foods > 0:
+                message += f"{','.join(foods[:3])} and {remaining_foods} more will expire in {day} days.\n" 
+            else:
+                message += f"{''.join(foods)} will expire in {day} days.\n"
