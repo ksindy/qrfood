@@ -285,7 +285,6 @@ async def create_qr_codes(N: int):
         img.save(temp_file, "PNG")
         temp_file.close()
 
-
         # Upload QR code to S3
         with open(temp_file.name, "rb") as file:
             s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
@@ -300,7 +299,10 @@ async def create_qr_codes(N: int):
 
         # Add QR code to the PDF
         pdf.image(temp_file.name, x = x, y = y, w = 1, h = 1) # 1"x1" size QR code
-
+        
+        # Delete the temporary file
+        os.remove(temp_file.name)
+        
         qr_counter += 1  # Increment the counter
 
     # Save the PDF to a temporary file
@@ -308,8 +310,8 @@ async def create_qr_codes(N: int):
     pdf.output(pdf_output.name)
 
     # Return the PDF as a StreamingResponse
-    with open(pdf_output.name, "rb") as file:
-        return StreamingResponse(file, media_type="application/pdf")
+    file = open(pdf_output.name, "rb")
+    return StreamingResponse(file, media_type="application/pdf")
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
 async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
