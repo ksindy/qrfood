@@ -311,7 +311,8 @@ async def create_qr_codes(N: int):
 
     # Return the PDF as a StreamingResponse
     file = open(pdf_output.name, "rb")
-    return StreamingResponse(file, media_type="application/pdf")
+    headers = {'Content-Disposition': 'inline; filename="out.pdf"'}
+    return StreamingResponse(file, headers=headers, media_type="application/pdf")
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
 async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
