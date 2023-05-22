@@ -281,9 +281,10 @@ async def create_qr_codes(N: int):
         buffer.seek(0)
 
         # Save QR code to temporary file
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
         img.save(temp_file, "PNG")
         temp_file.close()
+
 
         # Upload QR code to S3
         with open(temp_file.name, "rb") as file:
