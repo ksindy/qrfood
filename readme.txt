@@ -24,3 +24,5 @@ Ideas
 - add feature location to items and ability to quickly move between locaitons (ie freezing spinach muffins)
 - add location feature
 - ability to add picture
+- clean data before going into databse (ie each food has a blank space after it)
+- make printable sheets out of N number of qr codes as defined by user

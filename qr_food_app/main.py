@@ -17,6 +17,8 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from .routers import background_tasks
 
+
+
 app = FastAPI()
 app.include_router(background_tasks.router)
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
@@ -218,35 +220,79 @@ s3 = boto3.client('s3',
                   aws_access_key_id=aws_access_key_id,
                   aws_secret_access_key=aws_secret_access_key)
 
-@app.get("/create_qr_code/")
-async def create_qr_code():
-    # Generate UUID
-    item_id = str(uuid4())
+# @app.get("/create_qr_code/")
+# async def create_qr_code():
+#     # Generate UUID
+#     item_id = str(uuid4())
+#     bucket_name = "qrfoodcodes"
+
+#     # Create QR code
+#     qr = QRCode()
+#     qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
+#     qr.make(fit=True)
+#     img = qr.make_image(fill_color="black", back_color="white")
+
+#     # Save the image to an in-memory buffer
+#     buffer = BytesIO()
+#     img.save(buffer, format="PNG")
+#     buffer.seek(0)
+
+#     # Save QR code to temporary file
+#     temp_file = tempfile.NamedTemporaryFile(delete=False)
+#     img.save(temp_file, "PNG")
+#     temp_file.close()
+
+#     # Upload QR code to S3
+#     with open(temp_file.name, "rb") as file:
+#         s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
+
+#     # Return the image as a StreamingResponse
+#     return StreamingResponse(buffer, media_type="image/png")
+#     #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
+# from fpdf import FPDF
+# from PIL import Image
+
+@app.get("/create_qr_codes/{N}")
+async def create_qr_codes(N: int):
+    # Generate N QR codes
     bucket_name = "qrfoodcodes"
+    pdf = FPDF(unit = "in", format=[1, N]) # Creating PDF of 1" width and N" height
 
-    # Create QR code
-    qr = QRCode()
-    qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
+    for i in range(N):
+        # Generate UUID
+        item_id = str(uuid4())
 
-    # Save the image to an in-memory buffer
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
+        # Create QR code
+        qr = QRCode()
+        qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
 
-    # Save QR code to temporary file
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-    img.save(temp_file, "PNG")
-    temp_file.close()
+        # Save the image to an in-memory buffer
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
 
-    # Upload QR code to S3
-    with open(temp_file.name, "rb") as file:
-        s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
+        # Save QR code to temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        img.save(temp_file, "PNG")
+        temp_file.close()
 
-    # Return the image as a StreamingResponse
-    return StreamingResponse(buffer, media_type="image/png")
-    #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
+        # Upload QR code to S3
+        with open(temp_file.name, "rb") as file:
+            s3.upload_fileobj(file, bucket_name, f"test_{item_id}.png")
+
+        # Add QR code to the PDF
+        pdf.add_page()
+        pdf.image(temp_file.name, x = 0, y = i, w = 1, h = 1) # 1"x1" size QR code
+
+    # Save the PDF to a temporary file
+    pdf_output = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    pdf.output(pdf_output.name)
+
+    # Return the PDF as a StreamingResponse
+    with open(pdf_output.name, "rb") as file:
+        return StreamingResponse(file, media_type="application/pdf")
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
 async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
