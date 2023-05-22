@@ -252,11 +252,18 @@ s3 = boto3.client('s3',
 # from fpdf import FPDF
 # from PIL import Image
 
+from fpdf import FPDF
+from PIL import Image
+
 @app.get("/create_qr_codes/{N}")
 async def create_qr_codes(N: int):
     # Generate N QR codes
     bucket_name = "qrfoodcodes"
-    pdf = FPDF(unit = "in", format=[1, N]) # Creating PDF of 1" width and N" height
+    pdf = FPDF(unit = "in", format='A4') # Creating PDF in A4 size
+
+    qr_per_row = 8  # The number of QR codes per row in the PDF. Adjust as necessary.
+    qr_per_col = 10  # The number of QR codes per column in the PDF. Adjust as necessary.
+    qr_counter = 0  # Counter for QR codes generated so far
 
     for i in range(N):
         # Generate UUID
@@ -280,11 +287,20 @@ async def create_qr_codes(N: int):
 
         # Upload QR code to S3
         with open(temp_file.name, "rb") as file:
-            s3.upload_fileobj(file, bucket_name, f"test_{item_id}.png")
+            s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
+
+        # Start a new page if we've filled the current one
+        if qr_counter % (qr_per_row * qr_per_col) == 0:
+            pdf.add_page()
+
+        # Calculate the position of the QR code on the page
+        x = (qr_counter % qr_per_row) * 1.2 + 0.1  # 1" size and 0.2" space
+        y = (qr_counter // qr_per_row % qr_per_col) * 1.2 + 0.1  # 1" size and 0.2" space
 
         # Add QR code to the PDF
-        pdf.add_page()
-        pdf.image(temp_file.name, x = 0, y = i, w = 1, h = 1) # 1"x1" size QR code
+        pdf.image(temp_file.name, x = x, y = y, w = 1, h = 1) # 1"x1" size QR code
+
+        qr_counter += 1  # Increment the counter
 
     # Save the PDF to a temporary file
     pdf_output = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
