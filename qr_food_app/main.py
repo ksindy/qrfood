@@ -5,7 +5,6 @@ from pydantic import BaseModel
 import psycopg2
 import datetime
 from uuid import uuid4
-from qrcode import QRCode
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
@@ -13,14 +12,13 @@ import tempfile
 import os
 from PIL import Image
 import os
-import boto3
-from botocore.exceptions import NoCredentialsError
-from .routers import background_tasks
+from .routers import background_tasks, create_qr_codes
 
 
 
 app = FastAPI()
 app.include_router(background_tasks.router)
+app.include_router(create_qr_codes.router)
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
@@ -208,111 +206,6 @@ async def view_food_item(request: Request, item_id: str):
     food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6])
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
-
-class QRRequest(BaseModel):
-    data: str
-    file_name: str
-
-aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-#aws_session_token = 'YOUR_AWS_SESSION_TOKEN'  # Optional
-s3 = boto3.client('s3',
-                  aws_access_key_id=aws_access_key_id,
-                  aws_secret_access_key=aws_secret_access_key)
-
-# @app.get("/create_qr_code/")
-# async def create_qr_code():
-#     # Generate UUID
-#     item_id = str(uuid4())
-#     bucket_name = "qrfoodcodes"
-
-#     # Create QR code
-#     qr = QRCode()
-#     qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
-#     qr.make(fit=True)
-#     img = qr.make_image(fill_color="black", back_color="white")
-
-#     # Save the image to an in-memory buffer
-#     buffer = BytesIO()
-#     img.save(buffer, format="PNG")
-#     buffer.seek(0)
-
-#     # Save QR code to temporary file
-#     temp_file = tempfile.NamedTemporaryFile(delete=False)
-#     img.save(temp_file, "PNG")
-#     temp_file.close()
-
-#     # Upload QR code to S3
-#     with open(temp_file.name, "rb") as file:
-#         s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
-
-#     # Return the image as a StreamingResponse
-#     return StreamingResponse(buffer, media_type="image/png")
-#     #raise HTTPException(status_code=500, detail=f"Failed to save QR code to S3 bucket: {str(e)}")
-# from fpdf import FPDF
-# from PIL import Image
-
-from fpdf import FPDF
-from PIL import Image
-
-@app.get("/create_qr_codes/{N}")
-async def create_qr_codes(N: int):
-    # Generate N QR codes
-    bucket_name = "qrfoodcodes"
-    pdf = FPDF(unit = "in", format='A4') # Creating PDF in A4 size
-
-    qr_per_row = 8  # The number of QR codes per row in the PDF. Adjust as necessary.
-    qr_per_col = 10  # The number of QR codes per column in the PDF. Adjust as necessary.
-    qr_counter = 0  # Counter for QR codes generated so far
-
-    for i in range(N):
-        # Generate UUID
-        item_id = str(uuid4())
-
-        # Create QR code
-        qr = QRCode()
-        qr.add_data(f"https://qrfood.herokuapp.com/{item_id}/")
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-
-        # Save the image to an in-memory buffer
-        buffer = BytesIO()
-        img.save(buffer, format="PNG")
-        buffer.seek(0)
-
-        # Save QR code to temporary file
-        temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        img.save(temp_file, "PNG")
-        temp_file.close()
-
-        # Upload QR code to S3
-        with open(temp_file.name, "rb") as file:
-            s3.upload_fileobj(file, bucket_name, f"{item_id}.png")
-
-        # Start a new page if we've filled the current one
-        if qr_counter % (qr_per_row * qr_per_col) == 0:
-            pdf.add_page()
-
-        # Calculate the position of the QR code on the page
-        x = (qr_counter % qr_per_row) * 1.2 + 0.1  # 1" size and 0.2" space
-        y = (qr_counter // qr_per_row % qr_per_col) * 1.2 + 0.1  # 1" size and 0.2" space
-
-        # Add QR code to the PDF
-        pdf.image(temp_file.name, x = x, y = y, w = 1, h = 1) # 1"x1" size QR code
-        
-        # Delete the temporary file
-        os.remove(temp_file.name)
-        
-        qr_counter += 1  # Increment the counter
-
-    # Save the PDF to a temporary file
-    pdf_output = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-    pdf.output(pdf_output.name)
-
-    # Return the PDF as a StreamingResponse
-    file = open(pdf_output.name, "rb")
-    headers = {'Content-Disposition': 'attachment; filename="out.pdf"'}
-    return StreamingResponse(file, headers=headers, media_type="application/pdf")
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
 async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
