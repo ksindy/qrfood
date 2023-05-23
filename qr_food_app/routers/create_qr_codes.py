@@ -25,7 +25,7 @@ s3 = boto3.client('s3',
                   aws_access_key_id=aws_access_key_id,
                   aws_secret_access_key=aws_secret_access_key)
 
-@app.get("/create_qr_codes/{N}")
+@router.get("/create_qr_codes/{N}")
 async def create_qr_codes(N: int):
     # Generate N QR codes
     bucket_name = "qrfoodcodes"
