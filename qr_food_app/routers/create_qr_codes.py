@@ -1,5 +1,5 @@
 from fpdf import FPDF
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 import os
 from typing import Optional
 import datetime
