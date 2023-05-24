@@ -1,4 +1,4 @@
-# background_tasks.py
+# routers/background_tasks.py
 from ..database import connect_to_db, check_date_range
 from fastapi import BackgroundTasks, FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
@@ -9,6 +9,8 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 import datetime
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 # Define the request model
 class FoodItem(BaseModel):
@@ -43,8 +45,25 @@ def send_text_alert(to_phone_number, message):
 async def test_notification(request: Request):
     return templates.TemplateResponse("alert.html", {"request": request})
 
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+@router.on_event("startup")
+async def load_tasks():
+    # Here we assume that user_phone_number and days_food_expires are constants
+    # for the purpose of this example. If they are not, you may need to adjust
+    # this code.
+    user_phone_number = "+9192180019"  # Replace with actual phone number
+    days_food_expires = 5  # Replace with actual number of days
+    scheduler.add_job(
+        send_notification,
+        trigger=IntervalTrigger(days=1),
+        args=(user_phone_number, days_food_expires),
+        replace_existing=True,
+    )
+
 @router.post("/send-notification/", response_class=HTMLResponse)
-async def send_notification(request: Request, background_tasks: BackgroundTasks, user_phone_number: str = Form(...), days_food_expires: int = Form(...)):
+async def send_notification(user_phone_number: str, days_food_expires: int):
     # while True:
     conn = connect_to_db()
     results = check_date_range(conn, days_food_expires)
