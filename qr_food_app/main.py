@@ -41,7 +41,8 @@ def init_db():
             expiration_date DATE NOT NULL,
             notes VARCHAR(255),
             update_time TIMESTAMP NOT NULL,
-            date_consumed DATE
+            date_consumed DATE,
+            location VARCHAR(255)
             )
     """)
     conn.commit()
@@ -65,6 +66,7 @@ class FoodItem(BaseModel):
     days_left: Optional[int] = None
     update_time: Optional[datetime.datetime] = None
     date_consumed: Optional[datetime.date] = None
+    location: Optional[str] = None
 
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
@@ -72,7 +74,7 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
     cur = conn.cursor()
 
     query = """
-        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed
+        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed, fi.location
         FROM food_items fi
         INNER JOIN (
             SELECT id, MAX(update_time) AS max_update_time
@@ -92,7 +94,7 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[7]) for row in rows]
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
@@ -102,7 +104,8 @@ async def edit_food_item(
     item_id: str, 
     food: Optional[str] = Form(None), 
     expiration_date: Optional[datetime.date] = Form(None), 
-    notes: Optional[str] = Form(None)):
+    notes: Optional[str] = Form(None),
+    location: Optional[str] = Form(None)):
 
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -116,7 +119,7 @@ async def edit_food_item(
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=item[5], date_consumed=item[6])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
 
     return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
 
@@ -126,7 +129,8 @@ async def update_food_item(
     food: str = Form(...), 
     expiration_date: datetime.date = Form(...), 
     notes: Optional[str] = Form(None), 
-    date_consumed: Optional[datetime.date] = Form(None)):
+    date_consumed: Optional[datetime.date] = Form(None),
+    location: Optional[str] = Form(None)):
     
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -142,8 +146,8 @@ async def update_food_item(
     date_added = date_added_row[0] if date_added_row is not None else None
 
     cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, date_added, expiration_date, notes, dt, date_consumed),
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, food, date_added, expiration_date, notes, dt, date_consumed, location),
     )
 
     conn.commit()

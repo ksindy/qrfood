@@ -1,6 +1,6 @@
 Heroku
-- list environmental varaibles: `heroku config -a qrfood`
 - attach to heroku postgres db: `heroku pg:psql -a qrfood`
+- list environmental varaibles: `heroku config -a qrfood`
 - show tables: `\d`
 - show items in table: `SELECT * FROM food_items;`
 - set env vars heroku config:set GITHUB_USERNAME=joesmith
@@ -26,3 +26,8 @@ Ideas
 - ability to add picture
 - clean data before going into databse (ie each food has a blank space after it)
 - make printable sheets out of N number of qr codes as defined by user
+- add labels under qr codes as defined by user
+- add buton on view screen that starts the day count over (like if you have tomato sauce and then add new tomato sauce to the same container)
+
+May 22, 2023
+- Added an endpoint (only accessible via swagger UI) that accepts an integer and returns a pdf with N number of 1"x1" qr codes (/app/router/creat_qr_codes.py)
