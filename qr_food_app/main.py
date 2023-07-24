@@ -165,6 +165,7 @@ async def view_add_food_item(request: Request, item_id:str):
 async def add_food_item(
     item_id: str,
     food: str = Form(...),
+    location: str = Form(...),
     expiration_date: datetime.date = Form(...),
     notes: Optional[str] = Form(None)
 ):
@@ -180,8 +181,8 @@ async def add_food_item(
 
     # Insert the new food item into the database
     cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes, update_time, date_consumed),
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes, update_time, date_consumed, location),
     )
 
     conn.commit()
@@ -207,7 +208,7 @@ async def view_food_item(request: Request, item_id: str):
     days_old = (datetime.date.today() - item[3]).days
     days_left = (item[4] - datetime.date.today()).days
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6])
+    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
 
     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
@@ -217,7 +218,7 @@ async def read_updated_items(request: Request, sort_by_expiration_date: bool = F
     cur = conn.cursor()
 
     query = """
-        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed
+        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed, fi.location
         FROM food_items fi
         INNER JOIN (
             SELECT id, MAX(update_time) AS max_update_time
@@ -235,7 +236,7 @@ async def read_updated_items(request: Request, sort_by_expiration_date: bool = F
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7]) for row in rows]
+    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
 
     return templates.TemplateResponse("consumed.html", {"request": request, "food_items": food_items})
 
@@ -278,8 +279,8 @@ async def add_consumed_date(item_id: str):
     # Create a new entry with the same info, but add the current time to the "update_time" column and "date_consumed" column
     current_time = datetime.datetime.now()
     cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, item[2], item[3], item[4], item[5], current_time, current_time),
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, item[2], item[3], item[4], item[5], current_time, current_time, item[7]),
     )
 
     conn.commit()
