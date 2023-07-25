@@ -2,7 +2,9 @@
 import os
 import psycopg2
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
+load_dotenv()  # take environment variables from .env.
 DATABASE_URL = os.environ['DATABASE_URL']
 def connect_to_db():
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')

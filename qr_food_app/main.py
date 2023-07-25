@@ -13,9 +13,10 @@ import os
 from PIL import Image
 import os
 from .routers import background_tasks, create_qr_codes
+from dotenv import load_dotenv
+from os import getenv
 
-
-
+load_dotenv()  # take environment variables from .env.
 app = FastAPI()
 app.include_router(background_tasks.router)
 app.include_router(create_qr_codes.router)
@@ -24,7 +25,8 @@ templates = Jinja2Templates(directory=templates_path)
 
 # Connect to the database
 def connect_to_db():
-    conn = psycopg2.connect(os.environ["DATABASE_URL"], sslmode="require")
+    use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
     return conn
 
 # Initialize the database
@@ -109,6 +111,10 @@ async def edit_food_item(
 
     conn = connect_to_db()
     cursor = conn.cursor()
+
+    # Fetch distinct locations
+    cursor.execute("SELECT DISTINCT food FROM locations ORDER BY food ASC")
+    location_list = [item[0] for item in cursor.fetchall()]
 
     cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
     item = cursor.fetchone()
