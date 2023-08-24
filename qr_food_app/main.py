@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pydantic import BaseModel
 import psycopg2
 import datetime
@@ -113,8 +113,9 @@ async def edit_food_item(
     cursor = conn.cursor()
 
     # Fetch distinct locations
-    cursor.execute("SELECT DISTINCT food FROM locations ORDER BY food ASC")
+    cursor.execute("SELECT DISTINCT location FROM food_items ORDER BY location ASC")
     location_list = [item[0] for item in cursor.fetchall()]
+    print(location_list)
 
     cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
     item = cursor.fetchone()
@@ -125,10 +126,18 @@ async def edit_food_item(
     if not item:
         raise HTTPException(status_code=404, detail="Food item not found")
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
+    food_item = {
+    "id": item[1],
+    "food": item[2],
+    "date_added": item[3],
+    "expiration_date": item[4],
+    "notes": item[5],
+    "date_consumed": item[6],
+    "location": item[7]
+    }
 
-    return templates.TemplateResponse("edit.html", {"request": request, "item": food_item})
-
+    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
+    # return {"locations": location_list, "item": food_item}
 @app.post("/{item_id}/update/", response_class=HTMLResponse)
 async def update_food_item(
     item_id: str, 
