@@ -1,0 +1,26 @@
+<!-- templates/consumed.html -->
+{% extends "header.html" %}
+{% block content %}
+<div class="container">
+    <h1>Consumed Items</h1>
+    <table>
+        <tr>
+            <th>Food</th>
+            <th>Date Added</th>
+            <th>
+                Expiration Date
+                <span id="expiration-sort-btn" style="cursor:pointer;">▼</span>
+                </form>
+            </th>
+            <th>Notes</th>
+        </tr>
+        {% for item in food_items %}
+        <tr class="collapse">
+            <td>{{ item.food }}</td>
+            <td>{{ item.date_added }}</td>
+            <td>{{ item.expiration_date }}</td>
+            <td> {{ item.notes|default('', true) }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endblock %}
