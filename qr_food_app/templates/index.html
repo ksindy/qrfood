@@ -128,24 +128,29 @@
         <table>
             <tr>
                 <th>Food</th>
-                <th>Added</th>
-                <th>
-                    Expires
+                <th>Expires
                     <div class="arrow-container">
                         <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
                         <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
                     </div>
                 </th>
-                <th>Notes</th>
+                <th>
+                    Days Left
+                    <div class="arrow-container">
+                        <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
+                        <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
+                    </div>
+                </th>
+                <th>Location</th>
                 <th>Edit</th>
                 <th><a href="/consumed_items/"> Consumed</a></th>
             </tr>
             {% for item in food_items %}
             <tr class="collapse">
                 <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
-                <td>{{ item.date_added }}</td>
                 <td>{{ item.expiration_date }}</td>
-                <td> {{ item.notes|default('', true) }} </td>
+                <td>{{ item.days_left }}</td>
+                <td>{{ item.location }}</td>
                 <td>
                     <form action="/{{ item.id }}/update/" method="get">
                         <input type="submit" value="Edit">
