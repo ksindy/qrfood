@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pydantic import BaseModel
 import psycopg2
 import datetime
@@ -107,11 +107,7 @@ def read_favicon():
 @app.get("/{item_id}/update/", response_class=HTMLResponse)
 async def edit_food_item(
     request: Request, 
-    item_id: str, 
-    food: Optional[str] = Form(None), 
-    expiration_date: Optional[datetime.date] = Form(None), 
-    notes: Optional[str] = Form(None),
-    location: Optional[str] = Form(None)):
+    item_id: str):
 
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -126,22 +122,25 @@ async def edit_food_item(
     cursor.close()
     conn.close()
 
-    if not item:
-        raise HTTPException(status_code=404, detail="Food item not found")
+    if item:
+        food_item = {
+        "id": item[1],
+        "food": item[2],
+        "date_added": item[3],
+        "expiration_date": item[4],
+        "notes": item[5],
+        "date_consumed": item[6],
+        "location": item[7]
+        }
 
-    food_item = {
-    "id": item[1],
-    "food": item[2],
-    "date_added": item[3],
-    "expiration_date": item[4],
-    "notes": item[5],
-    "date_consumed": item[6],
-    "location": item[7]
-    }
+        return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
+    else:
+        food_item ={
+            "id": str(item_id)
+        }
+        return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
 
-    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
-
-@app.post("/{item_id}/update/", response_class=HTMLResponse)
+@app.post("/{item_id}/update/")
 async def update_food_item(
     item_id: str, 
     food: str = Form(...), 
@@ -161,7 +160,7 @@ async def update_food_item(
     # get date_added from original entry and add to updated entry
     cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
     date_added_row = cursor.fetchone()
-    date_added = date_added_row[0] if date_added_row is not None else None
+    date_added = date_added_row[0] if date_added_row is not None else datetime.date.today()
 
     cursor.execute(
         "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -172,42 +171,7 @@ async def update_food_item(
     cursor.close()
     conn.close()
 
-    return RedirectResponse("/", status_code=303)
-
-@app.get("/{item_id}/add/", response_class=HTMLResponse)
-async def view_add_food_item(request: Request, item_id:str):
-
-    return templates.TemplateResponse("add.html", {"request": request, "item_id": item_id, "notes": None})
-
-@app.post("/{item_id}/add/", response_class=HTMLResponse)
-async def add_food_item(
-    item_id: str,
-    food: str = Form(...),
-    location: str = Form(...),
-    expiration_date: datetime.date = Form(...),
-    notes: Optional[str] = Form(None)
-):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    # Generate a unique ID for the new food item
-    #item_id = str(uuid4())
-    item_pk = str(uuid4())
-    # Capture the current time
-    update_time = datetime.datetime.now()
-    date_consumed = None
-
-    # Insert the new food item into the database
-    cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, datetime.date.today(), expiration_date, notes, update_time, date_consumed, location),
-    )
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return RedirectResponse("/", status_code=303)
+    return {"success": True, "message": "Successfully updated the food item."}
 
 @app.get("/{item_id}/view/", response_class=HTMLResponse)
 async def view_food_item(request: Request, item_id: str):

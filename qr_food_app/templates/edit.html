@@ -6,21 +6,21 @@
     <form id="editForm">
         <div class="mb-3">
             <label for="food" class="form-label">Food:</label>
-            <input type="text" class="form-control" id="food" value="{{ item.food }}" required>
+            <input type="text" class="form-control" id="food" value="{{ item.food if item else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="expiration_date" class="form-label">Expiration Date:</label>
-            <input type="date" class="form-control" id="expiration_date" value="{{ item.expiration_date }}" required>
+            <input type="date" class="form-control" id="expiration_date" value="{{ item.expiration_date if item else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="notes" class="form-label">Notes:</label>
-            <input type="text" class="form-control" id="notes" value="{{ item.notes }}">
+            <input type="text" class="form-control" id="notes" value="{{ item.notes if item else '' }}">
         </div>
         <div class="mb-3">
             <label for="location" class="form-label">Location:</label>
             <select class="form-control" id="location" onchange="toggleNewLocationInput()">
                 {% for location in locations %}
-                    <option value="{{ location }}" {% if location == item.location %}selected{% endif %}>{{ location }}</option>
+                    <option value="{{ location }}" {% if item and location == item.location %}selected{% endif %}>{{ location }}</option>
                 {% endfor %}
                 <option value="new">Add New Location</option>
             </select>
@@ -44,34 +44,33 @@
             newLocationDiv.style.display = 'none';
         }
     }
+
     document.getElementById('editForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    const food = document.getElementById('food').value;
-    const expiration_date = document.getElementById('expiration_date').value;
-    const notes = document.getElementById('notes').value;
-    
-    // This gets the dropdown element (not the value)
-    const locationDropdown = document.getElementById('location');
-    let location;
+        const food = document.getElementById('food').value;
+        const expiration_date = document.getElementById('expiration_date').value;
+        const notes = document.getElementById('notes').value;
+        const locationDropdown = document.getElementById('location');
+        let location;
 
-    // Check if the selected option is "new"
-    if (locationDropdown.value === 'new') {
-        location = document.getElementById('newLocation').value; // Get the value from the new location input field
-    } else {
-        location = locationDropdown.value; // Otherwise, use the dropdown value
-    }
+        if (locationDropdown.value === 'new') {
+            location = document.getElementById('newLocation').value;
+        } else {
+            location = locationDropdown.value;
+        }
 
-    const item_id = "{{ item.id }}";
+        const item_id = "{{ item.id if item else 'new' }}";
 
-    const formData = new FormData();
-    formData.append('food', food);
-    formData.append('expiration_date', expiration_date);
-    formData.append('notes', notes);
-    formData.append('location', location);
+        const formData = new FormData();
+        formData.append('food', food);
+        formData.append('expiration_date', expiration_date);
+        formData.append('notes', notes);
+        formData.append('location', location);
 
         try {
-            const response = await fetch(`/${item_id}/update/`, {
+            const endpoint = item_id === 'new' ? '/create/' : `/${item_id}/update/`;
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData
             });
@@ -80,7 +79,11 @@
 
             if (data.success) {
                 alert(data.message);
-                // Redirect or update the UI accordingly
+                window.location.href = '/';
+            // if (response.status === 303) {
+            //     window.location.href = '/';
+            // }
+
             } else {
                 alert('Error updating the food item.');
             }
