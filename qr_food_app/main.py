@@ -100,6 +100,10 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
 
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
+@app.get("/favicon.ico")
+def read_favicon():
+    raise HTTPException(status_code=204, detail="No content")
+
 @app.get("/{item_id}/update/", response_class=HTMLResponse)
 async def edit_food_item(
     request: Request, 
@@ -259,7 +263,12 @@ async def handle_qr_scan(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
+    cursor.execute("""
+        SELECT * FROM food_items
+        WHERE id = %s
+        ORDER BY update_time DESC
+        LIMIT 1
+    """, (item_id,))
     item = cursor.fetchone()
 
     cursor.close()
