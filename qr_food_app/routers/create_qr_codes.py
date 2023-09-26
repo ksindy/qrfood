@@ -65,7 +65,7 @@ async def create_qr_codes(N: int):
 
         # Calculate the position of the QR code on the page
         x = (qr_counter % qr_per_row) * 1.2 + 0.1  # 1" size and 0.2" space
-        y = (qr_counter // qr_per_row % qr_per_col) * 1.2 + 0.1  # 1" size and 0.2" space
+        y = (qr_counter // qr_per_row % qr_per_col) * 2.2 + 0.1  # 2" size and 0.2" space
 
         # Add QR code to the PDF
         pdf.image(temp_file.name, x = x, y = y, w = 1, h = 1) # 1"x1" size QR code
