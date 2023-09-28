@@ -189,6 +189,10 @@ async def view_food_item(request: Request, item_id: str):
 
     days_old = (datetime.date.today() - item[3]).days
     days_left = (item[4] - datetime.date.today()).days
+    if days_left > 30:
+        months = days_left // 30
+        days = days_left % 30
+        days_left = f"{months} months, {days} days"
 
     food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
 

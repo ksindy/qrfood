@@ -110,6 +110,36 @@
                 font-size: 12px;
             }
         }
+        .remove-button {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .remove-button:before, .remove-button:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60%;
+            height: 2px;
+            background-color: white;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        .remove-button:after {
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+        .remove-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -128,14 +158,14 @@
         <table>
             <tr>
                 <th>Food</th>
-                <th>Expires
+                <!-- <th>Expires
                     <div class="arrow-container">
                         <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
                         <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
                     </div>
-                </th>
+                </th> -->
                 <th>
-                    Days Left
+                    Time Left
                     <div class="arrow-container">
                         <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
                         <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
@@ -143,13 +173,13 @@
                 </th>
                 <th>Location</th>
                 <th>Edit</th>
-                <th><a href="/consumed_items/"> Consumed</a></th>
+                <th><a href="/consumed_items/"> Done</a></th>
             </tr>
             {% for item in food_items %}
             <tr class="collapse">
                 <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
-                <td>{{ item.expiration_date }}</td>
-                <td>{{ item.days_left }}</td>
+                <!-- <td>{{ item.expiration_date }}</td> -->
+                <td class='time-left' data-days-left="{{ item.days_left }}"></td> 
                 <td>{{ item.location }}</td>
                 <td>
                     <form action="/{{ item.id }}/update/" method="get">
@@ -157,10 +187,10 @@
                     </form>
                 </td>
                 <td>
-                    <form action="{{ item.id }}/consumed/" method="get">
-                        <input type="submit" value="Consumed">
+                    <form action="{{ item.id }}/consumed/" method="get" class="remove-form">
+                        <div class="remove-button" onclick="this.parentNode.submit();"></div>
                     </form>
-                </td>
+                </td>                                         
             </tr>
             {% endfor %}
         </table>
@@ -168,6 +198,22 @@
     </div>
 </div>
     </body>
+    <script type="text/javascript">
+    var timeLeftCells = document.querySelectorAll('.time-left');
+
+    timeLeftCells.forEach(function(cell) {
+        var days_left = parseInt(cell.getAttribute('data-days-left'));
+
+        if (days_left > 30) {
+            var months = Math.floor(days_left / 30);
+            var days = days_left % 30;
+
+            cell.innerText = months + ' mo ' + days + ' days';
+        } else {
+            cell.innerText = days_left + ' days';
+        }
+    });
+    </script>
     <script>
         const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
         const expirationSortBtnDesc = document.getElementById('expiration-sort-btn-desc');
