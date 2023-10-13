@@ -33,8 +33,39 @@
 </style>
 <div class="container">
     <h1>{{ item.food }}</h1>
-    <p class="bold-num"> {{ item.days_old }} {{ 'Day' if item.days_old == 1 else 'Days' }} Old <span class="small-text">(added {{ item.date_added.strftime('%m-%d-%Y') }})</span></p>
-    <p class="bold-num">{{ item.days_left }} {{ 'Day' if item.days_old == 1 else 'Days' }} Left <span class="small-text">(expires {{ item.expiration_date.strftime('%m-%d-%Y') }})</span></p>
+    <p>
+        <span class="bold-num">Age:</span>
+        <span class='bold-num time' data-days="{{ item.days_old }}"></span> 
+        <span class="small-text">(added {{ item.date_added.strftime('%m-%d-%Y') }})</span>
+    </p>
+    <p>
+        <span class="bold-num">Time Left:</span>
+        <span class='bold-num time' data-days="{{ item.days_left }}"></span> 
+        <span class="small-text">(expires {{ item.expiration_date.strftime('%m-%d-%Y') }})</span>
+    </p>
     <button><a href="{{ url_for('edit_food_item', item_id=item.id) }}">Edit</a></button>
 </div>
+
+<script type="text/javascript">
+function updateTimeElement(cell) {
+    var days = parseInt(cell.getAttribute('data-days'));
+
+    if (days > 30) {
+        var months = Math.floor(days / 30);
+        var remainingDays = days % 30;
+        cell.innerText = months + ' mo ' + remainingDays + ' days';
+    } else {
+        cell.innerText = days + ' days';
+    }
+}
+
+var timeCells = document.querySelectorAll('.time');
+
+timeCells.forEach(function(cell) {
+    updateTimeElement(cell);
+});
+
+
+    </script>
+
 {% endblock %}
