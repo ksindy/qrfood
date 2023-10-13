@@ -29,7 +29,7 @@ def connect_to_db():
     conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
     return conn
 
-# Initialize the database
+# Initialize the databas
 def init_db():
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -70,8 +70,7 @@ class FoodItem(BaseModel):
     date_consumed: Optional[datetime.date] = None
     location: Optional[str] = None
 
-@app.get("/", response_class=HTMLResponse)
-async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
+async def get_food_items(query_string):
     conn = connect_to_db()
     cur = conn.cursor()
 
@@ -85,19 +84,25 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
         ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
         WHERE fi.date_consumed IS NULL
     """
-
-    if sort_by_expiration_date:
-        order = "ASC" if sort_order == "asc" else "DESC"
-        query += f" ORDER BY fi.expiration_date {order}"
-    query += ";"
+    query = query + query_string
         
     cur.execute(query)
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0],  days_left = (row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
+    food_items = [FoodItem(pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
 
+    return food_items
+
+@app.get("/", response_class=HTMLResponse)
+async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
+    query_string = ""
+    if sort_by_expiration_date:
+        order = "ASC" if sort_order == "asc" else "DESC"
+        query_string = f" ORDER BY fi.expiration_date {order}"
+        query_string += ";"
+    food_items = await get_food_items(query_string)
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/favicon.ico")
@@ -109,36 +114,25 @@ async def edit_food_item(
     request: Request, 
     item_id: str):
 
-    conn = connect_to_db()
-    cursor = conn.cursor()
+    food_item = {}
+    location_list=[]
+    query_string = ";"
+    food_items = await get_food_items(query_string)
+    for item in food_items:
+        if item.location not in location_list:
+            location_list.append(item.location)
+        if item.id == item_id:
+            food_item = {
+            "id": item.id,
+            "food": item.food,
+            "date_added": item.date_added,
+            "expiration_date": item.expiration_date,
+            "notes": item.notes,
+            "date_consumed": item.date_consumed,
+            "location": item.location
+            }
 
-    # Fetch distinct locations
-    cursor.execute("SELECT DISTINCT location FROM food_items ORDER BY location ASC")
-    location_list = [item[0] for item in cursor.fetchall()]
-
-    cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
-    item = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    if item:
-        food_item = {
-        "id": item[1],
-        "food": item[2],
-        "date_added": item[3],
-        "expiration_date": item[4],
-        "notes": item[5],
-        "date_consumed": item[6],
-        "location": item[7]
-        }
-
-        return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
-    else:
-        food_item ={
-            "id": str(item_id)
-        }
-        return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
+    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
 
 @app.post("/{item_id}/update/")
 async def update_food_item(
