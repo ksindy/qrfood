@@ -47,6 +47,18 @@ def init_db():
             location VARCHAR(255)
             )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS plants (
+            pk UUID PRIMARY KEY,
+            id UUID NOT NULL,
+            plant VARCHAR(255) NOT NULL,
+            date_added DATE NOT NULL,
+            treatment VARCHAR(255) NOT NULL,
+            location VARCHAR(255) NOT NULL,
+            notes VARCHAR(255),
+            update_time TIMESTAMP NOT NULL
+            )
+    """)
     conn.commit()
     cursor.close()
     conn.close()
@@ -56,7 +68,7 @@ TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
 TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
 TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
 
-# Define the request model
+# Define the request model for FoodItem and PlantItem
 class FoodItem(BaseModel):
     pk: Optional[str] = None
     id: Optional[str] = None
@@ -69,6 +81,16 @@ class FoodItem(BaseModel):
     update_time: Optional[datetime.datetime] = None
     date_consumed: Optional[datetime.date] = None
     location: Optional[str] = None
+
+class PlantItem(BaseModel):
+    pk: Optional[str] = None
+    id: Optional[str] = None
+    plant: str
+    date_added: datetime.date
+    treatment: str
+    location: str
+    notes: Optional[str] = None
+    update_time: Optional[datetime.datetime] = None
 
 async def get_food_items(query_string):
     conn = connect_to_db()
