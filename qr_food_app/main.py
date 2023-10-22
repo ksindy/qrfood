@@ -147,18 +147,22 @@ async def edit_food_item(
     for item in food_items:
         if item.location not in location_list:
             location_list.append(item.location)
-        if item.id == item_id:
+        if item:
             food_item = {
-            "id": item.id,
-            "food": item.food,
-            "date_added": item.date_added,
-            "expiration_date": item.expiration_date,
-            "notes": item.notes,
-            "date_consumed": item.date_consumed,
-            "location": item.location
-            }
+                "id": item.id,
+                "food": item.food,
+                "date_added": item.date_added,
+                "expiration_date": item.expiration_date,
+                "notes": item.notes,
+                "date_consumed": item.date_consumed,
+                "location": item.location
+                }
+    else:
+        food_item ={
+            "id": str(item_id)
+        }
 
-    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item})
+    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
 
 @app.post("/{item_id}/update/")
 async def update_food_item(
