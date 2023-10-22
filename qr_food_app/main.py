@@ -12,7 +12,7 @@ import tempfile
 import os
 from PIL import Image
 import os
-from .routers import background_tasks, create_qr_codes
+from .routers import background_tasks, create_qr_codes, plants, plants_edit
 from dotenv import load_dotenv
 from os import getenv
 
@@ -20,6 +20,8 @@ load_dotenv()  # take environment variables from .env.
 app = FastAPI()
 app.include_router(background_tasks.router)
 app.include_router(create_qr_codes.router)
+app.include_router(plants.router)
+app.include_router(plants_edit.router)
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
@@ -56,7 +58,8 @@ def init_db():
             treatment VARCHAR(255) NOT NULL,
             location VARCHAR(255) NOT NULL,
             notes VARCHAR(255),
-            update_time TIMESTAMP NOT NULL
+            update_time TIMESTAMP NOT NULL,
+            harvest_date TIMESTAMP
             )
     """)
     conn.commit()
@@ -91,6 +94,7 @@ class PlantItem(BaseModel):
     location: str
     notes: Optional[str] = None
     update_time: Optional[datetime.datetime] = None
+    harvest_date: Optional[datetime.datetime] = None
 
 async def get_food_items(query_string):
     conn = connect_to_db()
@@ -189,26 +193,26 @@ async def update_food_item(
 
     return {"success": True, "message": "Successfully updated the food item."}
 
-@app.get("/{item_id}/view/", response_class=HTMLResponse)
-async def view_food_item(request: Request, item_id: str):
-    conn = connect_to_db()
-    cursor = conn.cursor()
+# @app.get("/{item_id}/view/", response_class=HTMLResponse)
+# async def view_food_item(request: Request, item_id: str):
+#     conn = connect_to_db()
+#     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
-    item = cursor.fetchone()
+#     cursor.execute("SELECT * FROM food_items WHERE id = %s ORDER BY update_time DESC LIMIT 1", (item_id,))
+#     item = cursor.fetchone()
 
-    cursor.close()
-    conn.close()
+#     cursor.close()
+#     conn.close()
 
-    if not item:
-        raise HTTPException(status_code=404, detail="Food item not found")
+#     if not item:
+#         raise HTTPException(status_code=404, detail="Food item not found")
 
-    days_old = (datetime.date.today() - item[3]).days
-    days_left = (item[4] - datetime.date.today()).days
+#     days_old = (datetime.date.today() - item[3]).days
+#     days_left = (item[4] - datetime.date.today()).days
 
-    food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
+#     food_item = FoodItem(id=item[1], food=item[2], date_added=item[3], days_old=days_old, days_left=days_left ,expiration_date=item[4], notes=item[5], date_consumed=item[6], location=item[7])
 
-    return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
+#     return templates.TemplateResponse("view.html", {"request": request, "item": food_item})
 
 @app.get("/consumed_items/", response_class=HTMLResponse)
 async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
@@ -238,7 +242,7 @@ async def read_updated_items(request: Request, sort_by_expiration_date: bool = F
 
     return templates.TemplateResponse("consumed.html", {"request": request, "food_items": food_items})
 
-@app.get("/{item_id}/")
+@app.get("/{item_id}/view")
 async def handle_qr_scan(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -291,3 +295,8 @@ async def add_consumed_date(item_id: str):
     conn.close()
 
     return RedirectResponse(url="/")
+
+@app.get("/{item_id}/")
+async def handle_qr_scan(item_id: str):
+    # Add the new UUID to the database before redirecting to the update page
+    return RedirectResponse(url=f"/{item_id}/update/")

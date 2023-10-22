@@ -39,7 +39,7 @@
         const newLocationDiv = document.getElementById('newLocationDiv');
 
         if (locationDropdown.value === 'new') {
-            newLocationDiv.style.display = 'block';
+            newLocationDiv.style display = 'block';
         } else {
             newLocationDiv.style.display = 'none';
         }
@@ -62,33 +62,32 @@
 
         const item_id = "{{ item.id if item else 'new' }}";
 
-        const formData = new FormData();
-        formData.append('food', food);
-        formData.append('expiration_date', expiration_date);
-        formData.append('notes', notes);
-        formData.append('location', location);
+        // Check if it's an edit (update) operation and not a new item
+        if (!item_id.startsWith('new')) {
+            const formData = new FormData();
+            formData.append('food', food);
+            formData.append('expiration_date', expiration_date);
+            formData.append('notes', notes);
+            formData.append('location', location);
 
-        try {
-            const endpoint = item_id === 'new' ? '/create/' : `/${item_id}/update/`;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData
-            });
+            try {
+                const endpoint = `/${item_id}/update/`;
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (data.success) {
-                alert(data.message);
-                window.location.href = '/';
-            // if (response.status === 303) {
-            //     window.location.href = '/';
-            // }
-
-            } else {
-                alert('Error updating the food item.');
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '/';
+                } else {
+                    alert('Error updating the food item.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
         }
     });
 </script>
