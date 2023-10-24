@@ -34,6 +34,8 @@
 </div>
 
 <script>
+    // Extract item_id from the template
+    const item_id = "{{ item_id }}";
     function toggleNewLocationInput() {
         const locationDropdown = document.getElementById('location');
         const newLocationDiv = document.getElementById('newLocationDiv');
@@ -60,8 +62,6 @@
             location = locationDropdown.value;
         }
 
-        const item_id = "{{ item.id if item else 'new' }}";
-
         const formData = new FormData();
         formData.append('food', food);
         formData.append('expiration_date', expiration_date);
@@ -69,7 +69,8 @@
         formData.append('location', location);
 
         try {
-            const endpoint = item_id === 'new' ? '/create/' : `/${item_id}/update/`;
+            // Always point to the update endpoint
+            const endpoint = `/${item_id}/update/`;
             const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData
@@ -80,10 +81,6 @@
             if (data.success) {
                 alert(data.message);
                 window.location.href = '/';
-            // if (response.status === 303) {
-            //     window.location.href = '/';
-            // }
-
             } else {
                 alert('Error updating the food item.');
             }

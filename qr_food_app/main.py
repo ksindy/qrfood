@@ -106,9 +106,10 @@ async def get_food_items(query_string):
         INNER JOIN (
             SELECT id, MAX(update_time) AS max_update_time
             FROM food_items
+            WHERE date_consumed IS NULL
             GROUP BY id
         ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
-        WHERE fi.date_consumed IS NULL
+       
     """
     query = query + query_string
         
@@ -147,7 +148,7 @@ async def edit_food_item(
     for item in food_items:
         if item.location not in location_list:
             location_list.append(item.location)
-        if item:
+        if str(item.id) == item_id:
             food_item = {
                 "id": item.id,
                 "food": item.food,
@@ -157,11 +158,7 @@ async def edit_food_item(
                 "date_consumed": item.date_consumed,
                 "location": item.location
                 }
-    else:
-        food_item ={
-            "id": str(item_id)
-        }
-
+            print(food_item)
     return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
 
 @app.post("/{item_id}/update/")
