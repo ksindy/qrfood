@@ -106,9 +106,9 @@ async def get_food_items(query_string):
         INNER JOIN (
             SELECT id, MAX(update_time) AS max_update_time
             FROM food_items
-            WHERE date_consumed IS NULL
             GROUP BY id
         ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
+        WHERE date_consumed IS NULL
        
     """
     query = query + query_string
@@ -265,12 +265,12 @@ async def handle_qr_scan(item_id: str):
         # Add the new UUID to the database before redirecting to the update page
         return RedirectResponse(url=f"/{item_id}/update/")
     
-@app.get("/{item_id}/consumed/")
+@app.post("/{item_id}/consumed/")
 async def add_consumed_date(item_id: str):
     conn = connect_to_db()
     cursor = conn.cursor()
 
-    # Find the latest entry based on the "update_time" column for the passed in item.id
+    # Find the latest entry based on the "update_time" column for the passed-in item.id
     cursor.execute("""
         SELECT * FROM food_items
         WHERE id = %s
@@ -295,7 +295,8 @@ async def add_consumed_date(item_id: str):
     cursor.close()
     conn.close()
 
-    return RedirectResponse(url="/")
+    # Redirect to the root page
+    return RedirectResponse("/", status_code=303)
 
 @app.get("/{item_id}/")
 async def handle_qr_scan(item_id: str):

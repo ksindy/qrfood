@@ -30,6 +30,7 @@
             <input type="text" class="form-control" id="newLocation">
         </div>
         <input type="submit" class="btn btn-primary" value="Update">
+        <button onclick="deleteItem(this.form)" type="button" class="btn btn-danger" id="deleteButton">Delete</button> 
     </form>
 </div>
 
@@ -88,5 +89,33 @@
             console.error('Error:', error);
         }
     });
+
+function deleteItem(form) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        form.submit();
+        // After form submission, redirect to the root page
+        window.location.href = '/';
+    }
+}
+// Add an event listener for the "Delete" button
+document.getElementById('deleteButton').addEventListener('click', async () => {
+    try {
+        // Define the delete endpoint as a POST request for consuming the item
+        const deleteEndpoint = `/${item_id}/consumed/`;
+        const deleteResponse = await fetch(deleteEndpoint, {
+            method: 'POST', // Use POST to consume the item
+        });
+
+        if (deleteResponse.ok) {
+            alert('Item has been consumed successfully.');
+            window.location.href = '/';
+        } else {
+            alert('Error consuming the food item.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
 </script>
 {% endblock %}

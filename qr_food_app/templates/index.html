@@ -187,7 +187,7 @@
                     </form>
                 </td>
                 <td>
-                    <form action="{{ item.id }}/consumed/" method="get" class="remove-form">
+                    <form action="{{ item.id }}/consumed/" method="post" class="remove-form" onclick="deleteItem(this.form)">
                         <div class="remove-button" onclick="this.parentNode.submit();"></div>
                     </form>
                 </td>                                         
@@ -214,6 +214,15 @@
         }
     });
     </script>
+    <script>
+        function deleteItem(form) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                form.submit();
+                // After form submission, redirect to the root page
+                window.location.href = '/';
+            }
+        }
+    </script>    
     <script>
         const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
         const expirationSortBtnDesc = document.getElementById('expiration-sort-btn-desc');
