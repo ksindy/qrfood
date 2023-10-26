@@ -188,11 +188,11 @@
                 </td>
                 <td>
                     <form action="{{ item.id }}/consumed/" method="post" class="remove-form">
-                        <div class="remove-button" onclick="deleteItem(this.parentNode);">
+                        <div class="remove-button" onclick="deleteItem(this.parentNode, '{{item.id}}/consumed/');">
                         </div>
                         <button type="button" style="display: none;">Submit</button>
                     </form>
-                </td>                                                     
+                </td>                                                                                
             </tr>
             {% endfor %}
         </table>
@@ -217,9 +217,23 @@
     });
     </script>
     <script>
-        function deleteItem(form) {
+        function deleteItem(form, endpoint) {
             if (confirm('Are you sure you want to delete this item?')) {
-                form.submit();
+                // Use the fetch API to send a POST request to the specified endpoint
+                fetch(endpoint, {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Item has been deleted successfully.');
+                        window.location.href = '/'; // Redirect to the root page
+                    } else {
+                        alert('Error deleting the food item.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
             }
         }
     </script>
