@@ -158,7 +158,6 @@ async def edit_food_item(
                 "date_consumed": item.date_consumed,
                 "location": item.location
                 }
-            print(food_item)
     return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
 
 @app.post("/{item_id}/update/")
