@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+</head>
+
+<body>
+    <div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Plant</p>
+                </div>
+                <div class="col-md-2">
+                    <p>Stage</p>
+                </div>
+                <div class="col-md-2">
+                    <p>Date</p>
+                </div>
+                <div class="col-md-2">
+                    <p>Location&nbsp;</p>
+                </div>
+                <div class="col-md-2">
+                    <p>task</p>
+                </div>
+                <div class="col-md-2">
+                    <p>Notes</p>
+                </div>
+            </div>
+        </div>
+        {% for plant_item in plant_items %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2">
+                    <p>{{plant_item[2]}}</p>
+                </div>
+                <div class="col-md-2">
+                    <p>{{plant_item[3]}}</p>
+                </div>
+                <div class="col-md-2">
+                    <p></p>
+                    <p>{{plant_item.task_date}}</p>
+                </div>
+                <div class="col-md-2">
+                    <p>{{plant_item.location}}</p>
+                </div>
+                <div class="col-md-2">
+                    <p>{{plant_item.task}}</p>
+                </div>
+                <div class="col-md-2">
+                    <p>{{plant_item.notes}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="/static/bootstrap.min.css"></script>
+</body>
+
+</html>

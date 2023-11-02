@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>plant_update</title>
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <!--<link rel="stylesheet" href="/static/bootstrap.min.css">
+
+<script src="/static/bootstrap.min.css"></script>
+-->
+    <div>
+        {% if plant_item %}
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3"> Your {{plant_name}}'s Journey</h2>
+                    <p class="mb-4">Information about plant</p>
+                </div>
+            </div>
+        </section>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <p><strong>Stage</strong></p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Task</strong></p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Location</strong></p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Notes</strong></p>
+                </div>
+            </div>
+        </div>{% for plant_item in plant_items %}
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <p>{{plant_item.plant_stage}}</p>
+                </div>
+                <div class="col">
+                    <p>{{plant_item.task}}</p>
+                </div>
+                <div class="col">
+                    <p>{{plant_item.location}}</p>
+                </div>
+                <div class="col">
+                    <p>{{plant_item.notes}}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div>
+        {% if not plant_item %}
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-center text-white bg-dark border rounded border-0 p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3">Spill the T on your plant</h2>
+                    <p class="mb-4"></p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+        <div>
+            <div class="container text-start d-xxl-flex justify-content-xxl-center" id="form-container">
+                <form action="/{{item_id}}/plant_update/" method="post">
+                    {% if not plant_item %}<input class="form-control d-xxl-flex" type="text" name="plant" placeholder="Plant">
+                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="Task" placeholder="Task"><input class="form-control d-xxl-flex" type="date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="plant" value="{{ plant }}"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/static/bootstrap.min.js"></script>
+</body>
+
+</html>
