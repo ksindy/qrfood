@@ -36,3 +36,9 @@ input[type="submit"]:hover {
   background-color: #0056b3;
 }
 
+@media (max-width: 576px) {
+  input[type="date"]::before {
+    display: block !important;
+  }
+}
+
