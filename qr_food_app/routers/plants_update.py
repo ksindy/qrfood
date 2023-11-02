@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 
 from ..utils import connect_to_db, get_plant_items
 
-# Assuming you're in the routers directory
+# Assuming you're in the routers directory 
 templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 templates = Jinja2Templates(directory=templates_path)
 router = APIRouter()
