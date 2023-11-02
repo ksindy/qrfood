@@ -11,7 +11,7 @@ input[type="text"] {
 /* Style the date input element */
 
 input[type="date"] {
-  width: 500px;
+  width: 100%;
   padding: 10px;
   margin: 5px 0;
   border: 1px solid #ccc;
@@ -34,11 +34,5 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
   background-color: #0056b3;
-}
-
-@media (max-width: 576px) {
-  input[type="date"]::before {
-    display: block !important;
-  }
 }
 
