@@ -24,3 +24,12 @@ input[type="submit"]:hover {
   background-color: #0056b3;
 }
 
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+th, td {
+  width: 25%;
+}
+

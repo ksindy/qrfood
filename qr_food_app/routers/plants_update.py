@@ -47,7 +47,7 @@ async def edit_food_item(
     plant_name = ""
     plant_item = {}
     location_list=[]
-    query_string = ";"
+    query_string = f"WHERE fi.id = '{item_id}' ORDER by fi.id, fi.plant_stage;"
     plant_items = await get_plant_items(query_string)
     
     for item in plant_items:
@@ -65,14 +65,14 @@ async def edit_food_item(
                 }
             plant_name = item.plant
             plant_name = plant_name.capitalize()
-    print(plant_item)
+    print(plant_name)
     return templates.TemplateResponse("plant_update.html", {"locations": location_list, "request": request, "plant_items": plant_items, "plant_item": plant_item, "item_id": item_id, "plant_name": plant_name})
 
 @router.post("/{item_id}/plant_update/", response_class=HTMLResponse)
 async def update_plant_item(
     item_id: str,
-    plant_name: str = Form(...),
     removed: bool = Form(...),
+    plant_name: str = Form(...),
     task: Optional[str] = Form(None), 
     task_date: datetime.date = Form(...), 
     location: Optional[str] = Form(None),
@@ -91,7 +91,8 @@ async def update_plant_item(
         (item_id,)
     )
     latest = cursor.fetchone()
-    plant_stage = latest[1] if latest else 1
+    print(latest)
+    plant_stage =  latest[1]+1 if latest else 1
 
     # create new entry for edit so needs a new PK
     item_pk = str(uuid4())

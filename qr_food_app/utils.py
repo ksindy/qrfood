@@ -40,7 +40,6 @@ async def get_plant_items(query_string):
             WHERE harvest_date IS NULL AND removed = FALSE
             GROUP BY id, plant_stage
         ) AS mfi ON fi.id = mfi.id AND fi.plant_stage = mfi.plant_stage AND fi.update_time = mfi.max_update_time
-        ORDER BY fi.id, fi.plant_stage
     """
     query = query + query_string
         

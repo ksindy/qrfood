@@ -25,36 +25,28 @@
             </div>
         </section>
         <div class="container">
-            <div class="row">
-                <div class="col-md-3">
-                    <p><strong>Stage</strong></p>
-                </div>
-                <div class="col-md-3">
-                    <p><strong>Task</strong></p>
-                </div>
-                <div class="col-md-3">
-                    <p><strong>Location</strong></p>
-                </div>
-                <div class="col-md-3">
-                    <p><strong>Notes</strong></p>
-                </div>
-            </div>
-        </div>{% for plant_item in plant_items %}
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <p>{{plant_item.plant_stage}}</p>
-                </div>
-                <div class="col">
-                    <p>{{plant_item.task}}</p>
-                </div>
-                <div class="col">
-                    <p>{{plant_item.location}}</p>
-                </div>
-                <div class="col">
-                    <p>{{plant_item.notes}}</p>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center border rounded">Stage</th>
+                            <th class="text-center border rounded"><span style="color: rgb(33, 37, 41);">Variable</span></th>
+                            <th class="text-center border rounded">Location</th>
+                            <th class="text-center border rounded">Notes</th>
+                        </tr>
+                    </thead>
+                    {% for plant_item in plant_items %}
+                    <tbody class="text-center border rounded">
+                        <tr class="text-center border rounded">
+                            <td class="text-center border rounded"><strong>{{plant_item.plant_stage}}</strong></td>
+                            <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.task}}</span></td>
+                            <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.location}}</span></td>
+                            <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.notes}}</span></td>
+                        </tr>
+                        <tr class="text-center border rounded"></tr>
+                    </tbody>
                     {% endfor %}
-                </div>
+                </table>
             </div>
         </div>
         {% endif %}
@@ -73,8 +65,12 @@
         <div class="d-flex justify-content-center">
             <div class="container text-start d-xxl-flex justify-content-xxl-center" id="form-container">
                 <form action="/{{item_id}}/plant_update/" method="post">
-                    {% if not plant_item %}<input class="form-control d-xxl-flex" type="text" name="plant_name" placeholder="Plant">
-                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="plant" value="{{ plant }}"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
+                    {% if not plant_item %}
+                    <input class="form-control d-xxl-flex" type="text" name="plant_name" required placeholder="Plant">
+                    {% else %}
+                    <input class="form-control d-xxl-flex" type="hidden" name="plant_name" value="{{plant_name}}">
+                    {% endif %}
+                    <input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
                 </form>
             </div>
         </div>
