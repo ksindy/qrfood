@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>all_plants</title>
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/table.css">
+</head>
+
+<body>
+    <div>
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3">All your plants</h2>
+                    <p class="mb-4">La Ti Da</p>
+                </div>
+            </div>
+        </section>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center border rounded">Plant</th>
+                        <th class="text-center border rounded">Stage</th>
+                        <th class="text-center border rounded">Date</th>
+                        <th class="text-center border rounded"><span style="color: rgb(33, 37, 41);">Variable</span></th>
+                        <th class="text-center border rounded">Location</th>
+                        <th class="text-center border rounded">Notes</th>
+                    </tr>
+                </thead>
+                {% for plant in all_plants %}
+                <tbody class="text-center border rounded">
+                    <tr class="text-center border rounded">
+                        <td class="text-center border rounded">{{plant.plant}}</td>
+                        <td class="text-center border rounded">{{plant.plant_stage}}</td>
+                        <td class="text-center border rounded">{{plant.task_date}}</td>
+                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.task}}</span></td>
+                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.location}}</span></td>
+                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.notes}}</span></td>
+                    </tr>
+                    <tr class="text-center border rounded"></tr>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <script src="/static/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -38,7 +38,53 @@ class PlantItem(BaseModel):
     @validator('removed', pre=True)
     def convert_removed_to_bool(cls, v):
         return v == 't'  # Convert 't' to True, other values to False
-    
+
+@router.get("/all_plants/", response_class=HTMLResponse)
+async def get_all_plants(
+    request:Request):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT 
+        fi.pk, 
+        fi.id, 
+        fi.removed, 
+        fi.plant, 
+        max_stage.max_plant_stage, 
+        fi.task, 
+        fi.task_date, 
+        fi.location, 
+        fi.notes, 
+        max_stage.max_update_time, 
+        fi.harvest_date
+    FROM 
+        plants fi
+    INNER JOIN (
+        SELECT 
+            id, 
+            MAX(plant_stage) AS max_plant_stage, 
+            MAX(update_time) AS max_update_time
+        FROM 
+            plants
+        WHERE 
+            harvest_date IS NULL 
+            AND removed = FALSE
+        GROUP BY 
+            id
+    ) AS max_stage ON fi.id = max_stage.id 
+    WHERE 
+        fi.plant_stage = max_stage.max_plant_stage
+        AND fi.update_time = max_stage.max_update_time
+    ORDER BY 
+        fi.id;
+""")
+    rows = cursor.fetchall()
+    all_plants = [PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10]) for row in rows]
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return templates.TemplateResponse("all_plants.html", {"all_plants": all_plants, "request": request})
+
 @router.get("/{item_id}/plant_update/", response_class=HTMLResponse)
 async def edit_food_item(
     request: Request, 
@@ -65,7 +111,7 @@ async def edit_food_item(
                 }
             plant_name = item.plant
             plant_name = plant_name.capitalize()
-    print(plant_name)
+    print(plant_items)
     return templates.TemplateResponse("plant_update.html", {"locations": location_list, "request": request, "plant_items": plant_items, "plant_item": plant_item, "item_id": item_id, "plant_name": plant_name})
 
 @router.post("/{item_id}/plant_update/", response_class=HTMLResponse)
@@ -108,7 +154,10 @@ async def update_plant_item(
     cursor.close()
     conn.close()
 
-    return JSONResponse(content={"success": True, "message": "Successfully updated the food item."})
+    url = router.url_path_for("edit_food_item", item_id=item_id)
+    response = RedirectResponse(url=url, status_code=303)
+    return response
+
 
 
 

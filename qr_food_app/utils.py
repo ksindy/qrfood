@@ -33,13 +33,15 @@ async def get_plant_items(query_string):
 
     query = """
         SELECT fi.pk, fi.id, fi.removed, fi.plant, fi.plant_stage, fi.task, fi.task_date, fi.location, fi.notes, fi.update_time, fi.harvest_date
-        FROM plants fi
-        INNER JOIN (
-            SELECT id, plant_stage, MAX(update_time) AS max_update_time
-            FROM plants
-            WHERE harvest_date IS NULL AND removed = FALSE
-            GROUP BY id, plant_stage
-        ) AS mfi ON fi.id = mfi.id AND fi.plant_stage = mfi.plant_stage AND fi.update_time = mfi.max_update_time
+FROM plants fi
+INNER JOIN (
+    SELECT id, plant_stage, MAX(update_time) AS max_update_time
+    FROM plants
+    WHERE harvest_date IS NULL AND removed = FALSE
+    GROUP BY id, plant_stage
+) AS mfi ON fi.id = mfi.id AND fi.plant_stage = mfi.plant_stage AND fi.update_time = mfi.max_update_time
+
+
     """
     query = query + query_string
         
