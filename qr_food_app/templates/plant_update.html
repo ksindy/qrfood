@@ -39,7 +39,7 @@
                     {% for plant_item in plant_items %}
                     <tbody class="text-center border rounded">
                         <tr class="text-center border rounded">
-                            <td class="text-center border rounded">{{plant_item.plant_stage}}</td>
+                            <td class="text-center border rounded" id="{{plant_item.plant_stage}}">{{plant_item.plant_stage}}</td>
                             <td class="text-center border rounded">{{plant_item.task_date}}</td>
                             <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.task}}</span></td>
                             <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.location}}</span></td>

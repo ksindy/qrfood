@@ -1,5 +1,5 @@
 from fpdf import FPDF
-from fastapi import FastAPI, APIRouter, Form, Request
+from fastapi import FastAPI, APIRouter, Form, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 import os
 from typing import Optional
@@ -93,8 +93,37 @@ async def edit_food_item(
     plant_name = ""
     plant_item = {}
     location_list=[]
-    query_string = f"WHERE fi.id = '{item_id}' ORDER by fi.id, fi.plant_stage;"
-    plant_items = await get_plant_items(query_string)
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        WITH LatestUpdates AS (
+            SELECT 
+                id,
+                plant_stage,
+                MAX(update_time) AS max_update_time
+            FROM 
+                plants
+            WHERE 
+                id = %s
+            GROUP BY 
+                id, plant_stage
+        )
+        SELECT p.*
+        FROM 
+            plants p
+        INNER JOIN 
+            LatestUpdates lu ON p.id = lu.id 
+            AND p.plant_stage = lu.plant_stage 
+            AND p.update_time = lu.max_update_time
+        WHERE 
+            p.harvest_date IS NULL 
+            AND p.removed = FALSE
+        """,  (item_id, ))
+    rows = cursor.fetchall()
+    plant_items = [PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10]) for row in rows]
+    conn.commit()
+    cursor.close()
+    conn.close()
     
     for item in plant_items:
         if item.location not in location_list:
@@ -128,12 +157,19 @@ async def update_plant_item(
     conn = connect_to_db()
     cursor = conn.cursor()
     cursor.execute(
-        f"""SELECT id, MAX(plant_stage) AS largest_stage
-        FROM plants
-        WHERE id = %s
-            AND harvest_date IS NULL
-            AND removed = FALSE
-        GROUP BY id;""",
+        f"""
+            WITH LatestUpdate AS (
+            SELECT id, MAX(update_time) AS max_update_time
+            FROM plants
+            WHERE id = 'c17eb67b-75e3-4c8e-b891-6bf156084981'
+            GROUP BY id
+            )
+            SELECT p.id, MAX(p.plant_stage) AS largest_stage
+            FROM plants p
+            INNER JOIN LatestUpdate lu ON p.id = lu.id AND p.update_time = lu.max_update_time
+            WHERE p.harvest_date IS NULL AND p.removed = FALSE
+            GROUP BY p.id;
+        """,
         (item_id,)
     )
     latest = cursor.fetchone()
@@ -158,6 +194,41 @@ async def update_plant_item(
     response = RedirectResponse(url=url, status_code=303)
     return response
 
+@router.post("/{item_id}/remove_plant/", response_class=HTMLResponse)
+async def change_removed_to_true(item_id: str, plant_stage: int):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+
+    # Find the latest entry based on the "update_time" column for the passed-in item.id
+    cursor.execute("""
+        SELECT * FROM plants
+        WHERE id = %s
+            AND plant_stage = %s
+        ORDER BY update_time DESC
+        LIMIT 1
+    """, (item_id, plant_stage))
+    row = cursor.fetchone()
+    item = PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10])
+    # create new entry for edit so needs a new PK
+    item_pk = str(uuid4())
+    removed = True
+
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    # Create a new entry with the same info, but add the current time to the "update_time" column and "date_consumed" column
+    current_time = datetime.datetime.now()
+    cursor.execute(
+        "INSERT INTO plants (pk, id, removed, plant, plant_stage, task, task_date, location, notes, update_time, harvest_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, removed, item.plant, item.plant_stage, item.task, item.task_date, item.location, item.notes, current_time, item.harvest_date)
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    # Redirect to the root page
+    return RedirectResponse("/all_plants/", status_code=303)
 
 
 

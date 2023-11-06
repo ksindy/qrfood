@@ -10,6 +10,17 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md bg-body">
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{{base_url}}">Food</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{base_url}}/all_plants/">Plants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <div>
         <section class="py-4 py-xl-5">
             <div class="container">
@@ -19,6 +30,7 @@
                 </div>
             </div>
         </section>
+        <div class="container">
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -34,7 +46,7 @@
                 {% for plant in all_plants %}
                 <tbody class="text-center border rounded">
                     <tr class="text-center border rounded">
-                        <td class="text-center border rounded">{{plant.plant}}</td>
+                        <td class="text-center border rounded"><a href="{{base_url}}/{{plant.id}}/plant_update/">{{plant.plant}}</a></td>
                         <td class="text-center border rounded">{{plant.plant_stage}}</td>
                         <td class="text-center border rounded">{{plant.task_date}}</td>
                         <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.task}}</span></td>
@@ -46,6 +58,7 @@
                 {% endfor %}
             </table>
         </div>
+    </div>
     </div>
     <script src="/static/bootstrap.min.js"></script>
 </body>
