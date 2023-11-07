@@ -1,0 +1,119 @@
+<!-- templates/edit.html -->
+{% extends "header.html" %}
+{% block content %}
+<div class="container">
+    <h1>Edit Food Item</h1>
+    <form id="editForm">
+        <div class="mb-3">
+            <label for="food" class="form-label">Food:</label>
+            <input type="text" class="form-control" id="food" value="{{ item.food if item else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="expiration_date" class="form-label">Expiration Date:</label>
+            <input type="date" class="form-control" id="expiration_date" value="{{ item.expiration_date if item else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="notes" class="form-label">Notes:</label>
+            <input type="text" class="form-control" id="notes" value="{{ item.notes if item else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="location" class="form-label">Location:</label>
+            <select class="form-control" id="location" onchange="toggleNewLocationInput()">
+                {% for location in locations %}
+                    <option value="{{ location }}" {% if item and location == item.location %}selected{% endif %}>{{ location }}</option>
+                {% endfor %}
+                <option value="new">Add New Location</option>
+            </select>
+        </div>
+        <div class="mb-3" id="newLocationDiv" style="display: none;">
+            <label for="newLocation" class="form-label">New Location:</label>
+            <input type="text" class="form-control" id="newLocation">
+        </div>
+        <input type="submit" class="btn btn-primary" value="Update">
+        <button onclick="deleteItem(this.form, `/${item_id}/consumed/`);" type="button" class="btn btn-danger" id="deleteButton">Delete</button>
+        <a href="/{{item_id}}/plant_update" class="btn btn-primary">Update Plant</a>
+
+    </form>
+</div>
+
+<script>
+    // Extract item_id from the template
+    const item_id = "{{ item_id }}";
+    function toggleNewLocationInput() {
+        const locationDropdown = document.getElementById('location');
+        const newLocationDiv = document.getElementById('newLocationDiv');
+
+        if (locationDropdown.value === 'new') {
+            newLocationDiv.style.display = 'block';
+        } else {
+            newLocationDiv.style.display = 'none';
+        }
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const food = document.getElementById('food').value;
+        const expiration_date = document.getElementById('expiration_date').value;
+        const notes = document.getElementById('notes').value;
+        const locationDropdown = document.getElementById('location');
+        let location;
+
+        if (locationDropdown.value === 'new') {
+            location = document.getElementById('newLocation').value;
+        } else {
+            location = locationDropdown.value;
+        }
+
+        const formData = new FormData();
+        formData.append('food', food);
+        formData.append('expiration_date', expiration_date);
+        formData.append('notes', notes);
+        formData.append('location', location);
+
+        try {
+            // Always point to the update endpoint
+            const endpoint = `/${item_id}/update/`;
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                window.location.href = '/';
+            } else {
+                alert('Error updating the food item.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+
+
+    function deleteItem(form, endpoint) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        // Use the fetch API to send a POST request to the specified endpoint
+        fetch(endpoint, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Item has been deleted successfully.');
+                window.location.href = '/'; // Redirect to the root page
+            } else {
+                alert('Error deleting the food item.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    }
+
+
+</script>
+{% endblock %}
+</div>

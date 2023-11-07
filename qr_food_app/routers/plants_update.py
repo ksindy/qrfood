@@ -45,38 +45,49 @@ async def get_all_plants(
     conn = connect_to_db()
     cursor = conn.cursor()
     cursor.execute("""
-    SELECT 
-        fi.pk, 
-        fi.id, 
-        fi.removed, 
-        fi.plant, 
-        max_stage.max_plant_stage, 
-        fi.task, 
-        fi.task_date, 
-        fi.location, 
-        fi.notes, 
-        max_stage.max_update_time, 
-        fi.harvest_date
-    FROM 
-        plants fi
-    INNER JOIN (
+        WITH LatestUpdate AS (
+            SELECT 
+                id,
+                plant_stage,
+                MAX(update_time) AS max_update_time
+            FROM 
+                plants
+            GROUP BY 
+                id, plant_stage
+        ),
+        ViableUpdates AS (
+            SELECT 
+                lu.id,
+                lu.plant_stage,
+                lu.max_update_time
+            FROM 
+                LatestUpdate lu
+            INNER JOIN 
+                plants p ON p.id = lu.id AND p.plant_stage = lu.plant_stage AND p.update_time = lu.max_update_time
+            WHERE 
+                p.harvest_date IS NULL 
+                AND p.removed = FALSE
+        ),
+        MaxStage AS (
+            SELECT 
+                id,
+                MAX(plant_stage) AS max_plant_stage
+            FROM 
+                ViableUpdates
+            GROUP BY 
+                id
+        )
         SELECT 
-            id, 
-            MAX(plant_stage) AS max_plant_stage, 
-            MAX(update_time) AS max_update_time
+            p.*
         FROM 
-            plants
+            plants p
+        INNER JOIN 
+            MaxStage ms ON p.id = ms.id AND p.plant_stage = ms.max_plant_stage
+        INNER JOIN 
+            ViableUpdates vu ON p.id = vu.id AND p.plant_stage = vu.plant_stage AND p.update_time = vu.max_update_time
         WHERE 
-            harvest_date IS NULL 
-            AND removed = FALSE
-        GROUP BY 
-            id
-    ) AS max_stage ON fi.id = max_stage.id 
-    WHERE 
-        fi.plant_stage = max_stage.max_plant_stage
-        AND fi.update_time = max_stage.max_update_time
-    ORDER BY 
-        fi.id;
+            p.harvest_date IS NULL 
+            AND p.removed = FALSE;
 """)
     rows = cursor.fetchall()
     all_plants = [PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10]) for row in rows]
@@ -195,7 +206,7 @@ async def update_plant_item(
     return response
 
 @router.post("/{item_id}/remove_plant/", response_class=HTMLResponse)
-async def change_removed_to_true(item_id: str, plant_stage: int):
+async def change_removed_to_true(item_id: str, plant_stage: int =  Form(...), pk: str =  Form(...)):
     conn = connect_to_db()
     cursor = conn.cursor()
 
@@ -204,9 +215,10 @@ async def change_removed_to_true(item_id: str, plant_stage: int):
         SELECT * FROM plants
         WHERE id = %s
             AND plant_stage = %s
+            AND pk = %s
         ORDER BY update_time DESC
         LIMIT 1
-    """, (item_id, plant_stage))
+    """, (item_id, plant_stage, pk))
     row = cursor.fetchone()
     item = PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10])
     # create new entry for edit so needs a new PK
