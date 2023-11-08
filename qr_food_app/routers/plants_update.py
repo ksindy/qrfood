@@ -33,6 +33,7 @@ class PlantItem(BaseModel):
     notes: Optional[str] = None
     update_time: Optional[datetime.datetime] = None
     harvest_date: Optional[datetime.datetime] = None
+    day_from_zero: Optional[int] = None
     
 
     @validator('removed', pre=True)
@@ -103,6 +104,8 @@ async def edit_food_item(
 
     plant_name = ""
     plant_item = {}
+    plant_items = []
+    record_day_zero = False
     location_list=[]
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -129,9 +132,20 @@ async def edit_food_item(
         WHERE 
             p.harvest_date IS NULL 
             AND p.removed = FALSE
+        ORDER BY 
+            p.task_date ASC; 
         """,  (item_id, ))
     rows = cursor.fetchall()
-    plant_items = [PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10]) for row in rows]
+    for row in rows:
+        task_date = row[6]
+        if record_day_zero == False:
+            day_from_zero = 0
+            zero_date = task_date
+            record_day_zero = True
+        else:
+            day_from_zero = (task_date - zero_date).days
+        plant_items.append(PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10], day_from_zero=day_from_zero))
+    print(plant_items)
     conn.commit()
     cursor.close()
     conn.close()
@@ -151,7 +165,6 @@ async def edit_food_item(
                 }
             plant_name = item.plant
             plant_name = plant_name.capitalize()
-    print(plant_items)
     return templates.TemplateResponse("plant_update.html", {"locations": location_list, "request": request, "plant_items": plant_items, "plant_item": plant_item, "item_id": item_id, "plant_name": plant_name})
 
 @router.post("/{item_id}/plant_update/", response_class=HTMLResponse)
@@ -184,7 +197,6 @@ async def update_plant_item(
         (item_id,)
     )
     latest = cursor.fetchone()
-    print(latest)
     plant_stage =  latest[1]+1 if latest else 1
 
     # create new entry for edit so needs a new PK

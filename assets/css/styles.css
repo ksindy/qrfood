@@ -33,3 +33,9 @@ th, td {
   width: 25%;
 }
 
+@media (min-width: 1400px) {
+  #buttons {
+    display: flex;
+  }
+}
+
