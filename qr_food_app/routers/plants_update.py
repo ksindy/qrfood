@@ -1,10 +1,10 @@
 from fpdf import FPDF
-from fastapi import FastAPI, APIRouter, Form, Request, HTTPException
+from fastapi import FastAPI, APIRouter, Form, Request, HTTPException, Depends, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 import os
 from typing import Optional
 import datetime
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
 import boto3
@@ -20,6 +20,15 @@ templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templ
 templates = Jinja2Templates(directory=templates_path)
 router = APIRouter()
 app = FastAPI()
+
+class Settings(BaseSettings):
+    base_url: str
+
+    class Config:
+        env_file = '.env'
+
+def get_settings():
+    return Settings()
 
 class PlantItem(BaseModel):
     pk: Optional[str] = None
@@ -42,7 +51,8 @@ class PlantItem(BaseModel):
 
 @router.get("/all_plants/", response_class=HTMLResponse)
 async def get_all_plants(
-    request:Request):
+    request:Request, 
+    settings: Settings = Depends(get_settings)):
     conn = connect_to_db()
     cursor = conn.cursor()
     cursor.execute("""
@@ -95,12 +105,13 @@ async def get_all_plants(
     conn.commit()
     cursor.close()
     conn.close()
-    return templates.TemplateResponse("all_plants.html", {"all_plants": all_plants, "request": request})
+    return templates.TemplateResponse("all_plants.html", {"all_plants": all_plants, "request": request, "base_url": settings.base_url})
 
 @router.get("/{item_id}/plant_update/", response_class=HTMLResponse)
 async def edit_food_item(
     request: Request, 
-    item_id: str):
+    item_id: str, 
+    settings: Settings = Depends(get_settings)):
 
     plant_name = ""
     plant_item = {}
@@ -165,7 +176,7 @@ async def edit_food_item(
                 }
             plant_name = item.plant
             plant_name = plant_name.capitalize()
-    return templates.TemplateResponse("plant_update.html", {"locations": location_list, "request": request, "plant_items": plant_items, "plant_item": plant_item, "item_id": item_id, "plant_name": plant_name})
+    return templates.TemplateResponse("plant_update.html", {"locations": location_list, "request": request, "plant_items": plant_items, "plant_item": plant_item, "item_id": item_id, "plant_name": plant_name,  "base_url": settings.base_url})
 
 @router.post("/{item_id}/plant_update/", response_class=HTMLResponse)
 async def update_plant_item(
@@ -203,6 +214,8 @@ async def update_plant_item(
     item_pk = str(uuid4())
     # capture time of edit
     update_time = datetime.datetime.now()
+
+    plant_name = ''.join(plant_name.split()).lower()
 
     cursor.execute(
         "INSERT INTO plants (pk, id, removed, plant, plant_stage, task, task_date, location, notes, update_time, harvest_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
