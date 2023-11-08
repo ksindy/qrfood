@@ -12,20 +12,17 @@
 
 <body>
     <nav class="navbar navbar-expand-md bg-body">
-        <div class="container-fluid"><a class="navbar-brand" href="index.html">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="index.html">Food</a></li>
-                    <li class="nav-item"><a class="nav-link" href="all_plants.html">Plants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{base_url}}/all_plants.html">Plants</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!--<link rel="stylesheet" href="/static/bootstrap.min.css">
 
-<script src="/static/bootstrap.min.css"></script>
--->
     <div>
         {% if plant_item %}
         <section class="py-4 py-xl-5">
@@ -86,7 +83,8 @@
             <div class="container text-start d-xxl-flex justify-content-xxl-center" id="form-container">
                 <form action="/{{item_id}}/plant_update/" method="post">
                     {% if not plant_item %}<input class="form-control d-xxl-flex" type="text" name="plant_name" placeholder="Plant">
-                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="plant_name" value="{{ plant_name }}"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
+                    {% else %} <input class="form-control d-xxl-flex" type="hidden" name="plant_name" value="{{ plant_name }}">
+                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
                 </form>
             </div>
         </div>
