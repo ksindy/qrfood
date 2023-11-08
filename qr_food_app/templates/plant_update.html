@@ -56,7 +56,7 @@
                             <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.location}}</span></td>
                             <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant_item.notes}}</span></td>
                             <td class="border rounded">
-                                <div class="d-flex">
+                                <div id="buttons">
                                     <form><button class="btn btn-primary" type="button"><i class="fa fa-scissors" data-bs-toggle="tooltip" data-bss-tooltip="" title="harvest or cull plant"></i></button></form>
                                     <form><button class="btn btn-primary" type="button"><i class="fa fa-pencil-square-o" data-bs-toggle="tooltip" data-bss-tooltip="" title="edit plant details"></i></button></form>
                                     <form><button class="btn btn-primary" type="button"><i class="fa fa-camera" data-bs-toggle="tooltip" data-bss-tooltip="" title="add or view image"></i></button></form>
@@ -86,8 +86,7 @@
             <div class="container text-start d-xxl-flex justify-content-xxl-center" id="form-container">
                 <form action="/{{item_id}}/plant_update/" method="post">
                     {% if not plant_item %}<input class="form-control d-xxl-flex" type="text" name="plant_name" placeholder="Plant">
-                    {% else %}<input class="form-control d-xxl-flex" type="hidden" name="plant_name" value="{{plant_name}}">
-                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
+                    {% endif %}<input class="form-control d-xxl-flex" type="text" name="location" placeholder="Location"><input class="form-control d-xxl-flex" type="text" name="task" placeholder="Task"><input class="form-control d-xxl-flex" type="date" name="task_date"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes"><input class="form-control d-xxl-flex" type="hidden" name="plant_name" value="{{ plant_name }}"><input class="form-control d-xxl-flex" type="hidden" name="removed" value="false"><button type="submit">Submit</button>
                 </form>
             </div>
         </div>
