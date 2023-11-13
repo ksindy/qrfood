@@ -23,12 +23,17 @@ app = FastAPI()
 
 class Settings(BaseSettings):
     base_url: str
-
     class Config:
         env_file = '.env'
 
 def get_settings():
     return Settings()
+
+def get_months(days):
+    if days > 30:
+        month = days // 30
+        day = days % 30
+        return(f"{month} months {day} days")
 
 class PlantItem(BaseModel):
     pk: Optional[str] = None
@@ -42,9 +47,8 @@ class PlantItem(BaseModel):
     notes: Optional[str] = None
     update_time: Optional[datetime.datetime] = None
     harvest_date: Optional[datetime.datetime] = None
-    day_from_zero: Optional[int] = None
+    day_from_zero: Optional[str] = None
     
-
     @validator('removed', pre=True)
     def convert_removed_to_bool(cls, v):
         return v == 't'  # Convert 't' to True, other values to False
@@ -53,14 +57,13 @@ class PlantItem(BaseModel):
 async def get_all_plants(
     request:Request, 
     settings: Settings = Depends(get_settings)):
+    all_plants = []
     conn = connect_to_db()
     cursor = conn.cursor()
     cursor.execute("""
         WITH LatestUpdate AS (
             SELECT 
-                id,
-                plant_stage,
-                MAX(update_time) AS max_update_time
+                id, plant_stage, MAX(update_time) AS max_update_time
             FROM 
                 plants
             GROUP BY 
@@ -68,40 +71,49 @@ async def get_all_plants(
         ),
         ViableUpdates AS (
             SELECT 
-                lu.id,
-                lu.plant_stage,
-                lu.max_update_time
+                lu.id, lu.plant_stage, lu.max_update_time
             FROM 
                 LatestUpdate lu
             INNER JOIN 
                 plants p ON p.id = lu.id AND p.plant_stage = lu.plant_stage AND p.update_time = lu.max_update_time
             WHERE 
-                p.harvest_date IS NULL 
-                AND p.removed = FALSE
-        ),
-        MaxStage AS (
-            SELECT 
-                id,
-                MAX(plant_stage) AS max_plant_stage
-            FROM 
-                ViableUpdates
-            GROUP BY 
-                id
+                p.harvest_date IS NULL AND p.removed = FALSE
         )
         SELECT 
             p.*
         FROM 
             plants p
         INNER JOIN 
-            MaxStage ms ON p.id = ms.id AND p.plant_stage = ms.max_plant_stage
-        INNER JOIN 
             ViableUpdates vu ON p.id = vu.id AND p.plant_stage = vu.plant_stage AND p.update_time = vu.max_update_time
         WHERE 
-            p.harvest_date IS NULL 
-            AND p.removed = FALSE;
+            p.harvest_date IS NULL AND p.removed = FALSE;
 """)
     rows = cursor.fetchall()
-    all_plants = [PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10]) for row in rows]
+    id = ""
+    first_row = True
+    for row in rows:
+        if id != row[1] and first_row == False:
+            print(task_date)
+            print(zero_day_task_date)
+            day_from_zero = get_months((task_date - zero_day_task_date).days)
+            all_plants.append(PlantItem(id=id, pk=pk, removed=removed, plant=plant, plant_stage=plant_stage, task=task, task_date=task_date, location=location, notes=notes, update_time=update_time, harvest_date=harvest_date, day_from_zero=day_from_zero))
+            zero_day_task_date = row[6]
+        elif first_row == True:    
+            zero_day_task_date = row[6]
+        task_date = row[6]
+        id = row[1]
+        first_row = False
+        pk=row[0]
+        removed=row[2]
+        plant=row[3]
+        plant_stage=row[4]
+        task=row[5]
+        location=row[7]
+        notes=row[8]
+        update_time=row[9]
+        harvest_date=row[10]
+    day_from_zero = get_months((task_date - zero_day_task_date).days)
+    all_plants.append(PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], day_from_zero=day_from_zero, location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10])) 
     conn.commit()
     cursor.close()
     conn.close()
@@ -120,7 +132,7 @@ async def edit_food_item(
     location_list=[]
     conn = connect_to_db()
     cursor = conn.cursor()
-    cursor.execute(f"""
+    cursor.execute("""
         WITH LatestUpdates AS (
             SELECT 
                 id,
@@ -155,8 +167,11 @@ async def edit_food_item(
             record_day_zero = True
         else:
             day_from_zero = (task_date - zero_date).days
+            if day_from_zero > 30:
+                month = day_from_zero // 30
+                day = day_from_zero % 30
+                day_from_zero = f"{month} month(s) {day} day(s)"
         plant_items.append(PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10], day_from_zero=day_from_zero))
-    print(plant_items)
     conn.commit()
     cursor.close()
     conn.close()
@@ -192,11 +207,11 @@ async def update_plant_item(
     conn = connect_to_db()
     cursor = conn.cursor()
     cursor.execute(
-        f"""
+        """
             WITH LatestUpdate AS (
             SELECT id, MAX(update_time) AS max_update_time
             FROM plants
-            WHERE id = 'c17eb67b-75e3-4c8e-b891-6bf156084981'
+            WHERE id = %s
             GROUP BY id
             )
             SELECT p.id, MAX(p.plant_stage) AS largest_stage
@@ -215,7 +230,7 @@ async def update_plant_item(
     # capture time of edit
     update_time = datetime.datetime.now()
 
-    plant_name = ''.join(plant_name.split()).lower()
+    plant_name = plant_name.lower().strip()
 
     cursor.execute(
         "INSERT INTO plants (pk, id, removed, plant, plant_stage, task, task_date, location, notes, update_time, harvest_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
