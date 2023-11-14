@@ -307,26 +307,37 @@ async def check_item(item_id: str):
 
         # Check if the ID exists in plants and harvest_date is NULL for the latest entry and highest plant_stage
     cursor.execute("""
-        SELECT COUNT(*) FROM plants 
-        WHERE id = %s 
-        AND harvest_date IS NULL 
-        AND removed = FALSE 
-        AND (plant_stage, update_time) = (
-            SELECT plant_stage, MAX(update_time) 
-            FROM plants 
-            WHERE id = %s 
-            AND removed = FALSE
-            GROUP BY plant_stage  -- Include plant_stage in GROUP BY
+        WITH LatestUpdates AS (
+            SELECT 
+                id,
+                plant_stage,
+                MAX(update_time) AS max_update_time
+            FROM 
+                plants
+            WHERE 
+                id = %s
+            GROUP BY 
+                id, plant_stage
         )
-        """, (item_id, item_id))
-    plant_item_count = cursor.fetchone()[0]
+        SELECT p.*
+        FROM 
+            plants p
+        INNER JOIN 
+            LatestUpdates lu ON p.id = lu.id 
+            AND p.plant_stage = lu.plant_stage 
+            AND p.update_time = lu.max_update_time
+        WHERE 
+            p.harvest_date IS NULL 
+            AND p.removed = FALSE
+        ORDER BY 
+            p.task_date ASC; 
+        """,  (item_id, ))
+    plant_item_count = cursor.fetchone()
 
-    if plant_item_count > 0:
-        cursor.close()
-        conn.close()
+    if plant_item_count:
         return RedirectResponse(url=f"/{item_id}/plant_update")
-    
-    return RedirectResponse(url=f"/{item_id}/update")
+    else:
+        return RedirectResponse(url=f"/{item_id}/update")
 
 
 
