@@ -34,7 +34,9 @@ def get_months(days):
         month = days // 30
         day = days % 30
         return(f"{month} months {day} days")
-
+    else:
+        return(f"{days} days")
+    
 class PlantItem(BaseModel):
     pk: Optional[str] = None
     id: Optional[str] = None
@@ -102,9 +104,10 @@ async def get_all_plants(
             zero_day_task_date = row[6]
         elif first_row == True:    
             zero_day_task_date = row[6]
+            first_row = False
+            zero_day_task_date = row[6]
         task_date = row[6]
         id = row[1]
-        first_row = False
         pk=row[0]
         removed=row[2]
         plant=row[3]
