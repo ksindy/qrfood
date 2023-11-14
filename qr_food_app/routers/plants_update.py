@@ -86,7 +86,9 @@ async def get_all_plants(
         INNER JOIN 
             ViableUpdates vu ON p.id = vu.id AND p.plant_stage = vu.plant_stage AND p.update_time = vu.max_update_time
         WHERE 
-            p.harvest_date IS NULL AND p.removed = FALSE;
+            p.harvest_date IS NULL AND p.removed = FALSE
+        ORDER BY 
+            p.id, p.task_date;
 """)
     rows = cursor.fetchall()
     id = ""
