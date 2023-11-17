@@ -99,7 +99,7 @@ async def get_all_plants(
         if id != row[1] and first_row == False:
             print(task_date)
             print(zero_day_task_date)
-            day_from_zero = get_months((task_date - zero_day_task_date).days)
+            day_from_zero = get_months((datetime.date.today() - zero_day_task_date).days)
             all_plants.append(PlantItem(id=id, pk=pk, removed=removed, plant=plant, plant_stage=plant_stage, task=task, task_date=task_date, location=location, notes=notes, update_time=update_time, harvest_date=harvest_date, day_from_zero=day_from_zero))
             zero_day_task_date = row[6]
         elif first_row == True:    
@@ -117,7 +117,7 @@ async def get_all_plants(
         notes=row[8]
         update_time=row[9]
         harvest_date=row[10]
-    day_from_zero = get_months((task_date - zero_day_task_date).days)
+    day_from_zero = get_months((datetime.date.today() - zero_day_task_date).days)
     all_plants.append(PlantItem(pk=row[0], id=row[1], removed=row[2], plant=row[3], plant_stage=row[4], task=row[5], task_date=row[6], day_from_zero=day_from_zero, location=row[7], notes=row[8], update_time=row[9], harvest_date=row[10])) 
     conn.commit()
     cursor.close()
