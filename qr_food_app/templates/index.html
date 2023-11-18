@@ -1,274 +1,68 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html data-bs-theme="light" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Items</title>
-    <style>
-        /* Add styles for Flexbox */
-        .table-container {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        /* Add overflow-y:hidden to disable vertical scrolling on mobile */
-        .table-responsive {
-            overflow-x: auto;
-            overflow-y: hidden;
-            max-width: 100%;
-            margin-bottom: 40px;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #F7F7F7;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #FFC107;
-            padding: 10px;
-            text-align: center;
-        }
-        header img {
-            height: 40px;
-        }
-        h1 {
-            color: #2E2E2E;
-            text-align: center;
-            margin-top: 40px;
-        }
-        table {
-            border-collapse: collapse;
-            margin: 40px auto;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            max-width: 100%;
-            overflow-x: scroll;
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: center;
-            font-size: 14px;
-        }
-        th {
-            background-color: #4CAF50;
-            color: #FFFFFF;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        tr:nth-child(even) {
-            background-color: #F2F2F2;
-        }
-        a {
-            text-decoration: none;
-            color: #2E2E2E;
-            font-weight: bold;
-        }
-        button {
-            background-color: #4CAF50;
-            border: none;
-            color: #FFFFFF;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button a {
-            color: #FFFFFF;
-            text-decoration: none;
-        }
-        .up-arrow::before {
-        content: '\25B2';
-        }
-        .down-arrow::before {
-            content: '\25BC';
-        }
-            /* Add styles for the arrow container */
-        .arrow-container {
-            display: inline-block;
-            position: relative;
-            top: -1px;
-            margin-left: 5px;
-        }
-        /* Style buttons inside the container */
-        .arrow-container button {
-            padding: 0;
-            width: 16px;
-            height: 16px;
-            font-size: 12px;
-            line-height: 16px;
-            margin: 0;
-        }
-        @media (max-width: 768px) {
-            table {
-                margin: 20px auto;
-            }
-            th, td {
-                padding: 8px;
-                font-size: 12px;
-            }
-        }
-        .remove-button {
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .remove-button:before, .remove-button:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 60%;
-            height: 2px;
-            background-color: white;
-            transform: translate(-50%, -50%) rotate(45deg);
-        }
-
-        .remove-button:after {
-            transform: translate(-50%, -50%) rotate(-45deg);
-        }
-        .remove-form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>all_food</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/buttons.css">
+    <link rel="stylesheet" href="assets/css/table.css">
 </head>
+
 <body>
-<!-- Wrap the table with a div container for Flexbox -->
-<div class="table-container">
-    <div class="table-responsive">
-    <header>
-        <a href="https://qrfood.herokuapp.com/">
-            <img src="https://qrfoodcodes.s3.amazonaws.com/logo.png" alt="Logo">
-        </a>
-    </header>
-    {% block content %}
-    {% endblock %}
-    {% block food_items_table %}
-        <h1>Food Items</h1>
-        <table>
-            <tr>
-                <th>Food</th>
-                <!-- <th>Expires
-                    <div class="arrow-container">
-                        <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
-                        <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
-                    </div>
-                </th> -->
-                <th>
-                    Time Left
-                    <div class="arrow-container">
-                        <button id="expiration-sort-btn-asc" type="button">&#x2193;</button>
-                        <button id="expiration-sort-btn-desc" type="button">&#x2191;</button>
-                    </div>
-                </th>
-                <th>Location</th>
-                <th>Edit</th>
-                <th><a href="/consumed_items/"> Done</a></th>
-            </tr>
-            {% for item in food_items %}
-            <tr class="collapse">
-                <td><a href="/{{ item.id }}/view/">{{ item.food }}</a></td>
-                <!-- <td>{{ item.expiration_date }}</td> -->
-                <td class='time-left' data-days-left="{{ item.days_left }}"></td> 
-                <td>{{ item.location }}</td>
-                <td>
-                    <form action="/{{ item.id }}/update/" method="get">
-                        <input type="submit" value="Edit">
-                    </form>
-                </td>
-                <td>
-                    <form action="{{ item.id }}/consumed/" method="post" class="remove-form">
-                        <div class="remove-button" onclick="deleteItem(this.parentNode, '{{item.id}}/consumed/');">
-                        </div>
-                        <button type="button" style="display: none;">Submit</button>
-                    </form>
-                </td>                                                                                
-            </tr>
-            {% endfor %}
-        </table>
-        {% endblock %}
+    <nav class="navbar navbar-expand-md bg-body">
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{{base_url}}">Food</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{base_url}}/all_plants">Plants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div>
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3">All your food</h2>
+                    <p class="mb-4">La Ti Da</p>
+                </div>
+            </div>
+        </section>
+        <div class="container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center border rounded">Food</th>
+                            <th class="text-center border rounded">Time Left</th>
+                            <th class="text-center border rounded">Location</th>
+                            <th class="text-center border rounded">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center border rounded">
+                        {% for item in food_items %}
+                        <tr class="text-center border rounded">
+                            <td class="text-center border rounded"><a href="{{base_url}}/{{item.id}}">{{item.food}}</a></td>
+                            <td class="text-center border rounded">{{item.days_left}}</td>
+                            <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{item.location}}</span></td>
+                            <td class="text-center border rounded">
+                                <div id="buttons"><a href="{{base_url}}/{{item.id}}/update"><button class="btn btn-primary" type="button" data-bs-target="{{base_url}}/{{item.id}}/update"><i class="fa fa-pencil-square-o" data-bs-toggle="tooltip" data-bss-tooltip="" title="edit plant details"></i></button></a><a href="{{base_url}}/{{item.id}}/consumed"><button class="btn btn-primary" type="submit"><i class="fa fa-trash" data-bs-toggle="tooltip" data-bss-tooltip="" title="remove row"></i></button></a><a href="#"><button class="btn btn-primary" type="button"><i class="fa fa-camera" data-bs-toggle="tooltip" data-bss-tooltip="" title="add or view image"></i></button></a></div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="text-center border rounded"></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
-    </body>
-    <script type="text/javascript">
-    var timeLeftCells = document.querySelectorAll('.time-left');
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/plants.js"></script>
+</body>
 
-    timeLeftCells.forEach(function(cell) {
-        var days_left = parseInt(cell.getAttribute('data-days-left'));
-
-        if (days_left > 30) {
-            var months = Math.floor(days_left / 30);
-            var days = days_left % 30;
-
-            cell.innerText = months + ' mo ' + days + ' days';
-        } else {
-            cell.innerText = days_left + ' days';
-        }
-    });
-    </script>
-    <script>
-        function deleteItem(form, endpoint) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                // Use the fetch API to send a POST request to the specified endpoint
-                fetch(endpoint, {
-                    method: 'POST'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Item has been deleted successfully.');
-                        window.location.href = '/'; // Redirect to the root page
-                    } else {
-                        alert('Error deleting the food item.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            }
-        }
-    </script>
- 
-    <script>
-        const expirationSortBtnAsc = document.getElementById('expiration-sort-btn-asc');
-        const expirationSortBtnDesc = document.getElementById('expiration-sort-btn-desc');
-    
-        function submitFormWithSortOrder(sortOrder) {
-            const form = document.createElement('form');
-            form.method = 'get';
-            form.action = '/';
-    
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'sort_by_expiration_date';
-            hiddenInput.value = 'true';
-    
-            const sortOrderInput = document.createElement('input');
-            sortOrderInput.type = 'hidden';
-            sortOrderInput.name = 'sort_order';
-            sortOrderInput.value = sortOrder;
-    
-            form.appendChild(hiddenInput);
-            form.appendChild(sortOrderInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    
-        expirationSortBtnAsc.addEventListener('click', () => {
-            submitFormWithSortOrder('asc');
-        });
-    
-        expirationSortBtnDesc.addEventListener('click', () => {
-            submitFormWithSortOrder('desc');
-        });
-    </script>
-    </html>
+</html>
