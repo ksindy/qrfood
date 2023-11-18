@@ -21,3 +21,5 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#deleteConfirmationModal').modal('hide');
     });
 });
+
+
