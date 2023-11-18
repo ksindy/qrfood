@@ -28,6 +28,14 @@ templates = Jinja2Templates(directory=templates_path)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
+def get_months(days):
+    if days > 30:
+        month = days // 30
+        day = days % 30
+        return(f"{month} months {day} days")
+    else:
+        return(f"{days} days")
+    
 # Connect to the database
 def connect_to_db():
     use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
@@ -85,10 +93,10 @@ class FoodItem(BaseModel):
     expiration_date: datetime.date
     notes: Optional[str] = None
     days_old: Optional[int] = None
-    days_left: Optional[int] = None
     update_time: Optional[datetime.datetime] = None
     date_consumed: Optional[datetime.date] = None
     location: Optional[str] = None
+    days_left: Optional[str] = None
 
 class PlantItem(BaseModel):
     pk: Optional[str] = None
@@ -129,18 +137,22 @@ async def get_food_items(query_string):
     cur.close()
     conn.close()
 
-    food_items = [FoodItem(pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
-
-    return food_items
+    #food_items = [FoodItem(pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
+    #pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]
+    return rows
 
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
+    food_items = []
     query_string = ""
     if sort_by_expiration_date:
         order = "ASC" if sort_order == "asc" else "DESC"
         query_string = f" ORDER BY fi.expiration_date {order}"
         query_string += ";"
-    food_items = await get_food_items(query_string)
+    rows = await get_food_items(query_string)
+    for row in rows:
+        days_left = get_months((row[4] - datetime.date.today()).days)
+        food_items.append(FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8], days_left=days_left))
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
 
 @app.get("/favicon.ico")
@@ -183,19 +195,19 @@ async def edit_food_item(
     food_item = {}
     location_list=[]
     query_string = ";"
-    food_items = await get_food_items(query_string)
-    for item in food_items:
-        if item.location not in location_list:
-            location_list.append(item.location)
-        if str(item.id) == item_id:
+    rows = await get_food_items(query_string)
+    for row in rows:
+        if row[8] not in location_list:
+            location_list.append(row[8])
+        if str(row[1]) == item_id:
             food_item = {
-                "id": item.id,
-                "food": item.food,
-                "date_added": item.date_added,
-                "expiration_date": item.expiration_date,
-                "notes": item.notes,
-                "date_consumed": item.date_consumed,
-                "location": item.location
+                "id": row[1],
+                "food": row[2],
+                "date_added":row[3],
+                "expiration_date": row[4],
+                "notes": row[5],
+                "date_consumed": row[7],
+                "location": row[8]
                 }
     return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
 
