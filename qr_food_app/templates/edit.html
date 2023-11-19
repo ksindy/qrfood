@@ -1,42 +1,69 @@
-<!-- templates/edit.html
-{% extends "header.html" %}
-{% block content %} -->
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>plant_update</title>
-    <link rel="stylesheet" href="/static/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>food_update</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/buttons.css">
+    <link rel="stylesheet" href="/assets/css/input-table.css">
+    <link rel="stylesheet" href="/assets/css/table.css">
 </head>
-<div class="container">
-    <h1>Edit Food Item</h1>
-    <form id="editForm" action="/{{item_id}}/update/" method="post">
-        <div class="mb-3">
-            <input type="text" class="form-control" id="food" name="food" placeholder="Food" value="{{ item.food if item else '' }}" required>
+
+<body>
+    <nav class="navbar navbar-expand-md bg-body">
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{{base_url}}">Food</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{base_url}}/all_plants">Plants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="mb-3">
-            <input type="date" class="form-control" id="expiration_date" name="expiration_date" placeholder="Expiration Date" value="{{ item.expiration_date if item else '' }}" required>
+    </nav>
+    <div>
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3">Your Food</h2>
+                    <p class="mb-4">La Ti Da</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="container text-start d-xxl-flex justify-content-xxl-center" id="form-container">
+            <form action="/{{item_id}}/update/" method="post"><input class="form-control d-xxl-flex" type="text" name="food" placeholder="Item" value="{{ item.food if item else '' }}"><select class="form-select" id="locationSelect" name="location">
+                    {% for location in locations %}
+                    <option value="{{ location }}" {% if location == item.location %}selected{% endif %}>{{ location }}</option>
+                    {% endfor %}
+                    <option value="other">Add New Location</option>
+                </select>
+                <input type="text" id="otherLocation" name="otherLocation" class="form-control" style="display:none;" placeholder="Enter New Location">
+                <input class="form-control d-xxl-flex" type="date" name="expiration_date" value="{{ item.expiration_date if item else '' }}"><input class="form-control d-xxl-flex" type="text" name="notes" placeholder="Notes" value="{{ item.notes if item else '' }}"><button type="submit">Submit</button><button type="submit">Delete</button><button type="submit">Plant</button></form>
         </div>
-        <div class="mb-3">
-            <input type="text" class="form-control" id="notes" name="notes" placeholder="Notes" value="{{ item.notes if item else '' }}">
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="deleteConfirmationModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Modal Title</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this item?</p>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" id="confirmDelete" type="button">Yes</button></div>
+            </div>
         </div>
-        <div class="mb-3">
-            <select class="form-control" id="location" name="location" onchange="toggleNewLocationInput()">
-                {% for location in locations %}
-                    <option value="{{ location }}" {% if item and location == item.location %}selected{% endif %}>{{ location }}</option>
-                {% endfor %}
-                <option value="new">Add New Location</option>
-            </select>
-        </div>
-        <div class="mb-3" id="newLocationDiv" style="display: none;">
-            <input type="text" class="form-control" id="newLocation" name="newLocation" placeholder="New Location">
-        </div>
-        <button type="submit" class="btn btn-primary">Update</button>
-        <button onclick="deleteItem(this.form, `/${item_id}/consumed/`);" type="button" class="btn btn-danger" id="deleteButton">Delete</button>
-        <a href="/{{item_id}}/plant_update" class="btn btn-primary">Update Plant</a>
-    </form>
-</div>
-<script>
-    // Include your JavaScript here
-</script>
-{% endblock %}
+    </div>
+    <form id="deleteForm" method="post" style="display: none;"><input class="form-control" type="hidden" id="itemIdToDelete" name="itemId"></form>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/all_food_search.js"></script>
+    <script src="/assets/js/food.js"></script>
+    <script src="/assets/js/plants.js"></script>
+    <script src="/assets/js/update_food_location_add.js"></script>
+</body>
+
+</html>

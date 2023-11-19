@@ -136,9 +136,6 @@ async def get_food_items(query_string):
     rows = cur.fetchall()
     cur.close()
     conn.close()
-
-    #food_items = [FoodItem(pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
-    #pk=row[0], days_left=(row[4] - datetime.date.today()).days, id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]
     return rows
 
 @app.get("/", response_class=HTMLResponse)
@@ -264,19 +261,23 @@ async def add_consumed_date(item_id: str):
     conn.close()
 
     # Redirect to the root page
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse(url="/", status_code=303)
 
 @app.post("/{item_id}/update/")
 async def update_food_item(
     item_id: str, 
     food: str = Form(...), 
     expiration_date: datetime.date = Form(...), 
+    location: Optional[str] = Form(...),
+    otherLocation: Optional[str] = Form(None),
     notes: Optional[str] = Form(None), 
-    date_consumed: Optional[datetime.date] = Form(None),
-    location: Optional[str] = Form(None)):
+    date_consumed: Optional[datetime.date] = Form(None)):
     
     conn = connect_to_db()
     cursor = conn.cursor()
+    print(otherLocation)
+    if location == "other" and otherLocation:
+        location = otherLocation 
 
     # create new entry for edit so needs a new PK
     item_pk = str(uuid4())
@@ -297,7 +298,7 @@ async def update_food_item(
     cursor.close()
     conn.close()
 
-    return {"success": True, "message": "Successfully updated the food item."}
+    return RedirectResponse(url="/", status_code=303)
 
 @app.get("/{item_id}/")
 async def check_item(item_id: str):
