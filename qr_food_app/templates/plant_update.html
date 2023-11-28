@@ -60,13 +60,6 @@
                                     <form method="post" action="{{base_url}}/{{plant_item.id}}/remove_plant"><input class="form-control" type="hidden" name="plant_stage" value="{{ plant_item.plant_stage }}"><input class="form-control" type="hidden" name="pk" value="{{ plant_item.pk }}"><button class="btn btn-primary" type="submit"><i class="fa fa-trash" data-bs-toggle="tooltip" data-bss-tooltip="" title="remove row"></i></button></form>
                                 </div>
                             </td>
-                            <td class="border rounded">
-                                <div id="buttons">
-                                    <form><button class="btn btn-primary" type="button"><i class="fa fa-pencil-square-o" data-bs-toggle="tooltip" data-bss-tooltip="" title="edit plant details"></i></button></form>
-                                    <form><button class="btn btn-primary" type="button"><i class="fa fa-camera" data-bs-toggle="tooltip" data-bss-tooltip="" title="add or view image"></i></button></form>
-                                    <form method="post" action="{{base_url}}/{{plant_item.id}}/remove_plant"><input class="form-control" type="hidden" name="plant_stage" value="{{ plant_item.plant_stage }}"><input class="form-control" type="hidden" name="pk" value="{{ plant_item.pk }}"><button class="btn btn-primary" type="submit"><i class="fa fa-trash" data-bs-toggle="tooltip" data-bss-tooltip="" title="remove row"></i></button></form>
-                                </div>
-                            </td>
                         </tr>
                     </tbody>
                     {% endfor %}
