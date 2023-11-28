@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     locationSelect.addEventListener('change', function () {
         if (this.value === 'other') {
-            otherLocationInput.style.display = 'block'; // Show when "Other" is selected
+            otherLocationInput.style.display = 'block';
         } else {
-            otherLocationInput.style.display = 'none'; // Hide otherwise
+            otherLocationInput.style.display = 'none';
         }
     });
 });

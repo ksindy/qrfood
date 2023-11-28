@@ -196,6 +196,7 @@ async def edit_food_item(
     for row in rows:
         if row[8] not in location_list:
             location_list.append(row[8])
+        print(location_list)
         if str(row[1]) == item_id:
             food_item = {
                 "id": row[1],

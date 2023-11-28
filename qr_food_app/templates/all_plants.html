@@ -31,34 +31,35 @@
             </div>
         </section>
         <div class="container">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th class="text-center border rounded">Plant</th>
-                        <th class="text-center border rounded">Age</th>
-                        <th class="text-center border rounded"><span style="color: rgb(33, 37, 41);">Last Treatment</span></th>
-                        <th class="text-center border rounded">Location</th>
-                        <th class="text-center border rounded">Notes</th>
-                    </tr>
-                </thead>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center border rounded">Plant</th>
+                            <th class="text-center border rounded">Age</th>
+                            <th class="text-center border rounded d-none d-sm-table-cell"><span style="color: rgb(33, 37, 41);">Last Treatment</span></th>
+                            <th class="text-center border rounded d-none d-sm-table-cell">Location</th>
+                            <th class="text-center border rounded d-none d-sm-table-cell">Notes</th>
+                        </tr>
+                    </thead>
                 {% for plant in all_plants %}
-                <tbody class="text-center border rounded">
-                    <tr class="text-center border rounded">
-                        <td class="text-center border rounded"><a href="{{base_url}}/{{plant.id}}/plant_update/">{{plant.plant}}</a></td>
-                        <td class="text-center border rounded">{{plant.day_from_zero}}</td>
-                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.task}}</span></td>
-                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.location}}</span></td>
-                        <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{plant.notes}}</span></td>
-                    </tr>
-                    <tr class="text-center border rounded"></tr>
-                </tbody>
+                    <tbody class="text-center border rounded">
+                        <tr class="text-center border rounded">
+                            <td class="text-center border rounded"><a href="{{base_url}}/{{plant.id}}/plant_update/">{{plant.plant}}</a></td>
+                            <td class="text-center border rounded">{{plant.task_date}}</td>
+                            <td class="text-center border rounded d-none d-sm-table-cell"><span style="color: rgb(33, 37, 41);">{{plant.task}}</span></td>
+                            <td class="text-center border rounded d-none d-sm-table-cell"><span style="color: rgb(33, 37, 41);">{{plant.location}}</span></td>
+                            <td class="text-center border rounded d-none d-sm-table-cell"><span style="color: rgb(33, 37, 41);">{{plant.notes}}</span></td>
+                        </tr>
+                        <tr class="text-center border rounded"></tr>
+                    </tbody>
                 {% endfor %}
-            </table>
+                </table>
+            </div>
         </div>
     </div>
-    </div>
-    <script src="/assets/bootstrap/css/bootstrap.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/plants.js"></script>
 </body>
 
 </html>
