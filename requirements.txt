@@ -15,4 +15,4 @@ aiofiles
 python-jose
 passlib
 databases
-
+asyncpg
