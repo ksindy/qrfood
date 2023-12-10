@@ -1,33 +1,46 @@
-from fastapi import FastAPI, Request, Form, HTTPException
+from fastapi import FastAPI, Request, Form, HTTPException, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from pydantic import BaseModel, validator
 from fastapi.staticfiles import StaticFiles
 import psycopg2
 import datetime
+import databases
 from uuid import uuid4
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
 import tempfile
-import os
 from PIL import Image
-import os
-from .routers import plants, background_tasks, create_qr_codes, plants_update
+import os, io, boto3
 from dotenv import load_dotenv
+from .routers import background_tasks, create_qr_codes, plants_update, chicken_eggs
 from os import getenv
+from .utils import process_image, connect_to_db, upload_image_to_s3, save_image_locally
 
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
-app.include_router(plants.router)
 app.include_router(background_tasks.router)
+app.include_router(chicken_eggs.router)
 app.include_router(create_qr_codes.router)
 app.include_router(plants_update.router)
+images_path = os.path.join(os.path.dirname(__file__), "images")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+print(DATABASE_URL)
+database = databases.Database(DATABASE_URL)
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
 def get_months(days):
     if days > 30:
         month = days // 30
@@ -75,6 +88,23 @@ def init_db():
             harvest_date TIMESTAMP
             )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            hashed_password VARCHAR(255) NOT NULL
+            )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS chicken_eggs (
+            pk UUID PRIMARY KEY,
+            date_modified TIMESTAMP NOT NULL,
+            chicken_name VARCHAR(255) NOT NULL,
+            egg_date DATE NOT NULL,
+            egg_time_of_day VARCHAR(255) NOT NULL,
+            removed BOOL)
+    """)
     conn.commit()
     cursor.close()
     conn.close()
@@ -110,10 +140,16 @@ class PlantItem(BaseModel):
     update_time: Optional[datetime.datetime] = None
     harvest_date: Optional[datetime.datetime] = None
     removed: Optional[bool] = None 
-
+    
     @validator('removed', pre=True)
     def convert_removed_to_bool(cls, v):
         return v == 't'  # Convert 't' to True, other values to False
+
+class User(BaseModel):
+    id: int
+    username: str
+    email: str
+    hashed_password: str
 
 async def get_food_items(query_string):
     conn = connect_to_db()
@@ -137,6 +173,44 @@ async def get_food_items(query_string):
     cur.close()
     conn.close()
     return rows
+
+@app.post("/upload-image")
+async def upload_image(file: UploadFile = File(...)):
+    # Validate the file type
+    if not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+
+    # Process the image file
+    processed_img_bytes = process_image(file)
+
+    # Save the processed image locally
+    save_image_locally(processed_img_bytes, f'{images_path}/image4.jpg')
+    # Upload the processed image to S3
+    success = upload_image_to_s3(
+        processed_img_bytes, 
+        'qr-food-images', 
+        'test.jpg'
+    )
+
+    if success:
+        return {"message": "Image uploaded successfully to S3"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to upload to S3")
+
+@app.post("/register")
+async def register_user(user: User):
+    # TODO: Add user registration logic
+    return {"message": "User registration placeholder"}
+
+# @app.post("/login")
+# async def login_user(credentials: Credentials):
+#     # TODO: Add login logic
+#     return {"message": "User login placeholder"}
+
+@app.get("/logout") 
+async def logout_user():
+    # TODO: Add logout logic
+    return {"message": "User logout placeholder"}
 
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
@@ -196,7 +270,6 @@ async def edit_food_item(
     for row in rows:
         if row[8] not in location_list:
             location_list.append(row[8])
-        print(location_list)
         if str(row[1]) == item_id:
             food_item = {
                 "id": row[1],

@@ -12,3 +12,7 @@ twilio
 fpdf
 apscheduler
 aiofiles
+python-jose
+passlib
+databases
+

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en" data-bss-forced-theme="light">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>all_food</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/buttons.css">
+    <link rel="stylesheet" href="/assets/css/table.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/css/Articles-Cards-images.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md bg-body">
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" data-bs-target="#navcol-1" class="navbar-toggler"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{{base_url}}">Food</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{base_url}}/all_plants">Plants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div>
+        <section class="py-4 py-xl-5">
+            <div class="container">
+                <div class="text-white bg-dark border-0 border rounded p-4 p-md-5">
+                    <h2 class="fw-bold text-white mb-3">Our Feathered Ladies</h2><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                    </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                    </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                    </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                    </svg>
+                </div>
+            </div>
+        </section>
+        <div class="container py-4 py-xl-5">
+            <div class="row gy-4 row-cols-1 row-cols-md-2 row-cols-xl-3">
+                <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/nugget.jpg" width="259" height="200">
+                        <div class="card-body p-4">
+                            <p class="text-center card-text" style="font-size:36px;font-weight:bold;"></p>
+                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="nugget" data-chicken-name="nugget"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e6f1e5;font-size: 50px;border-color: #edf2e7;">
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                    </svg></button></div>
+                            <h2 class="text-center card-title card-title">Nugget</h2>
+                            <p class="text-center card-text egg-total" id="nugget-egg-total" style="font-size:36px;font-weight:bold;">{{flock["nugget"].egg_total}}</p>
+                            <p class="text-center card-text">Today: {{flock["nugget"].egg_today}}<br>This Week: {{flock["nugget"].egg_week}}<br>This month: {{flock["nugget"].egg_month}}</p>
+                            <p class="text-center card-text">Nugget is an {{flock["nugget"].age}} Easter Egger.</p><img class="d-block mx-auto card-img-top" src="/assets/img/nugget.svg" width="256" height="74">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/dawn.jpg">
+                        <div class="card-body p-4">
+                            <p class="text-center card-text" style="font-size:36px;font-weight:bold;"></p>
+                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="dawn" data-chicken-name="Dawn"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e3683a;font-size: 50px;border-color: #edf2e7;">
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                    </svg></button></div>
+                            <h2 class="text-center card-title card-title">Dawn</h2>
+                            <p class="text-center card-text egg-total" id="dawn-egg-total" style="font-size:36px;font-weight:bold;">{{flock["dawn"].egg_total}}</p>
+                            <p class="text-center card-text">Today: {{flock["dawn"].egg_today}}<br>This Week: {{flock["dawn"].egg_week}}<br>This month: {{flock["dawn"].egg_month}}</p>
+                            <p class="text-center card-text">Dawn is an {{flock["dawn"].age}} Black Copper Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/setting_sun.svg" width="256" height="74">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/wolf.jpg">
+                        <div class="card-body p-4">
+                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="wolf" data-chicken-name="Wolf"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #fde7c8;font-size: 50px;border-color: #edf2e7;">
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                    </svg></button></div>
+                            <h2 class="text-center card-title card-title">Wolf</h2>
+                            <p class="text-center card-text egg-total" id="wolf-egg-total" style="font-size:36px;font-weight:bold;">{{flock["wolf"].egg_total}}</p>
+                            <p class="text-center card-text">Today: {{flock["wolf"].egg_today}}<br>This Week: {{flock["wolf"].egg_week}}<br>This month: {{flock["wolf"].egg_month}}</p>
+                            <p class="text-center card-text">Wolf is an {{flock["wolf"].age}} Green Queen.</p><img class="d-block mx-auto card-img-top" src="/assets/img/wolf.svg" width="256" height="74">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3">
+                    <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/chewy.jpg">
+                        <div class="card-body p-4">
+                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="chewbawka" data-chicken-name="Chewbawka"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e88b5c;font-size: 50px;border-color: #edf2e7;">
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                    </svg></button></div>
+                            <h2 class="text-center card-title">Chewbawka</h2>
+                            <p class="text-center card-text egg-total" id="chewbawka-egg-total" style="font-size:36px;font-weight:bold;">{{flock["chewbawka"].egg_total}}</p>
+                            <p class="text-center card-text">Today: {{flock["chewbawka"].egg_today}}<br>This Week: {{flock["chewbawka"].egg_week}}<br>This month: {{flock["chewbawka"].egg_month}}</p>
+                            <p class="text-center card-text">Chewbawka is an {{flock["chewbawka"].age}} Golden Cuckoo Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/chewy.svg" width="256" height="74">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="eggModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eggModalLabel">Egg Count Entry for <span id="modalChickenName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>                
+                <!-- <div class="modal-header">
+                    <h4 class="modal-title">Add egg for <span id="modalChickenName"></span></h4>
+                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                </div> -->
+                <div class="modal-body">
+                    <form id="eggForm" action="{{base_url}}/egg_totals">
+                        <div class="mb-3"><select class="form-select \" id="timeOfDay">
+                                <optgroup label="Select Time of Day">
+                                    <option value="AM" selected="">AM</option>
+                                    <option value="PM">PM</option>
+                                    <option value="Midday">Midday</option>
+                                    <option value="Unknown">Unknown</option>
+                                </optgroup>
+                            </select></div>
+                        <div class="mb-3"><input class="form-control" id="eggDate" type="date" name="eggDate">
+                            <input class="form-control" type="hidden" id="nameOfChicken"></div>
+                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" type="submit">Save</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/all_food_search.js"></script>
+    <script src="/assets/js/food.js"></script>
+    <script src="/assets/js/plants.js"></script>
+    <script src="/assets/js/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/chicken_name.js"></script>
+    <script src="/assets/js/egg_counter.js"></script>
+</body>
+
+</html>
