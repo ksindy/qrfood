@@ -85,7 +85,7 @@ for ind_chicken in chickens:
     flock[ind_chicken] = ChickenItem(chicken_name=ind_chicken, age=chickens_age)
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_SQL_URL")
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
 
