@@ -91,25 +91,25 @@ for ind_chicken in chickens:
     flock[ind_chicken] = ChickenItem(chicken_name=ind_chicken, age=chickens_age)
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-database = None
-logger.info(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# database = None
+# logger.info(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 
-@router.on_event("startup")
-async def startup():
-    try: 
-        global database
-        database = Database(DATABASE_URL)
-        await database.connect()
-        logger.info("Database connected.")
-    except Exception as e:
-        logger.error(f"Failed to connect to the database: {e}")
-        raise
+# @router.on_event("startup")
+# async def startup():
+#     try: 
+#         global database
+#         database = Database(DATABASE_URL)
+#         await database.connect()
+#         logger.info("Database connected.")
+#     except Exception as e:
+#         logger.error(f"Failed to connect to the database: {e}")
+#         raise
 
-@router.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
-    logger.info("Database disconnected.")
+# @router.on_event("shutdown")
+# async def shutdown():
+#     await database.disconnect()
+#     logger.info("Database disconnected.")
 
 
 query_today = """
@@ -144,69 +144,79 @@ GROUP BY chicken_name;
 async def get_egg_totals(
     request:Request, 
     settings: Settings = Depends(get_settings)):
-
     try:
-        results_today = await database.fetch_all(query_today)
-        results_week = await database.fetch_all(query_week)
-        results_month = await database.fetch_all(query_month)
-        results_overall = await database.fetch_all(query_total)
+        conn = connect_to_db()
+        cursor = conn.cursor()
 
+        results_today = cursor.execute(query_today)
+        results_today= cursor.fetchall()
+        results_week = cursor.execute(query_week)
+        results_week = cursor.fetchall()
+        results_month = cursor.execute(query_month)
+        results_month = cursor.fetchall()
+        results_overall = cursor.execute(query_total)
+        results_overall = cursor.fetchall()
+        # try:
+        #     results_today = await database.fetch_all(query_today)
+        #     results_week = await database.fetch_all(query_week)
+        #     results_month = await database.fetch_all(query_month)
+        #     results_overall = await database.fetch_all(query_total)
+    
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
+    print(results_today)
     for chicken in results_today:
-        flock[chicken['chicken_name']].egg_today = chicken['total_today']
+        flock[chicken[0]].egg_today = chicken[1]
         
     for chicken in results_week:
-        flock[chicken['chicken_name']].egg_week=chicken['total_this_week']
+        flock[chicken[0]].egg_week=chicken[1]
 
     for chicken in results_month:
-        flock[chicken['chicken_name']].egg_month=chicken['total_this_month']
+        flock[chicken[0]].egg_month=chicken[1]
 
     for chicken in results_overall:
-        flock[chicken['chicken_name']].egg_total=chicken['total_overall']
+        flock[chicken[0]].egg_total=chicken[1]
 
+    cursor.close()
+    conn.close()
     return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
 
 
 @router.post("/egg_totals/", response_class=HTMLResponse)
 async def add_egg(egg_data: EggData):
-    newTotal = ""
     try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
         item_pk = str(uuid4())
         date_modified = datetime.now()
         chicken_name = egg_data.chickenName.lower()
         egg_date = egg_data.eggDate
         egg_time_of_day = egg_data.timeOfDay
         removed = False
+
+        # Insert query with parameter placeholders for PostgreSQL
         insert_query = """
         INSERT INTO chicken_eggs (pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
-        VALUES (:item_pk, :date_modified, :chicken_name, :egg_date, :egg_time_of_day, :removed)
+        VALUES (%s, %s, %s, %s, %s, %s)
         """
-        
-        values = {
-            "item_pk": item_pk,
-            "date_modified": date_modified,
-            "chicken_name": chicken_name,
-            "egg_date": egg_date,
-            "egg_time_of_day": egg_time_of_day,
-            "removed": removed
-        }
-        await database.execute(insert_query, values)
-        results_overall = await database.fetch_all(query_total)
-        for chicken in results_overall:
-            if chicken["chicken_name"] == chicken_name:
-                newTotal=chicken['total_overall']
-        return JSONResponse({"status": "success", 
-                             "message": "Egg data added successfully.",
-                             "flock": {
-                                chicken_name: {
-                                "egg_total": newTotal
-                                },
-                            }})
+        cursor.execute(insert_query, (item_pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed))
+        conn.commit()  # Commit the transaction
+
+        # Fetch the new total
+        total_query = "SELECT COUNT(*) FROM chicken_eggs WHERE chicken_name = %s"
+        cursor.execute(total_query, (chicken_name,))
+        newTotal = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        return JSONResponse({
+            "status": "success", 
+            "message": "Egg data added successfully.",
+            "flock": {chicken_name: {"egg_total": newTotal}}
+        })
+
     except Exception as e:
-        # return RedirectResponse("/egg_totals/", status_code=303)
         return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
 
-    # Redirect to the root page
-    
+

@@ -13,6 +13,7 @@ document.getElementById('eggForm').addEventListener('submit', function(e) {
         body: JSON.stringify({ chickenName: chickenName, timeOfDay: timeOfDay, eggDate: eggDate }),
     })
     .then(response => {
+        console.log(response)
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -20,10 +21,8 @@ document.getElementById('eggForm').addEventListener('submit', function(e) {
     })
     .then(data => {
         if (data.status === 'success') {
-            // Assuming the server sends back an updated flock object with egg totals
             Object.keys(data.flock).forEach(chicken => {
                 var eggTotalElement = document.getElementById(chicken + '-egg-total');
-                console.log(eggTotalElement)
                 if (eggTotalElement) {
                     eggTotalElement.textContent = data.flock[chicken].egg_total;
                 }
