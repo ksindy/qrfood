@@ -8,8 +8,7 @@ from pydantic import BaseModel, validator, BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
 import boto3, asyncpg
-import tempfile, databases, sqlalchemy
-from sqlalchemy import create_engine
+import tempfile, databases
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fastapi.templating import Jinja2Templates
@@ -85,17 +84,9 @@ for ind_chicken in chickens:
     flock[ind_chicken] = ChickenItem(chicken_name=ind_chicken, age=chickens_age)
 
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_SQL_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 database = databases.Database(DATABASE_URL)
-metadata = sqlalchemy.MetaData()
-
-# Create the SQLAlchemy engine with connection pool settings
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=10,  # Maximum number of permanent connections
-    max_overflow=20,  # Maximum number of temporary connections
-    pool_timeout=30  # Number of seconds to wait before giving up on returning a connection
-)
+# metadata = sqlalchemy.MetaData()
 
 @router.on_event("startup")
 async def startup():
