@@ -17,6 +17,12 @@ from dotenv import load_dotenv
 
 from ..utils import connect_to_db, connect_to_async_db
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 # Assuming you're in the routers directory 
 templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 templates = Jinja2Templates(directory=templates_path)
@@ -87,16 +93,24 @@ for ind_chicken in chickens:
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 database = None
+logger.info(f"DATABASE_URL: {os.getenv('DATABASE_URL')}")
 
 @router.on_event("startup")
 async def startup():
-    global database
-    database = Database(DATABASE_URL)
-    await database.connect()
+    try: 
+        global database
+        database = Database(DATABASE_URL)
+        await database.connect()
+        logger.info("Database connected.")
+    except Exception as e:
+        logger.error(f"Failed to connect to the database: {e}")
+        raise
 
 @router.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
+    logger.info("Database disconnected.")
+
 
 query_today = """
 SELECT chicken_name, COUNT(*) as total_today
