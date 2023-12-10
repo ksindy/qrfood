@@ -9,6 +9,7 @@ from qrcode import QRCode
 from uuid import uuid4
 import boto3, asyncpg
 import tempfile, databases, sqlalchemy
+from sqlalchemy import create_engine
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fastapi.templating import Jinja2Templates
@@ -85,9 +86,16 @@ for ind_chicken in chickens:
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
-print(DATABASE_URL)
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
+
+# Create the SQLAlchemy engine with connection pool settings
+engine = create_engine(
+    DATABASE_URL,
+    pool_size=10,  # Maximum number of permanent connections
+    max_overflow=20,  # Maximum number of temporary connections
+    pool_timeout=30  # Number of seconds to wait before giving up on returning a connection
+)
 
 @router.on_event("startup")
 async def startup():
@@ -180,11 +188,8 @@ async def add_egg(egg_data: EggData):
         await database.execute(insert_query, values)
         results_overall = await database.fetch_all(query_total)
         for chicken in results_overall:
-            print(chicken)
-            print(chicken_name)
             if chicken["chicken_name"] == chicken_name:
                 newTotal=chicken['total_overall']
-                print(newTotal)
         return JSONResponse({"status": "success", 
                              "message": "Egg data added successfully.",
                              "flock": {
