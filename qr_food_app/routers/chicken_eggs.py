@@ -9,6 +9,7 @@ from qrcode import QRCode
 from uuid import uuid4
 import boto3, asyncpg
 import tempfile, databases
+from databases import Database
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fastapi.templating import Jinja2Templates
@@ -85,11 +86,12 @@ for ind_chicken in chickens:
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
-database = databases.Database(DATABASE_URL)
-# metadata = sqlalchemy.MetaData()
+database = None
 
 @router.on_event("startup")
 async def startup():
+    global database
+    database = Database(DATABASE_URL)
     await database.connect()
 
 @router.on_event("shutdown")
