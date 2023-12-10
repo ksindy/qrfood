@@ -16,3 +16,4 @@ python-jose
 passlib
 databases
 asyncpg
+psycopg2-binary
