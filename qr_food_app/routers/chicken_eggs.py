@@ -153,9 +153,9 @@ async def get_egg_totals(request: Request, settings: Settings = Depends(get_sett
         async with app.state.pool.acquire() as conn:
             async with conn.transaction():
                 results_today = await conn.fetch(query_today)
-                results_week = await conn.fetch(query_week)
-                results_month = await conn.fetch(query_month)
-                results_overall = await conn.fetch(query_total)
+                # results_week = await conn.fetch(query_week)
+                # results_month = await conn.fetch(query_month)
+                # results_overall = await conn.fetch(query_total)
         # try:
         #     results_today = await database.fetch_all(query_today)
         #     results_week = await database.fetch_all(query_week)
@@ -166,14 +166,14 @@ async def get_egg_totals(request: Request, settings: Settings = Depends(get_sett
         for chicken in results_today:
             flock[chicken[0]].egg_today = chicken[1]
             
-        for chicken in results_week:
-            flock[chicken[0]].egg_week=chicken[1]
+        # for chicken in results_week:
+        #     flock[chicken[0]].egg_week=chicken[1]
 
-        for chicken in results_month:
-            flock[chicken[0]].egg_month=chicken[1]
+        # for chicken in results_month:
+        #     flock[chicken[0]].egg_month=chicken[1]
 
-        for chicken in results_overall:
-            flock[chicken[0]].egg_total=chicken[1]
+        # for chicken in results_overall:
+        #     flock[chicken[0]].egg_total=chicken[1]
 
         return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
     except Exception as e:
