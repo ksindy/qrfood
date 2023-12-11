@@ -5,7 +5,6 @@ from pydantic import BaseModel, validator
 from fastapi.staticfiles import StaticFiles
 import psycopg2
 import datetime
-import databases
 from uuid import uuid4
 from fastapi.responses import StreamingResponse
 from io import BytesIO
@@ -21,26 +20,15 @@ from .utils import process_image, connect_to_db, upload_image_to_s3, save_image_
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
 app.include_router(background_tasks.router)
-# app.include_router(chicken_eggs.router)
+app.include_router(chicken_eggs.router)
 app.include_router(create_qr_codes.router)
-# app.include_router(plants_update.router)
+app.include_router(plants_update.router)
 images_path = os.path.join(os.path.dirname(__file__), "images")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-print(DATABASE_URL)
-database = databases.Database(DATABASE_URL)
-@app.on_event("startup")
-async def startup():
-    await database.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await database.disconnect()
 def get_months(days):
     if days > 30:
         month = days // 30
