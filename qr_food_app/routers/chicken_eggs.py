@@ -8,12 +8,12 @@ from pydantic import BaseModel, validator, BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
 import boto3, asyncpg
-import tempfile
+import tempfile, databases
+from databases import Database
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
-from asyncpg import create_pool
 
 from ..utils import connect_to_db
 
@@ -89,13 +89,7 @@ def calculate_age(birthdate_str):
 for ind_chicken in chickens:
     chickens_age = calculate_age(chickens_birthday_str)
     flock[ind_chicken] = ChickenItem(chicken_name=ind_chicken, age=chickens_age)
-@router.on_event("startup")
-async def startup():
-    app.state.pool = await create_pool(os.getenv("DATABASE_URL"))
 
-@router.on_event("shutdown")
-async def shutdown():
-    await app.state.pool.close()
 load_dotenv()
 # DATABASE_URL = os.getenv("DATABASE_URL")
 # database = None
@@ -147,67 +141,82 @@ GROUP BY chicken_name;
 """
     
 @router.get("/egg_totals/", response_class=HTMLResponse)
-async def get_egg_totals(request: Request, settings: Settings = Depends(get_settings)):
+async def get_egg_totals(
+    request:Request, 
+    settings: Settings = Depends(get_settings)):
     try:
-        async with app.state.pool.acquire() as conn:
-            async with conn.transaction():
-                results_today = await conn.fetch(query_today)
-                results_week = await conn.fetch(query_week)
-                results_month = await conn.fetch(query_month)
-                results_overall = await conn.fetch(query_total)
+        conn = connect_to_db()
+        cursor = conn.cursor()
+
+        results_today = cursor.execute(query_today)
+        results_today= cursor.fetchall()
+        results_week = cursor.execute(query_week)
+        results_week = cursor.fetchall()
+        results_month = cursor.execute(query_month)
+        results_month = cursor.fetchall()
+        results_overall = cursor.execute(query_total)
+        results_overall = cursor.fetchall()
         # try:
         #     results_today = await database.fetch_all(query_today)
         #     results_week = await database.fetch_all(query_week)
         #     results_month = await database.fetch_all(query_month)
         #     results_overall = await database.fetch_all(query_total)
     
-
-        for chicken in results_today:
-            flock[chicken[0]].egg_today = chicken[1]
-            
-        for chicken in results_week:
-            flock[chicken[0]].egg_week=chicken[1]
-
-        for chicken in results_month:
-            flock[chicken[0]].egg_month=chicken[1]
-
-        for chicken in results_overall:
-            flock[chicken[0]].egg_total=chicken[1]
-
-        return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    print(results_today)
+    for chicken in results_today:
+        flock[chicken[0]].egg_today = chicken[1]
+        
+    for chicken in results_week:
+        flock[chicken[0]].egg_week=chicken[1]
+
+    for chicken in results_month:
+        flock[chicken[0]].egg_month=chicken[1]
+
+    for chicken in results_overall:
+        flock[chicken[0]].egg_total=chicken[1]
+
+    cursor.close()
+    conn.close()
+    return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
 
 
 @router.post("/egg_totals/", response_class=HTMLResponse)
 async def add_egg(egg_data: EggData):
     try:
-        async with app.state.pool.acquire() as conn:
-            async with conn.transaction():
-                item_pk = str(uuid4())
-                date_modified = datetime.now()
-                chicken_name = egg_data.chickenName.lower()
-                egg_date = egg_data.eggDate
-                egg_time_of_day = egg_data.timeOfDay
-                removed = False
-                print(chicken_name)
-                # Insert query with parameter placeholders for PostgreSQL
-                insert_query = """
-                INSERT INTO chicken_eggs (pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                """
-                print(insert_query)
-                await conn.execute(insert_query, item_pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
-                        
-                total_query = "SELECT COUNT(*) FROM chicken_eggs WHERE chicken_name = $1"
-                print(total_query)
-                newTotal = await conn.fetchval(total_query, chicken_name)
-                print(newTotal)
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        item_pk = str(uuid4())
+        date_modified = datetime.now()
+        chicken_name = egg_data.chickenName.lower()
+        egg_date = egg_data.eggDate
+        egg_time_of_day = egg_data.timeOfDay
+        removed = False
+
+        # Insert query with parameter placeholders for PostgreSQL
+        insert_query = """
+        INSERT INTO chicken_eggs (pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (item_pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed))
+        conn.commit()  # Commit the transaction
+
+        # Fetch the new total
+        total_query = "SELECT COUNT(*) FROM chicken_eggs WHERE chicken_name = %s"
+        cursor.execute(total_query, (chicken_name,))
+        newTotal = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
         return JSONResponse({
-            "status": "success",
+            "status": "success", 
             "message": "Egg data added successfully.",
             "flock": {chicken_name: {"egg_total": newTotal}}
         })
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+
 
