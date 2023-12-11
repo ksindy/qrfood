@@ -3,7 +3,6 @@ import os
 import psycopg2
 from PIL import Image
 import io
-from databases import Database
 import boto3
 from botocore.exceptions import NoCredentialsError
 
