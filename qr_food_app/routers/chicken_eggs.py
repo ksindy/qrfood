@@ -8,8 +8,7 @@ from pydantic import BaseModel, validator, BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
 import boto3
-import tempfile, databases
-from databases import Database
+import tempfile
 from fastapi.responses import StreamingResponse
 from io import BytesIO
 from fastapi.templating import Jinja2Templates
