@@ -7,7 +7,7 @@ from datetime import datetime, date
 from pydantic import BaseModel, validator, BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
-import boto3, asyncpg
+import boto3
 import tempfile, databases
 from databases import Database
 from fastapi.responses import StreamingResponse
