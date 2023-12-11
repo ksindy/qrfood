@@ -25,11 +25,11 @@ def connect_to_db():
     conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
     return conn
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-async def connect_to_async_db() -> Database:
-    database = Database(DATABASE_URL)
-    await database.connect()
-    return database
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# async def connect_to_async_db() -> Database:
+#     database = Database(DATABASE_URL)
+#     await database.connect()
+#     return database
 
 def process_image(file: UploadFile, max_width: int = 1024) -> Image:
     # Read image file

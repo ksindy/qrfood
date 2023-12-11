@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 from asyncpg import create_pool
 
-from ..utils import connect_to_db, connect_to_async_db
+from ..utils import connect_to_db
 
 import logging
 
