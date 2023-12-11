@@ -21,7 +21,7 @@ from .utils import process_image, connect_to_db, upload_image_to_s3, save_image_
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
 app.include_router(background_tasks.router)
-app.include_router(chicken_eggs.router)
+# app.include_router(chicken_eggs.router)
 app.include_router(create_qr_codes.router)
 app.include_router(plants_update.router)
 images_path = os.path.join(os.path.dirname(__file__), "images")
