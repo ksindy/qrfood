@@ -153,9 +153,9 @@ async def get_egg_totals(request: Request, settings: Settings = Depends(get_sett
         async with app.state.pool.acquire() as conn:
             async with conn.transaction():
                 results_today = await conn.fetch(query_today)
-                # results_week = await conn.fetch(query_week)
-                # results_month = await conn.fetch(query_month)
-                # results_overall = await conn.fetch(query_total)
+                results_week = await conn.fetch(query_week)
+                results_month = await conn.fetch(query_month)
+                results_overall = await conn.fetch(query_total)
         # try:
         #     results_today = await database.fetch_all(query_today)
         #     results_week = await database.fetch_all(query_week)
@@ -166,49 +166,49 @@ async def get_egg_totals(request: Request, settings: Settings = Depends(get_sett
         for chicken in results_today:
             flock[chicken[0]].egg_today = chicken[1]
             
-        # for chicken in results_week:
-        #     flock[chicken[0]].egg_week=chicken[1]
+        for chicken in results_week:
+            flock[chicken[0]].egg_week=chicken[1]
 
-        # for chicken in results_month:
-        #     flock[chicken[0]].egg_month=chicken[1]
+        for chicken in results_month:
+            flock[chicken[0]].egg_month=chicken[1]
 
-        # for chicken in results_overall:
-        #     flock[chicken[0]].egg_total=chicken[1]
+        for chicken in results_overall:
+            flock[chicken[0]].egg_total=chicken[1]
 
         return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/egg_totals/", response_class=HTMLResponse)
-async def add_egg(egg_data: EggData):
-    try:
-        async with app.state.pool.acquire() as conn:
-            async with conn.transaction():
-                item_pk = str(uuid4())
-                date_modified = datetime.now()
-                chicken_name = egg_data.chickenName.lower()
-                egg_date = egg_data.eggDate
-                egg_time_of_day = egg_data.timeOfDay
-                removed = False
-                print(chicken_name)
-                # Insert query with parameter placeholders for PostgreSQL
-                insert_query = """
-                INSERT INTO chicken_eggs (pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
-                VALUES ($1, $2, $3, $4, $5, $6)
-                """
-                print(insert_query)
-                await conn.execute(insert_query, item_pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
+# @router.post("/egg_totals/", response_class=HTMLResponse)
+# async def add_egg(egg_data: EggData):
+#     try:
+#         async with app.state.pool.acquire() as conn:
+#             async with conn.transaction():
+#                 item_pk = str(uuid4())
+#                 date_modified = datetime.now()
+#                 chicken_name = egg_data.chickenName.lower()
+#                 egg_date = egg_data.eggDate
+#                 egg_time_of_day = egg_data.timeOfDay
+#                 removed = False
+#                 print(chicken_name)
+#                 # Insert query with parameter placeholders for PostgreSQL
+#                 insert_query = """
+#                 INSERT INTO chicken_eggs (pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
+#                 VALUES ($1, $2, $3, $4, $5, $6)
+#                 """
+#                 print(insert_query)
+#                 await conn.execute(insert_query, item_pk, date_modified, chicken_name, egg_date, egg_time_of_day, removed)
                         
-                total_query = "SELECT COUNT(*) FROM chicken_eggs WHERE chicken_name = $1"
-                print(total_query)
-                newTotal = await conn.fetchval(total_query, chicken_name)
-                print(newTotal)
-        return JSONResponse({
-            "status": "success",
-            "message": "Egg data added successfully.",
-            "flock": {chicken_name: {"egg_total": newTotal}}
-        })
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+#                 total_query = "SELECT COUNT(*) FROM chicken_eggs WHERE chicken_name = $1"
+#                 print(total_query)
+#                 newTotal = await conn.fetchval(total_query, chicken_name)
+#                 print(newTotal)
+#         return JSONResponse({
+#             "status": "success",
+#             "message": "Egg data added successfully.",
+#             "flock": {chicken_name: {"egg_total": newTotal}}
+#         })
+#     except Exception as e:
+#         return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
 
