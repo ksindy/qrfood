@@ -52,7 +52,7 @@
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Nugget</h2>
                             <p class="text-center card-text egg-total" id="nugget-egg-total" style="font-size:36px;font-weight:bold;">{{flock["nugget"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["nugget"].egg_today}}<br>This Week: {{flock["nugget"].egg_week}}<br>This month: {{flock["nugget"].egg_month}}</p>
+                            <p class="text-center card-text">Today: {{flock["nugget"].egg_today}}<br>This Week: {{flock["nugget"].egg_week}}<br>This month: {{flock["nugget"].egg_month}}<br>Latest Egg: {{ flock["nugget"].latest_egg_date}}</p>
                             <p class="text-center card-text">Nugget is an {{flock["nugget"].age}} Easter Egger.</p><img class="d-block mx-auto card-img-top" src="/assets/img/nugget.svg" width="256" height="74">
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Dawn</h2>
                             <p class="text-center card-text egg-total" id="dawn-egg-total" style="font-size:36px;font-weight:bold;">{{flock["dawn"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["dawn"].egg_today}}<br>This Week: {{flock["dawn"].egg_week}}<br>This month: {{flock["dawn"].egg_month}}</p>
+                            <p class="text-center card-text">Today: {{flock["dawn"].egg_today}}<br>This Week: {{flock["dawn"].egg_week}}<br>This month: {{flock["dawn"].egg_month}}<br>Latest Egg: {{ flock["dawn"].latest_egg_date}}</p>
                             <p class="text-center card-text">Dawn is an {{flock["dawn"].age}} Black Copper Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/setting_sun.svg" width="256" height="74">
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Wolf</h2>
                             <p class="text-center card-text egg-total" id="wolf-egg-total" style="font-size:36px;font-weight:bold;">{{flock["wolf"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["wolf"].egg_today}}<br>This Week: {{flock["wolf"].egg_week}}<br>This month: {{flock["wolf"].egg_month}}</p>
+                            <p class="text-center card-text">Today: {{flock["wolf"].egg_today}}<br>This Week: {{flock["wolf"].egg_week}}<br>This month: {{flock["wolf"].egg_month}}<br>Latest Egg: {{ flock["wolf"].latest_egg_date}}</p>
                             <p class="text-center card-text">Wolf is an {{flock["wolf"].age}} Green Queen.</p><img class="d-block mx-auto card-img-top" src="/assets/img/wolf.svg" width="256" height="74">
                         </div>
                     </div>
@@ -91,8 +91,8 @@
                                         <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title">Chewbawka</h2>
-                            <p class="text-center card-text egg-total" id="chewbawka-egg-total" style="font-size:36px;font-weight:bold;">{{flock["chewbawka"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["chewbawka"].egg_today}}<br>This Week: {{flock["chewbawka"].egg_week}}<br>This month: {{flock["chewbawka"].egg_month}}</p>
+                            <p style="text-align: center;">Latest Egg: {{ flock["wolf"].latest_egg_date}}</p>
+                            <p class="text-center card-text">Today: {{flock["chewbawka"].egg_today}}<br>This Week: {{flock["chewbawka"].egg_week}}<br>This month: {{flock["chewbawka"].egg_month}}<br>Latest Egg: {{ flock["chewbawka"].latest_egg_date}}</p>
                             <p class="text-center card-text">Chewbawka is an {{flock["chewbawka"].age}} Golden Cuckoo Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/chewy.svg" width="256" height="74">
                         </div>
                     </div>
@@ -107,10 +107,6 @@
                     <h5 class="modal-title" id="eggModalLabel">Egg Count Entry for <span id="modalChickenName"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>                
-                <!-- <div class="modal-header">
-                    <h4 class="modal-title">Add egg for <span id="modalChickenName"></span></h4>
-                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
-                </div> -->
                 <div class="modal-body">
                     <form id="eggForm" action="{{base_url}}/egg_totals">
                         <div class="mb-3"><select class="form-select \" id="timeOfDay">

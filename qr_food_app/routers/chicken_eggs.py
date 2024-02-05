@@ -53,6 +53,7 @@ dt = datetime.now()
 class ChickenItem(BaseModel):
     chicken_name: str
     age: str
+    latest_egg_date: Optional[date] = None
     egg_today: int = 0
     egg_week: int = 0
     egg_month: int = 0
@@ -138,6 +139,13 @@ FROM chicken_eggs
 WHERE removed = FALSE
 GROUP BY chicken_name;
 """
+
+query_latest_egg_date = """
+SELECT DISTINCT ON (chicken_name) chicken_name, egg_date
+FROM chicken_eggs
+WHERE removed = FALSE
+ORDER BY chicken_name, egg_date DESC;
+"""
     
 @router.get("/egg_totals/", response_class=HTMLResponse)
 async def get_egg_totals(
@@ -155,6 +163,8 @@ async def get_egg_totals(
         results_month = cursor.fetchall()
         results_overall = cursor.execute(query_total)
         results_overall = cursor.fetchall()
+        latest_egg_date = cursor.execute(query_latest_egg_date)
+        latest_egg_date = cursor.fetchall()
         # try:
         #     results_today = await database.fetch_all(query_today)
         #     results_week = await database.fetch_all(query_week)
@@ -163,7 +173,6 @@ async def get_egg_totals(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    print(results_today)
     for chicken in results_today:
         flock[chicken[0]].egg_today = chicken[1]
         
@@ -176,8 +185,12 @@ async def get_egg_totals(
     for chicken in results_overall:
         flock[chicken[0]].egg_total=chicken[1]
 
+    for chicken in latest_egg_date:
+        flock[chicken[0]].latest_egg_date=chicken[1]
+
     cursor.close()
     conn.close()
+    print(flock)
     return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
 
 

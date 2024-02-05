@@ -4,7 +4,8 @@ document.getElementById('eggForm').addEventListener('submit', function(e) {
     var chickenName = document.getElementById('nameOfChicken').value;
     var timeOfDay = document.getElementById('timeOfDay').value;
     var eggDate = document.getElementById('eggDate').value;
-
+    var myModal = new bootstrap.Modal(document.getElementById('eggModal'));
+    
     fetch('/egg_totals/', {
         method: 'POST',
         headers: {
@@ -26,10 +27,9 @@ document.getElementById('eggForm').addEventListener('submit', function(e) {
                 if (eggTotalElement) {
                     eggTotalElement.textContent = data.flock[chicken].egg_total;
                 }
+                myModal.hide();
             });
         }
-        $('#eggModal').modal('hide');
-        $('.modal-backdrop').remove(); 
     })
     .catch((error) => {
         console.error('Error:', error);
