@@ -194,7 +194,7 @@ async def get_egg_totals(
     return templates.TemplateResponse("chicken_eggs.html", {"request": request, "flock": flock})
 
 
-@router.post("/egg_totals/", response_class=HTMLResponse)
+@router.post("/egg_totals/")
 async def add_egg(egg_data: EggData):
     try:
         conn = connect_to_db()
@@ -222,11 +222,11 @@ async def add_egg(egg_data: EggData):
         cursor.close()
         conn.close()
 
-        return JSONResponse({
+        return JSONResponse(content = {
             "status": "success", 
             "message": "Egg data added successfully.",
             "flock": {chicken_name: {"egg_total": newTotal}}
-        })
+        }, status_code=200)
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})

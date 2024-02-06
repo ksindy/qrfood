@@ -91,7 +91,7 @@
                                         <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title">Chewbawka</h2>
-                            <p style="text-align: center;">Latest Egg: {{ flock["wolf"].latest_egg_date}}</p>
+                            <p class="text-center card-text egg-total" id="chewbawka-egg-total" style="font-size:36px;font-weight:bold;">{{flock["chewbawka"].egg_total}}</p>
                             <p class="text-center card-text">Today: {{flock["chewbawka"].egg_today}}<br>This Week: {{flock["chewbawka"].egg_week}}<br>This month: {{flock["chewbawka"].egg_month}}<br>Latest Egg: {{ flock["chewbawka"].latest_egg_date}}</p>
                             <p class="text-center card-text">Chewbawka is an {{flock["chewbawka"].age}} Golden Cuckoo Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/chewy.svg" width="256" height="74">
                         </div>
@@ -126,10 +126,6 @@
         </div>
     </div>
     <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/assets/js/all_food_search.js"></script>
-    <script src="/assets/js/food.js"></script>
-    <script src="/assets/js/plants.js"></script>
-    <script src="/assets/js/bootstrap/js/bootstrap.min.js"></script>
     <script src="/assets/js/chicken_name.js"></script>
     <script src="/assets/js/egg_counter.js"></script>
 </body>
