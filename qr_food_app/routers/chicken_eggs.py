@@ -63,6 +63,10 @@ class EggData(BaseModel):
     chickenName: str
     timeOfDay: str
     eggDate: date
+    egg_today: int = 0
+    egg_week: int = 0
+    egg_month: int = 0
+    egg_total: int = 0
 
     # @validator('removed', pre=True)
     # def convert_removed_to_bool(cls, v):

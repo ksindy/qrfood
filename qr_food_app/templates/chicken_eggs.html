@@ -30,13 +30,13 @@
             <div class="container">
                 <div class="text-white bg-dark border-0 border rounded p-4 p-md-5">
                     <h2 class="fw-bold text-white mb-3">Our Feathered Ladies</h2><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
-                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                     </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
-                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                     </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
-                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                     </svg><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="font-size: 40px;">
-                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                     </svg>
                 </div>
             </div>
@@ -47,12 +47,15 @@
                     <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/nugget.jpg" width="259" height="200">
                         <div class="card-body p-4">
                             <p class="text-center card-text" style="font-size:36px;font-weight:bold;"></p>
-                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="nugget" data-chicken-name="nugget"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e6f1e5;font-size: 50px;border-color: #edf2e7;">
-                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                            <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="nugget" data-chicken-name="Nugget"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e6f1e5;font-size: 50px;border-color: #edf2e7;">
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Nugget</h2>
-                            <p class="text-center card-text egg-total" id="nugget-egg-total" style="font-size:36px;font-weight:bold;">{{flock["nugget"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["nugget"].egg_today}}<br>This Week: {{flock["nugget"].egg_week}}<br>This month: {{flock["nugget"].egg_month}}<br>Latest Egg: {{ flock["nugget"].latest_egg_date}}</p>
+                            <p class="text-center card-text" id="Nugget-egg-total" style="font-size:36px;font-weight:bold;">{{flock["nugget"].egg_total}}</p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Today:&nbsp;<span id="Nugget-egg-today">{{flock["nugget"].egg_today}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">This Week:&nbsp;<span id="Nugget-egg-week">{{flock["nugget"].egg_week}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">This Month:&nbsp;<span id="Nugget-egg-month">{{flock["nugget"].egg_month}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Latest Egg:&nbsp;<span id="Nugget-egg-latest">{{flock["nugget"].latest_egg_date}}</span>&nbsp;<br></p>
                             <p class="text-center card-text">Nugget is an {{flock["nugget"].age}} Easter Egger.</p><img class="d-block mx-auto card-img-top" src="/assets/img/nugget.svg" width="256" height="74">
                         </div>
                     </div>
@@ -62,11 +65,14 @@
                         <div class="card-body p-4">
                             <p class="text-center card-text" style="font-size:36px;font-weight:bold;"></p>
                             <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="dawn" data-chicken-name="Dawn"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e3683a;font-size: 50px;border-color: #edf2e7;">
-                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Dawn</h2>
-                            <p class="text-center card-text egg-total" id="dawn-egg-total" style="font-size:36px;font-weight:bold;">{{flock["dawn"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["dawn"].egg_today}}<br>This Week: {{flock["dawn"].egg_week}}<br>This month: {{flock["dawn"].egg_month}}<br>Latest Egg: {{ flock["dawn"].latest_egg_date}}</p>
+                            <p class="text-center card-text" id="Dawn-egg-total" style="font-size:36px;font-weight:bold;">{{flock["dawn"].egg_total}}</p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Today:&nbsp;<span id="Dawn-egg-today">{{flock["dawn"].egg_today}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Week:&nbsp;<span id="Dawn-egg-week">{{flock["dawn"].egg_week}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Month:&nbsp;<span id="Dawn-egg-month">{{flock["dawn"].egg_month}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Latest Egg:&nbsp;<span id="Dawn-egg-latest">{{flock["dawn"].latest_egg_date}}</span>&nbsp;<br></p>
                             <p class="text-center card-text">Dawn is an {{flock["dawn"].age}} Black Copper Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/setting_sun.svg" width="256" height="74">
                         </div>
                     </div>
@@ -75,11 +81,14 @@
                     <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/wolf.jpg">
                         <div class="card-body p-4">
                             <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="wolf" data-chicken-name="Wolf"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #fde7c8;font-size: 50px;border-color: #edf2e7;">
-                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title card-title">Wolf</h2>
-                            <p class="text-center card-text egg-total" id="wolf-egg-total" style="font-size:36px;font-weight:bold;">{{flock["wolf"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["wolf"].egg_today}}<br>This Week: {{flock["wolf"].egg_week}}<br>This month: {{flock["wolf"].egg_month}}<br>Latest Egg: {{ flock["wolf"].latest_egg_date}}</p>
+                            <p class="text-center card-text" id="Wolf-egg-total" style="font-size:36px;font-weight:bold;">{{flock["wolf"].egg_total}}</p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Today:&nbsp;<span id="Wolf-egg-today">{{flock["wolf"].egg_today}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Week:&nbsp;<span id="Wolf-egg-week">{{flock["wolf"].egg_week}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Month:&nbsp;<span id="Wolf-egg-month">{{flock["wolf"].egg_month}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Latest Egg:&nbsp;<span id="Wolf-egg-latest">{{flock["wolf"].latest_egg_date}}</span>&nbsp;<br></p>
                             <p class="text-center card-text">Wolf is an {{flock["wolf"].age}} Green Queen.</p><img class="d-block mx-auto card-img-top" src="/assets/img/wolf.svg" width="256" height="74">
                         </div>
                     </div>
@@ -88,11 +97,14 @@
                     <div class="card"><img class="card-img-top w-100 d-block card-img-top w-100 fit-cover" style="height:200px;" src="/assets/img/chewy.jpg">
                         <div class="card-body p-4">
                             <div class="text-center"><button class="btn btn-primary" type="button" style="background: var(--bs-btn-disabled-color);border-style: none;" data-bs-toggle="modal" data-bs-target="#eggModal" data-chicken-id="chewbawka" data-chicken-name="Chewbawka"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-egg-fill" style="background: var(--bs-btn-hover-color);--bs-body-bg: #050101;color: #e88b5c;font-size: 50px;border-color: #edf2e7;">
-                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10z"></path>
+                                        <path d="M14 10a6 6 0 0 1-12 0C2 5.686 5 0 8 0s6 5.686 6 10"></path>
                                     </svg></button></div>
                             <h2 class="text-center card-title">Chewbawka</h2>
-                            <p class="text-center card-text egg-total" id="chewbawka-egg-total" style="font-size:36px;font-weight:bold;">{{flock["chewbawka"].egg_total}}</p>
-                            <p class="text-center card-text">Today: {{flock["chewbawka"].egg_today}}<br>This Week: {{flock["chewbawka"].egg_week}}<br>This month: {{flock["chewbawka"].egg_month}}<br>Latest Egg: {{ flock["chewbawka"].latest_egg_date}}</p>
+                            <p class="text-center card-text" id="Chewbawka-egg-total" style="font-size:36px;font-weight:bold;">{{flock["chewbawka"].egg_total}}</p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Today:&nbsp;<span id="Chewbawka-egg-today">{{flock["chewbawka"].egg_today}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Week:&nbsp;<span id="Chewbawka-egg-week">{{flock["chewbawka"].egg_week}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Month:&nbsp;<span id="Chewbawka-egg-month">{{flock["chewbawka"].egg_month}}</span>&nbsp;<br></p>
+                            <p class="text-center card-text" style="margin-bottom: 0px;">Latest Egg:&nbsp;<span id="Chewbawka-egg-latest">{{flock["chewbawka"].latest_egg_date}}</span>&nbsp;<br></p>
                             <p class="text-center card-text">Chewbawka is an {{flock["chewbawka"].age}} Golden Cuckoo Maran.</p><img class="d-block mx-auto card-img-top" src="/assets/img/chewy.svg" width="256" height="74">
                         </div>
                     </div>
@@ -104,9 +116,8 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="eggModalLabel">Egg Count Entry for <span id="modalChickenName"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>                
+                    <h4 class="modal-title">Add egg for&nbsp;<span id="modalChickenName"></span></h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body">
                     <form id="eggForm" action="{{base_url}}/egg_totals">
                         <div class="mb-3"><select class="form-select \" id="timeOfDay">
@@ -117,8 +128,7 @@
                                     <option value="Unknown">Unknown</option>
                                 </optgroup>
                             </select></div>
-                        <div class="mb-3"><input class="form-control" id="eggDate" type="date" name="eggDate">
-                            <input class="form-control" type="hidden" id="nameOfChicken"></div>
+                        <div class="mb-3"><input class="form-control" id="eggDate" type="date" name="eggDate"><input class="form-control" type="hidden" id="nameOfChicken" name="chickenName"></div>
                         <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" type="submit">Save</button></div>
                     </form>
                 </div>
