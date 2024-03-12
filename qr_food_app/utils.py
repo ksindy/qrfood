@@ -25,7 +25,7 @@ def connect_to_db():
 def process_image(file: UploadFile, max_width: int = 1024) -> bytes:
     url_and_jpeg = scan_qr_image(file)
     uuid = url_and_jpeg[0].rstrip('/').split('/')[-1] 
-    if not upload_image_to_s3(url_and_jpeg[1], "qr-jpgs-purgatory", uuid + ".jpg"):
+    if not upload_image_to_s3(url_and_jpeg[1], os.getenv("QR_IMAGES_BUCKET"), uuid + ".jpg"):
         raise HTTPException(status_code=500, detail="Failed to upload image to S3.")
     return(uuid)
 
@@ -78,25 +78,4 @@ def upload_image_to_s3(image_bytes: bytes, bucket_name: str, object_name: str):
         return True
     except NoCredentialsError:
         return False
-
-# async def upload_image(file: UploadFile = File(...)):
-#     # Validate the file type
-#     if not file.content_type.startswith('image/'):
-#         raise HTTPException(status_code=400, detail="Invalid file type")
-
-#     # Process the image file
-#     processed_img_bytes = process_image(file)
-
-#     # Save the processed image locally
-#     save_image_locally(processed_img_bytes, f'{images_path}/image4.jpg')
-#     # Upload the processed image to S3
-#     success = upload_image_to_s3(
-#         processed_img_bytes, 
-#         'qr-food-images', 
-#         'test.jpg'
-#     )
-
-# def save_image_locally(image_bytes: bytes, filename: str):
-#     with open(filename, 'wb') as out_file:
-#         out_file.write(image_bytes)
 
