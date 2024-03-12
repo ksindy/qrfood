@@ -10,12 +10,11 @@ from fastapi.responses import StreamingResponse
 from io import BytesIO
 from typing import Optional
 import tempfile
-from PIL import Image
 import os, io, boto3
 from dotenv import load_dotenv
 from .routers import background_tasks, create_qr_codes, plants_update, chicken_eggs
 from os import getenv
-from .utils import process_image, connect_to_db, upload_image_to_s3, save_image_locally
+from .utils import process_image, connect_to_db
 
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
@@ -36,6 +35,7 @@ def get_months(days):
         return(f"{month} months {day} days")
     else:
         return(f"{days} days")
+    
     
 # Connect to the database
 def connect_to_db():
@@ -169,21 +169,9 @@ async def upload_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
     # Process the image file
-    processed_img_bytes = process_image(file)
+    item_id = process_image(file)
 
-    # Save the processed image locally
-    save_image_locally(processed_img_bytes, f'{images_path}/image4.jpg')
-    # Upload the processed image to S3
-    success = upload_image_to_s3(
-        processed_img_bytes, 
-        'qr-food-images', 
-        'test.jpg'
-    )
-
-    if success:
-        return {"message": "Image uploaded successfully to S3"}
-    else:
-        raise HTTPException(status_code=500, detail="Failed to upload to S3")
+    return RedirectResponse(url=f"/{item_id}/", status_code=303)
 
 @app.post("/register")
 async def register_user(user: User):

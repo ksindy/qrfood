@@ -1,10 +1,72 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 import os
 import psycopg2
 from PIL import Image
+import pillow_heif 
+import pillow_heif
 import io
 import boto3
 from botocore.exceptions import NoCredentialsError
+from pyzbar.pyzbar import decode
+from typing import Tuple, Union
+
+class UnsupportedFileTypeError(Exception):
+    pass
+
+class QRCodeNotFoundError(Exception):
+    pass
+
+# Connect to the database
+def connect_to_db():
+    use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
+    return conn
+
+def process_image(file: UploadFile, max_width: int = 1024) -> bytes:
+    url_and_jpeg = scan_qr_image(file)
+    uuid = url_and_jpeg[0].rstrip('/').split('/')[-1] 
+    if not upload_image_to_s3(url_and_jpeg[1], "qr-jpgs-purgatory", uuid + ".jpg"):
+        raise HTTPException(status_code=500, detail="Failed to upload image to S3.")
+    return(uuid)
+
+def scan_qr_image(file: UploadFile):
+    # Read the file bytes
+    file_bytes = file.file.read()
+    file.file.close()
+
+    # Check file type
+    content_type = file.content_type
+    if content_type == "image/heic":
+        # Process HEIF files
+        heif_file = pillow_heif.read_heif(file_bytes)
+        image = Image.frombytes(
+            heif_file.mode, 
+            heif_file.size, 
+            heif_file.data,
+            "raw",
+            heif_file.mode,
+            heif_file.stride,
+        )
+    elif content_type == "image/jpeg":
+        # Process JPG files
+        image = Image.open(io.BytesIO(file_bytes))
+    else:
+        return "Error: Unsupported file type. Please upload a HEIF or JPG image."
+
+    # Convert image to JPEG format for consistency
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format='JPEG', quality=85)
+    img_byte_arr.seek(0)
+    
+    # Decode QR code from the image
+    decoded_objects = decode(image)
+    decoded_data = [obj.data.decode('utf-8') for obj in decoded_objects]
+
+    # Return decoded data and image in JPEG format
+    if decoded_data:
+        return decoded_data[0], img_byte_arr
+    else:
+        return "No QR code found.", img_byte_arr
 
 def upload_image_to_s3(image_bytes: bytes, bucket_name: str, object_name: str):
     # Upload to S3
@@ -17,56 +79,24 @@ def upload_image_to_s3(image_bytes: bytes, bucket_name: str, object_name: str):
     except NoCredentialsError:
         return False
 
+# async def upload_image(file: UploadFile = File(...)):
+#     # Validate the file type
+#     if not file.content_type.startswith('image/'):
+#         raise HTTPException(status_code=400, detail="Invalid file type")
 
-# Connect to the database
-def connect_to_db():
-    use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
-    return conn
+#     # Process the image file
+#     processed_img_bytes = process_image(file)
 
-# DATABASE_URL = os.getenv("DATABASE_URL")
-# async def connect_to_async_db() -> Database:
-#     database = Database(DATABASE_URL)
-#     await database.connect()
-#     return database
+#     # Save the processed image locally
+#     save_image_locally(processed_img_bytes, f'{images_path}/image4.jpg')
+#     # Upload the processed image to S3
+#     success = upload_image_to_s3(
+#         processed_img_bytes, 
+#         'qr-food-images', 
+#         'test.jpg'
+#     )
 
-def process_image(file: UploadFile, max_width: int = 1024) -> Image:
-    # Read image file
-    image_bytes = file.file.read()
-    file.file.close()
-
-    with Image.open(io.BytesIO(image_bytes)) as img:
-        # Correct orientation based on EXIF data
-        img = correct_orientation(img)
-
-        # Resize the image
-        if img.width > max_width:
-            ratio = max_width / float(img.width)
-            new_height = int(float(img.height) * ratio)
-            img = img.resize((max_width, new_height), Image.ANTIALIAS)
-
-        # Convert img to byte array for further processing or saving
-        img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='JPEG', optimize=True, quality=80)
-        img_byte_arr = img_byte_arr.getvalue()
-
-        return img_byte_arr
-
-def correct_orientation(img: Image) -> Image:
-    exif = img._getexif()
-    if exif is not None:
-        orientation_key = 274  # cf ExifTags
-        if orientation_key in exif:
-            orientation = exif[orientation_key]
-            if orientation == 3:
-                img = img.rotate(180, expand=True)
-            elif orientation == 6:
-                img = img.rotate(270, expand=True)
-            elif orientation == 8:
-                img = img.rotate(90, expand=True)
-    return img
-
-def save_image_locally(image_bytes: bytes, filename: str):
-    with open(filename, 'wb') as out_file:
-        out_file.write(image_bytes)
+# def save_image_locally(image_bytes: bytes, filename: str):
+#     with open(filename, 'wb') as out_file:
+#         out_file.write(image_bytes)
 

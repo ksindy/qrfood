@@ -4,3 +4,5 @@ __pycache__/
 *.png
 qrcodes/
 .env
+*.DS_Store
+venv/

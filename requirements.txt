@@ -14,3 +14,4 @@ apscheduler
 aiofiles
 python-jose
 passlib
+pyzbar==0.1.9
