@@ -4,16 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>all_food</title>
+    <title>foodUI</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/css/buttons.css">
-    <link rel="stylesheet" href="assets/css/table.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee&amp;display=swap">
+    <link rel="stylesheet" href="assets/css/qr-app-header.css">
+    <link rel="stylesheet" href="assets/css/Stats-icons.css">
 </head>
 
-<body>
+<body style="background: #ffffff;">
     <nav class="navbar navbar-expand-md bg-body">
-        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" data-bs-target="#navcol-1" class="navbar-toggler"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link active" href="{{base_url}}">Food</a></li>
@@ -23,67 +23,147 @@
             </div>
         </div>
     </nav>
-    <div>
-        <section class="py-4 py-xl-5">
-            <div class="container">
-                <div class="text-white bg-dark border rounded border-0 p-4 p-md-5">
-                    <h2 class="fw-bold text-white mb-3">All your food</h2>
-                    <p class="mb-4">La Ti Da</p>
+    <div class="container py-4 py-xl-5" style="background: #e9f2ef;">
+        <div class="row gy-4 row-cols-2 row-cols-md-4">
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg" style="--bs-primary: #86b1a3;--bs-primary-rgb: 134,177,163;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-skull">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 4c4.418 0 8 3.358 8 7.5c0 1.901 -.755 3.637 -2 4.96l0 2.54a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-2.54c-1.245 -1.322 -2 -3.058 -2 -4.96c0 -4.142 3.582 -7.5 8 -7.5z"></path>
+                            <path d="M10 17v3"></path>
+                            <path d="M14 17v3"></path>
+                            <path d="M9 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                            <path d="M15 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0">5</h2>
+                        <p class="mb-0">Expiring Soon</p>
+                    </div>
                 </div>
             </div>
-        </section>
-        <div class="container">
-            <div><input type="text" id="searchInput" class="form-control" placeholder="Search for item..."></div>
-        </div>
-        <div class="container">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="text-center border rounded">Food</th>
-                            <th class="text-center border rounded">Time Left</th>
-                            <th class="text-center border rounded">Location</th>
-                            <th class="text-center border rounded">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center border rounded">
-                        {% for item in food_items %}
-                        <tr class="text-center border rounded">
-                            <td class="text-center border rounded"><a href="{{base_url}}/{{item.id}}">{{item.food}}</a></td>
-                            <td class="text-center border rounded">{{item.days_left}}</td>
-                            <td class="text-center border rounded"><span style="color: rgb(33, 37, 41);">{{item.location}}</span></td>
-                            <td class="text-center border rounded">
-                                <div id="buttons"><a href="{{base_url}}/{{item.id}}/update"><button class="btn btn-primary" type="button" data-bs-target="{{base_url}}/{{item.id}}/update"><i class="fa fa-pencil-square-o" data-bs-toggle="tooltip" data-bss-tooltip="" title="edit plant details"></i></button></a><a href="#"><button class="btn btn-primary" type="button"><i class="fa fa-camera" data-bs-toggle="tooltip" data-bss-tooltip="" title="add or view image"></i></button></a>
-                                    <form method="post" action="{{base_url}}/{{item.id}}/consumed"><button class="btn btn-primary" type="button" data-bs-target="#deleteConfirmationModal" data-item-id="{{item.id}}" data-bs-toggle="modal"><i class="fa fa-trash" data-bs-toggle="tooltip" data-bss-tooltip="" title="remove row"></i></button></form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        <tr class="text-center border rounded"></tr>
-                    </tbody>
-                </table>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg" style="background: rgb(134,177,163);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-pizza">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 21.5c-3.04 0 -5.952 -.714 -8.5 -1.983l8.5 -16.517l8.5 16.517a19.09 19.09 0 0 1 -8.5 1.983z"></path>
+                            <path d="M5.38 15.866a14.94 14.94 0 0 0 6.815 1.634a14.944 14.944 0 0 0 6.502 -1.479"></path>
+                            <path d="M13 11.01v-.01"></path>
+                            <path d="M11 14v-.01"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0" style="font-family: ABeeZee, sans-serif;">Spaghetti Sauce</h2>
+                        <p class="mb-0">Most Popular Food</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg" style="background: rgb(134,177,163);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-box">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"></path>
+                            <path d="M12 12l8 -4.5"></path>
+                            <path d="M12 12l0 9"></path>
+                            <path d="M12 12l-8 -4.5"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0">67+</h2>
+                        <p class="mb-0">Total Stored Items</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg" style="background: rgb(134,177,163);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-cart2">
+                            <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5H3.14zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0">89</h2>
+                        <p class="mb-0">Erat netus</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" role="dialog" tabindex="-1" id="deleteConfirmationModal">
+    <div class="container" style="background: #86b1a3;padding: 12px;">
+        <div class="row">
+            <div class="col">
+                <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                        <p class="m-0 fw-bold" style="font-size: 35px;font-family: ABeeZee, sans-serif;">Kitchen Fridge</p>
+                        <form id="upload-form" action="/upload-image" method="post" enctype="multipart/form-data"><label class="form-label btn btn-primary" for="fridge-image-input" style="background: rgb(139,175,195);font-family: ABeeZee, sans-serif;border-style: inherit;border-color: var(--bs-tertiary-color);border-radius: 18px;">Upload Food Image</label></form><input type="file" id="fridge-image-input" style="display: none;" onchange="updateLabel()">
+                    </div>
+                    <div class="card-body" style="height: 255px;">
+                        <div class="carousel slide" data-bs-ride="false" id="carousel-1">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image"></div>
+                                <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image"></div>
+                                <div class="carousel-item"><img class="w-100 d-block" src="https://cdn.bootstrapstudio.io/placeholders/1400x800.png" alt="Slide Image"></div>
+                            </div>
+                            <div><a class="carousel-control-prev" href="#carousel-1" role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span><span class="visually-hidden">Previous</span></a><a class="carousel-control-next" href="#carousel-1" role="button" data-bs-slide="next"><span class="carousel-control-next-icon"></span><span class="visually-hidden">Next</span></a></div>
+                            <div class="carousel-indicators"><button type="button" data-bs-target="#carousel-1" data-bs-slide-to="0" class="active"></button> <button type="button" data-bs-target="#carousel-1" data-bs-slide-to="1"></button> <button type="button" data-bs-target="#carousel-1" data-bs-slide-to="2"></button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <p class="m-0 fw-bold" style="font-size: 35px;font-family: ABeeZee, sans-serif;">Inventory</p>
+                    </div>
+                    <div class="card-body" style="height: 300px;width: 654px;padding: 8px;max-height: 300px;"><input type="search" id="searchInput" class="form-control" placeholder="Search for an item ...">
+                        <div style="overflow-y: auto;max-height: 250px;">
+                            <div class="table">
+                                <table class="table">
+                                    <thead style="position: sticky; top: 0;">
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Days Left</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in food_items %}
+                                        <tr>
+                                            <td><a class="item-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-1" data-item-id="{{ item.id}}" data-item-food="{{ item.food }}" data-item-image="{{ item.image_url }}" data-item-expiration="{{ item.expiration_date }}" data-item-location="{{ item.location }}"><span style="color: rgb(0, 0, 0);">{{item.food}}</span></a></td>
+                                            <td>{{item.days_left}}</td>
+                                            <td>{{item.location}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Modal Title</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                    <h4 class="modal-title" id="modalLabel">Modify Food Details</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete this item?</p>
+                    <div class="text-center" style="margin-top: 5px;margin-bottom: 14px;"><img id="modalImage" alt="Food Image" style="width: 100%;" src=""></div>
+                    <div class="mb-3"><input type="text" id="modalFoodName" class="form-control" placeholder="Name of Food"></div>
+                    <div id="mb-3"><select id="modalFoodLocation" class="form-control" style="margin-top: -3px;margin-right: 0px;margin-bottom: 13px;">
+                            <optgroup label="Select Location">
+                                {% for location in locations %}
+                                <option value="{{ location }}">{{ location }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select></div>
+                    <div id="mb-3"><input id="modalFoodDate" class="form-control" type="date"></div>
+                    <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" type="button">Save</button></div>
                 </div>
-                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" id="confirmDelete" type="button">Yes</button></div>
             </div>
         </div>
     </div>
-    <form id="deleteForm" method="post" style="display: none;"><input class="form-control" type="hidden" id="itemIdToDelete" name="itemId"></form>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/all_food_search.js"></script>
-    <script src="assets/js/food.js"></script>
-    <script src="assets/js/plants.js"></script>
+    <script src="assets/js/food_modal.js"></script>
+    <script src="assets/js/upload_food_image.js"></script>
 </body>
 
 </html>

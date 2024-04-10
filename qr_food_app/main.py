@@ -1,26 +1,25 @@
 from fastapi import FastAPI, Request, Form, HTTPException, File, UploadFile
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from pydantic import BaseModel, validator
+from fastapi.responses import HTMLResponse, RedirectResponse
+from pydantic import BaseModel, validator, Field
 from fastapi.staticfiles import StaticFiles
 import psycopg2
+from psycopg2 import sql
 import datetime
 from uuid import uuid4
-from fastapi.responses import StreamingResponse
-from io import BytesIO
 from typing import Optional
-import tempfile
-import os, io, boto3
+import os
 from dotenv import load_dotenv
-from .routers import background_tasks, create_qr_codes, plants_update, chicken_eggs
+from .routers import background_tasks, create_qr_codes, plants_update, chicken_eggs, food_inventory
 from os import getenv
-from .utils import process_image, connect_to_db
+from .utils import process_image, connect_to_db, get_food_items
 
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
 app.include_router(background_tasks.router)
 app.include_router(chicken_eggs.router)
 app.include_router(create_qr_codes.router)
+app.include_router(food_inventory.router)
 app.include_router(plants_update.router)
 images_path = os.path.join(os.path.dirname(__file__), "images")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
@@ -36,11 +35,10 @@ def get_months(days):
     else:
         return(f"{days} days")
     
-    
 # Connect to the database
 def connect_to_db():
-    use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
+    database_url = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(database_url)
     return conn
 
 # Initialize the database
@@ -115,6 +113,7 @@ class FoodItem(BaseModel):
     date_consumed: Optional[datetime.date] = None
     location: Optional[str] = None
     days_left: Optional[str] = None
+    image_url: Optional[str] = Field(None, description="The full URL to the image stored in S3")
 
 class PlantItem(BaseModel):
     pk: Optional[str] = None
@@ -139,40 +138,6 @@ class User(BaseModel):
     email: str
     hashed_password: str
 
-async def get_food_items(query_string):
-    conn = connect_to_db()
-    cur = conn.cursor()
-
-    query = """
-        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed, fi.location
-        FROM food_items fi
-        INNER JOIN (
-            SELECT id, MAX(update_time) AS max_update_time
-            FROM food_items
-            GROUP BY id
-        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
-        WHERE date_consumed IS NULL
-       
-    """
-    query = query + query_string
-        
-    cur.execute(query)
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return rows
-
-@app.post("/upload-image")
-async def upload_image(file: UploadFile = File(...)):
-    # Validate the file type
-    if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Invalid file type")
-
-    # Process the image file
-    item_id = process_image(file)
-
-    return RedirectResponse(url=f"/{item_id}/", status_code=303)
-
 @app.post("/register")
 async def register_user(user: User):
     # TODO: Add user registration logic
@@ -191,6 +156,7 @@ async def logout_user():
 @app.get("/", response_class=HTMLResponse)
 async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
     food_items = []
+    location_list=[]
     query_string = ""
     if sort_by_expiration_date:
         order = "ASC" if sort_order == "asc" else "DESC"
@@ -198,160 +164,26 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
         query_string += ";"
     rows = await get_food_items(query_string)
     for row in rows:
+        if row[8] not in location_list:
+            location_list.append(row[8])
         days_left = get_months((row[4] - datetime.date.today()).days)
         food_items.append(FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8], days_left=days_left))
-    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items})
+    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list})
 
 @app.get("/favicon.ico")
 def read_favicon():
     raise HTTPException(status_code=204, detail="No content")
 
-@app.get("/consumed_items/", response_class=HTMLResponse)
-async def read_updated_items(request: Request, sort_by_expiration_date: bool = False):
-    conn = connect_to_db()
-    cur = conn.cursor()
-
-    query = """
-        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed, fi.location
-        FROM food_items fi
-        INNER JOIN (
-            SELECT id, MAX(update_time) AS max_update_time
-            FROM food_items
-            GROUP BY id
-        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
-        WHERE fi.date_consumed IS NOT NULL;
-    """
-
-    if sort_by_expiration_date:
-        query += " ORDER BY fi.expiration_date"
-
-    cur.execute(query)
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-
-    food_items = [FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8]) for row in rows]
-
-    return templates.TemplateResponse("consumed.html", {"request": request, "food_items": food_items})
-
-@app.get("/{item_id}/update/", response_class=HTMLResponse)
-async def edit_food_item(
-    request: Request, 
-    item_id: str):
-
-    food_item = {}
-    location_list=[]
-    query_string = ";"
-    rows = await get_food_items(query_string)
-    for row in rows:
-        if row[8] not in location_list:
-            location_list.append(row[8])
-        if str(row[1]) == item_id:
-            food_item = {
-                "id": row[1],
-                "food": row[2],
-                "date_added":row[3],
-                "expiration_date": row[4],
-                "notes": row[5],
-                "date_consumed": row[7],
-                "location": row[8]
-                }
-    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
-
-@app.get("/{item_id}/view")
-async def handle_qr_scan(item_id: str):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT * FROM food_items
-        WHERE id = %s
-        ORDER BY update_time DESC
-        LIMIT 1
-    """, (item_id,))
-    item = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    if item and item[7] is None:
-        return RedirectResponse(url=f"/{item_id}/view/")
-    else:
-        # Add the new UUID to the database before redirecting to the update page
-        return RedirectResponse(url=f"/{item_id}/update/")
+@app.post("/upload-image/")
+async def upload_image(file: UploadFile = File(...)):
+    if not file.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="Invalid file type")
     
-@app.post("/{item_id}/consumed/")
-async def add_consumed_date(item_id: str):
-    conn = connect_to_db()
-    cursor = conn.cursor()
-
-    # Find the latest entry based on the "update_time" column for the passed-in item.id
-    cursor.execute("""
-        SELECT * FROM food_items
-        WHERE id = %s
-        ORDER BY update_time DESC
-        LIMIT 1
-    """, (item_id,))
-    item = cursor.fetchone()
-    # create new entry for edit so needs a new PK
-    item_pk = str(uuid4())
-
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    # Create a new entry with the same info, but add the current time to the "update_time" column and "date_consumed" column
-    current_time = datetime.datetime.now()
-    cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, item[2], item[3], item[4], item[5], current_time, current_time, item[7]),
-    )
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    # Redirect to the root page
-    return RedirectResponse(url="/", status_code=303)
-
-@app.post("/{item_id}/update/")
-async def update_food_item(
-    item_id: str, 
-    food: str = Form(...), 
-    expiration_date: datetime.date = Form(...), 
-    location: Optional[str] = Form(...),
-    otherLocation: Optional[str] = Form(None),
-    notes: Optional[str] = Form(None), 
-    date_consumed: Optional[datetime.date] = Form(None)):
-    
-    conn = connect_to_db()
-    cursor = conn.cursor()
-    print(otherLocation)
-    if location == "other" and otherLocation:
-        location = otherLocation 
-
-    # create new entry for edit so needs a new PK
-    item_pk = str(uuid4())
-    # capture time of edit
-    dt = datetime.datetime.now()
-
-    # get date_added from original entry and add to updated entry
-    cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
-    date_added_row = cursor.fetchone()
-    date_added = date_added_row[0] if date_added_row is not None else datetime.date.today()
-
-    cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, date_added, expiration_date, notes, dt, date_consumed, location),
-    )
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return RedirectResponse(url="/", status_code=303)
+    uuid = process_image(file)
+    return RedirectResponse(url=f"/{uuid}/?upload_photo=yes", status_code=303)
 
 @app.get("/{item_id}/")
-async def check_item(item_id: str):
+async def check_item(item_id: str, upload_photo: Optional[str] = None):
     conn = connect_to_db()
     cursor = conn.cursor()
 
@@ -366,7 +198,10 @@ async def check_item(item_id: str):
     if food_item_count > 0:
         cursor.close()
         conn.close()
-        return RedirectResponse(url=f"/{item_id}/update")
+        if upload_photo == 'yes':
+            return RedirectResponse(url=f"/{item_id}/update/?upload_photo=yes")
+        else:
+            return RedirectResponse(url=f"/{item_id}/update")
 
         # Check if the ID exists in plants and harvest_date is NULL for the latest entry and highest plant_stage
     cursor.execute("""
@@ -398,7 +233,12 @@ async def check_item(item_id: str):
     plant_item_count = cursor.fetchone()
 
     if plant_item_count:
-        return RedirectResponse(url=f"/{item_id}/plant_update")
+        if upload_photo == 'yes':
+            return RedirectResponse(url=f"/{item_id}/plant_update/?upload_photo=yes")
+        else:
+            return RedirectResponse(url=f"/{item_id}/plant_update")
+    elif upload_photo == 'yes':
+        return RedirectResponse(url=f"/{item_id}/update/?upload_photo=yes")
     else:
         return RedirectResponse(url=f"/{item_id}/update")
 

@@ -18,16 +18,18 @@ class QRCodeNotFoundError(Exception):
 
 # Connect to the database
 def connect_to_db():
-    use_ssl = 'localhost' not in os.getenv("DATABASE_URL")
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"), sslmode='require' if use_ssl else None)
+    database_url = os.getenv("DATABASE_URL")
+    conn = psycopg2.connect(database_url)
     return conn
 
 def process_image(file: UploadFile, max_width: int = 1024) -> bytes:
     url_and_jpeg = scan_qr_image(file)
-    uuid = url_and_jpeg[0].rstrip('/').split('/')[-1] 
-    if not upload_image_to_s3(url_and_jpeg[1], os.getenv("QR_IMAGES_BUCKET"), uuid + ".jpg"):
+    uuid = url_and_jpeg[0].rstrip('/').split('/')[-1]
+    object_name = uuid + ".jpg"
+    if not upload_image_to_s3(url_and_jpeg[1], os.getenv("QR_IMAGES_BUCKET"), object_name):
         raise HTTPException(status_code=500, detail="Failed to upload image to S3.")
-    return(uuid)
+    s3_url = f"https://{os.getenv('QR_IMAGES_BUCKET')}.s3.amazonaws.com/{object_name}"
+    return uuid
 
 def scan_qr_image(file: UploadFile):
     # Read the file bytes
@@ -78,4 +80,27 @@ def upload_image_to_s3(image_bytes: bytes, bucket_name: str, object_name: str):
         return True
     except NoCredentialsError:
         return False
+
+async def get_food_items(query_string):
+    conn = connect_to_db()
+    cur = conn.cursor()
+
+    query = """
+        SELECT fi.pk, fi.id, fi.food, fi.date_added, fi.expiration_date, fi.notes, fi.update_time, fi.date_consumed, fi.location, fi.image_url
+        FROM food_items fi
+        INNER JOIN (
+            SELECT id, MAX(update_time) AS max_update_time
+            FROM food_items
+            GROUP BY id
+        ) AS mfi ON fi.id = mfi.id AND fi.update_time = mfi.max_update_time
+        WHERE date_consumed IS NULL
+       
+    """
+    query = query + query_string
+        
+    cur.execute(query)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
 

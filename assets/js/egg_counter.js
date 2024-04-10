@@ -22,18 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 latestEggDateElement.textContent = eggDate;
             }
         }
-
-        // Check if eggDate is today's date before incrementing 'egg-today'
-        if (eggDate === today) {
-            const eggTodayElement = document.getElementById(`${chickenName}-egg-today`);
-            if (eggTodayElement) {
-                let eggTodayCount = parseInt(eggTodayElement.textContent, 10) + 1;
-                eggTodayElement.textContent = eggTodayCount; // Update DOM
-            }
-        }
-        
-        // Always increment 'egg-week', 'egg-month', 'egg-total'
-        ['egg-week', 'egg-month', 'egg-total'].forEach(type => {
+        // Increment egg counts directly in the DOM before sending data
+        ['egg-today', 'egg-week', 'egg-month', 'egg-total'].forEach(type => {
             const elementId = `${chickenName}-${type}`;
             const element = document.getElementById(elementId);
             if (element) {

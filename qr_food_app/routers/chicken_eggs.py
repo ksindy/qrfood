@@ -4,7 +4,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 import os
 from typing import Optional
 from datetime import datetime, date
-from pydantic import BaseModel, validator, BaseSettings
+from pydantic import BaseModel  
+from pydantic_settings import BaseSettings
 from qrcode import QRCode
 from uuid import uuid4
 import boto3
