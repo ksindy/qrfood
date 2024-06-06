@@ -71,15 +71,14 @@ def scan_qr_image(file: UploadFile):
         return "No QR code found.", img_byte_arr
 
 def upload_image_to_s3(image_bytes: bytes, bucket_name: str, object_name: str):
-    # Upload to S3
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
     aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
     s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
     try:
         s3_client.put_object(Body=image_bytes, Bucket=bucket_name, Key=object_name, ContentType='image/jpeg')
-        return True
+        return {"message": "Upload successful", "imageUrl": f"https://{bucket_name}.s3.amazonaws.com/{object_name}"}
     except NoCredentialsError:
-        return False
+        return {"message": "Upload failed due to credential issues"}
 
 async def get_food_items(query_string):
     conn = connect_to_db()

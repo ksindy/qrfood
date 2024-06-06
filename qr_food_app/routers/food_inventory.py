@@ -1,11 +1,14 @@
 from fastapi import HTTPException, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi import FastAPI, APIRouter, Form, Request, HTTPException, Depends, status
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel, Field
 import os
+import json
 from typing import Optional
 from ..utils import get_food_items, connect_to_db
 import datetime
+from uuid import uuid4
 
 # Assuming you're in the routers directory 
 templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -13,79 +16,130 @@ templates = Jinja2Templates(directory=templates_path)
 router = APIRouter()
 app = FastAPI()
 
-@router.get("/{item_id}/update/", response_class=HTMLResponse)
-async def edit_food_item(
-    request: Request, 
-    item_id: str,
-    upload_photo: Optional[str] = None):
-    image_url = ""
-    if upload_photo == "yes":
-        image_url = f"https://{os.getenv('QR_IMAGES_BUCKET')}.s3.amazonaws.com/{item_id}"
-    food_item = {}
+def get_months(days):
+    if days > 30:
+        month = days // 30
+        day = days % 30
+        return(f"{month} months {day} days")
+    else:
+        return(f"{days} days")
+# Define the request model for FoodItem and PlantItem
+
+class FoodItem(BaseModel):
+    pk: Optional[str] = None
+    id: Optional[str] = None
+    food: str
+    date_added: datetime.date
+    expiration_date: datetime.date
+    notes: Optional[str] = None
+    days_old: Optional[int] = None
+    update_time: Optional[datetime.datetime] = None
+    date_consumed: Optional[datetime.date] = None
+    location: Optional[str] = None
+    days_left: Optional[str] = None
+    image_url: Optional[str] = Field(None, description="The full URL to the image stored in S3")
+
+@router.get("/food/", response_class=HTMLResponse)
+async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None, item_id: Optional[str] = None, upload_photo: Optional[str] = None):
+    food_items = []
     location_list=[]
-    query_string = ";"
+    query_string = ""
+    if sort_by_expiration_date:
+        order = "ASC" if sort_order == "asc" else "DESC"
+        query_string = f" ORDER BY fi.expiration_date {order}"
+        query_string += ";"
     rows = await get_food_items(query_string)
     for row in rows:
         if row[8] not in location_list:
             location_list.append(row[8])
-        if str(row[1]) == item_id: #if the qr id exists and not consumed then info will be available to update in modal
-            print(row)
-            if upload_photo == "yes" or row[9]:
-                image_url = f"https://{os.getenv('QR_IMAGES_BUCKET')}.s3.amazonaws.com/{item_id}"
-            else:
-                image_url = ""
-            food_item = {
-                "id": row[1],
-                "food": row[2],
-                "date_added":row[3],
-                "expiration_date": row[4],
-                "notes": row[5],
-                "date_consumed": row[7],
-                "location": row[8],
-                "image_url": image_url
-            }
+        days_left = get_months((row[4] - datetime.date.today()).days)
+        food_items.append(FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8], image_url=row[9], days_left=days_left))
+    if item_id:
+        print('item_id')
+        food_item = {}
+        print(item_id)
+        query_string = f"AND fi.id = '{item_id}'"
+        rows = await get_food_items(query_string)
+        print(f"rows {rows}")
+        for row in rows:
+            if row[8] not in location_list:
+                location_list.append(row[8])
+            if str(row[1]) == item_id: #if the qr id exists and not consumed then info will be available to update in modal
+                print(row)
+                # if upload_photo == "yes" or row[9]:
+                #     image_url = f"https://{os.getenv('QR_IMAGES_BUCKET')}.s3.amazonaws.com/{item_id}"
+                # else:
+                #     image_url = ""
+                food_item = FoodItem(
+                    id=row[1],
+                    food=row[2],
+                    date_added=row[3],
+                    expiration_date=row[4],
+                    notes=row[5],
+                    date_consumed=row[7],
+                    location=row[8],
+                    image_url=row[9]
+                )
+                food_item = food_item.model_dump_json()
+                print(food_item)
+            # food_item = json.dumps(food_item, ensure_ascii=False)
+            print(food_item)
+            print(type(food_item))
+        return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list, "food_item": food_item})
+    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list})
 
-    return templates.TemplateResponse("edit.html", {"locations": location_list, "request": request, "item": food_item, "item_id": item_id})
-
-@router.post("/{item_id}/update/")
+@router.post("/food/{item_id}/update/")
 async def update_food_item(
     item_id: str, 
-    food: str = Form(...), 
-    expiration_date: datetime.date = Form(...), 
-    location: Optional[str] = Form(...),
-    otherLocation: Optional[str] = Form(None),
+    food: Optional[str] = Form(None), 
+    date_added: Optional[datetime.date] = Form(None), 
+    expiration_date: Optional[datetime.date] = Form(None), 
+    location: Optional[str] = Form(None),
     notes: Optional[str] = Form(None), 
     date_consumed: Optional[datetime.date] = Form(None),
-    upload_photo: Optional[str] = None):
+    image_url:Optional[str] = Form(None)):
+    print(f"here: {image_url} {notes}")
+    print(image_url)
+    # Find the latest entry based on the "update_time" column for the passed-in item.id
+
+    try:
+        conn = connect_to_db()
+        cursor = conn.cursor()
+        cursor.execute(f"""
+        SELECT * FROM food_items
+        WHERE id = '{item_id}'
+        ORDER BY update_time DESC
+        LIMIT 1
+        """, (item_id,))
+        item = cursor.fetchone()
+        # create new entry for edit so needs a new PK
+        item_pk = str(uuid4())
+        current_time = datetime.datetime.now()
+
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        food = food if food is not None else item[2]
+        date_added = date_added if date_added is not None else item[3]
+        expiration_date = expiration_date if expiration_date is not None else item[4]
+        notes = notes if notes is not None else item[5]
+        print(date_consumed)
+        date_consumed = date_consumed if date_consumed is not None else item[7]
+        print(date_consumed)
+        location = location if location is not None else item[8]
+        if image_url == 'yes' and item_id:
+            image_url = f"https://qr-app-images-dev.s3.us-east-2.amazonaws.com/{item_id}.jpg"
+        image_url = image_url if image_url is not None else item[9]
     
-    conn = connect_to_db()
-    cursor = conn.cursor()
-    print(otherLocation)
-    # if location == "other" and otherLocation:
-    #     location = otherLocation 
-    # if upload_photo == "yes":
-
-
-    # create new entry for edit so needs a new PK
-    item_pk = str(uuid4())
-    # capture time of edit
-    dt = datetime.datetime.now()
-
-    # get date_added from original entry and add to updated entry
-    cursor.execute("SELECT date_added FROM food_items WHERE id=%s", (item_id,))
-    date_added_row = cursor.fetchone()
-    date_added = date_added_row[0] if date_added_row is not None else datetime.date.today()
-
-    cursor.execute(
-        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-        (item_pk, item_id, food, date_added, expiration_date, notes, dt, date_consumed, location),
+        cursor.execute(
+        "INSERT INTO food_items (pk, id, food, date_added, expiration_date, notes, update_time, date_consumed, location, image_url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (item_pk, item_id, food, date_added, expiration_date, notes, current_time, date_consumed, location, image_url, ),
     )
 
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return RedirectResponse(url="/", status_code=303)
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
+    return {"message": "Update DB Successfully"}
 
 @router.post("/{item_id}/consumed/")
 async def add_consumed_date(item_id: str):

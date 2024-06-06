@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form, HTTPException, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, validator
 from fastapi.staticfiles import StaticFiles
 import psycopg2
 from psycopg2 import sql
@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 from .routers import background_tasks, create_qr_codes, plants_update, chicken_eggs, food_inventory
 from os import getenv
-from .utils import process_image, connect_to_db, get_food_items
+from .utils import connect_to_db, upload_image_to_s3
 
 load_dotenv()  # take environment variables from .env.
 app = FastAPI()
@@ -26,14 +26,6 @@ templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
-
-def get_months(days):
-    if days > 30:
-        month = days // 30
-        day = days % 30
-        return(f"{month} months {day} days")
-    else:
-        return(f"{days} days")
     
 # Connect to the database
 def connect_to_db():
@@ -100,21 +92,6 @@ TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
 TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
 TWILIO_PHONE_NUMBER = os.environ['TWILIO_PHONE_NUMBER']
 
-# Define the request model for FoodItem and PlantItem
-class FoodItem(BaseModel):
-    pk: Optional[str] = None
-    id: Optional[str] = None
-    food: str
-    date_added: datetime.date
-    expiration_date: datetime.date
-    notes: Optional[str] = None
-    days_old: Optional[int] = None
-    update_time: Optional[datetime.datetime] = None
-    date_consumed: Optional[datetime.date] = None
-    location: Optional[str] = None
-    days_left: Optional[str] = None
-    image_url: Optional[str] = Field(None, description="The full URL to the image stored in S3")
-
 class PlantItem(BaseModel):
     pk: Optional[str] = None
     id: Optional[str] = None
@@ -154,33 +131,26 @@ async def logout_user():
     return {"message": "User logout placeholder"}
 
 @app.get("/", response_class=HTMLResponse)
-async def read_items(request: Request, sort_by_expiration_date: bool = False, sort_order: Optional[str] = None):
-    food_items = []
-    location_list=[]
-    query_string = ""
-    if sort_by_expiration_date:
-        order = "ASC" if sort_order == "asc" else "DESC"
-        query_string = f" ORDER BY fi.expiration_date {order}"
-        query_string += ";"
-    rows = await get_food_items(query_string)
-    for row in rows:
-        if row[8] not in location_list:
-            location_list.append(row[8])
-        days_left = get_months((row[4] - datetime.date.today()).days)
-        food_items.append(FoodItem(pk=row[0], id=row[1], food=row[2], date_added=row[3], expiration_date=row[4], notes=row[5], update_time=row[6], date_consumed=row[7], location=row[8], days_left=days_left))
-    return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list})
+async def redirect():
+    return RedirectResponse(url=f"/food/")
 
 @app.get("/favicon.ico")
 def read_favicon():
     raise HTTPException(status_code=204, detail="No content")
 
 @app.post("/upload-image/")
-async def upload_image(file: UploadFile = File(...)):
-    if not file.content_type.startswith('image/'):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+async def upload_image(file: UploadFile = File(...), itemId: str = Form(...)):
+    object_name = f"{itemId}.jpg"
+    image_bytes = await file.read()
+    print(f"object {object_name}")
+    response = upload_image_to_s3(image_bytes, "qr-app-images-dev", object_name)
+    return response
     
-    uuid = process_image(file)
-    return RedirectResponse(url=f"/{uuid}/?upload_photo=yes", status_code=303)
+    # if not file.content_type.startswith('image/'):
+    #     raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    # uuid = process_image(file)
+    # return RedirectResponse(url=f"/{uuid}/?upload_photo=yes", status_code=303)
 
 @app.get("/{item_id}/")
 async def check_item(item_id: str, upload_photo: Optional[str] = None):
@@ -199,9 +169,9 @@ async def check_item(item_id: str, upload_photo: Optional[str] = None):
         cursor.close()
         conn.close()
         if upload_photo == 'yes':
-            return RedirectResponse(url=f"/{item_id}/update/?upload_photo=yes")
+            return RedirectResponse(url=f"/{item_id}/food/?item_id={item_id}&upload_photo=yes")
         else:
-            return RedirectResponse(url=f"/{item_id}/update")
+            return RedirectResponse(url=f"/food/?item_id={item_id}", status_code=303)
 
         # Check if the ID exists in plants and harvest_date is NULL for the latest entry and highest plant_stage
     cursor.execute("""
@@ -238,9 +208,9 @@ async def check_item(item_id: str, upload_photo: Optional[str] = None):
         else:
             return RedirectResponse(url=f"/{item_id}/plant_update")
     elif upload_photo == 'yes':
-        return RedirectResponse(url=f"/{item_id}/update/?upload_photo=yes")
+        return RedirectResponse(url=f"/{item_id}/food/?item_id={item_id}&upload_photo=yes")
     else:
-        return RedirectResponse(url=f"/{item_id}/update")
+        return RedirectResponse(url=f"/food/?item_id={item_id}", status_code=303)
 
 
 

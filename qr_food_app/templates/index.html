@@ -5,13 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>foodUI</title>
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=ABeeZee&amp;display=swap">
-    <link rel="stylesheet" href="assets/css/qr-app-header.css">
-    <link rel="stylesheet" href="assets/css/Stats-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/qr-app-header.css">
+    <link rel="stylesheet" href="/assets/css/Stats-icons.css">
 </head>
 
 <body style="background: #ffffff;">
+    {% if food_item %}
+    <meta name="food-item" content="{{ food_item }}">
+    {% endif %}
     <nav class="navbar navbar-expand-md bg-body">
         <div class="container-fluid"><a class="navbar-brand" href="{{base_url}}">QuRky</a><button data-bs-toggle="collapse" data-bs-target="#navcol-1" class="navbar-toggler"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
@@ -142,30 +146,45 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalLabel">Modify Food Details</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                    <h4 class="modal-title" id="modalLabel">Modify Food Details</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center" style="margin-top: 5px;margin-bottom: 14px;"><img id="modalImage" alt="Food Image" style="width: 100%;" src=""></div>
-                    <div class="mb-3"><input type="text" id="modalFoodName" class="form-control" placeholder="Name of Food"></div>
-                    <div id="mb-3"><select id="modalFoodLocation" class="form-control" style="margin-top: -3px;margin-right: 0px;margin-bottom: 13px;">
+                    <div class="text-center mb-3">
+                        <img id="modalImage" alt="Food Image" style="width: 100%;" src="">
+                        <button class="btn btn-primary mt-3" onclick="document.getElementById('imageInput').click();">Upload New Image</button>
+                        <input type="file" id="imageInput" style="display:none;">
+
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="modalFoodName" class="form-control" placeholder="Name of Food">
+
+                    </div>
+                    <div class="mb-3">
+                        <select id="modalFoodLocation" class="form-control">
                             <optgroup label="Select Location">
                                 {% for location in locations %}
                                 <option value="{{ location }}">{{ location }}</option>
                                 {% endfor %}
                             </optgroup>
-                        </select></div>
-                    <div id="mb-3"><input id="modalFoodDate" class="form-control" type="date">
-                        <textarea id="modalExpirationDetails" class="form-control" style="border-style: None"></textarea>
+                        </select>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button><button class="btn btn-primary" type="button">Save</button></div>
+                    <div class="mb-3">
+                        <input id="modalFoodDate" class="form-control" type="date">
+                        <textarea id="modalExpirationDetails" class="form-control" style="border-style: None;"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-light" type="button" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" id="saveButton" type="button" >Save</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-    <script src="assets/js/all_food_search.js"></script>
-    <script src="assets/js/food_modal.js"></script>
-    <script src="assets/js/upload_food_image.js"></script>
+    <input type="hidden" id="hiddenItemId" value="">
+    <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/assets/js/all_food_search.js"></script>
+    <script src="/assets/js/food_upload_image.js"></script>
 </body>
 
 </html>
