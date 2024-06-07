@@ -113,9 +113,7 @@ async def update_food_item(
         date_added = date_added if date_added is not None else item[3]
         expiration_date = expiration_date if expiration_date is not None else item[4]
         notes = notes if notes is not None else item[5]
-        print(date_consumed)
         date_consumed = date_consumed if date_consumed is not None else item[7]
-        print(date_consumed)
         location = location if location is not None else item[8]
         if image_url == 'yes' and item_id:
             image_url = f"https://qr-app-images-dev.s3.us-east-2.amazonaws.com/{item_id}.jpg"
@@ -130,7 +128,7 @@ async def update_food_item(
     finally:
         cursor.close()
         conn.close()
-    return {"message": "Update DB Successfully"}
+    return {"message": f"Update DB Successfully {image_url}"}
 
 @router.post("/{item_id}/consumed/")
 async def add_consumed_date(item_id: str):

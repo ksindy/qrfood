@@ -112,8 +112,11 @@ document.addEventListener("DOMContentLoaded", function() {
             body: formData2
         })
         .then(response => response.json())
-        .then(data => console.log('Response:', data))
-        .catch(error => console.error('Error:', error));
+        .then(data => {
+            console.log('Update successful', data);})
+        .catch(error => {
+                console.error('Error uploading image:', error);
+            });
     }
     // Add listern to "save" button
     document.getElementById('saveButton').addEventListener('click', function() {
