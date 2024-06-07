@@ -142,8 +142,8 @@ def read_favicon():
 async def upload_image(file: UploadFile = File(...), itemId: str = Form(...)):
     object_name = f"{itemId}.jpg"
     image_bytes = await file.read()
-    print(f"object {object_name}")
-    response = upload_image_to_s3(image_bytes, "qr-app-images-dev", object_name)
+    bucket_name = os.getenv("BUCKET_NAME")
+    response = upload_image_to_s3(image_bytes, bucket_name, object_name)
     return response
     
     # if not file.content_type.startswith('image/'):

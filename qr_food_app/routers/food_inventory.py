@@ -65,11 +65,6 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
             if row[8] not in location_list:
                 location_list.append(row[8])
             if str(row[1]) == item_id: #if the qr id exists and not consumed then info will be available to update in modal
-                print(row)
-                # if upload_photo == "yes" or row[9]:
-                #     image_url = f"https://{os.getenv('QR_IMAGES_BUCKET')}.s3.amazonaws.com/{item_id}"
-                # else:
-                #     image_url = ""
                 food_item = FoodItem(
                     id=row[1],
                     food=row[2],
@@ -81,10 +76,6 @@ async def read_items(request: Request, sort_by_expiration_date: bool = False, so
                     image_url=row[9]
                 )
                 food_item = food_item.model_dump_json()
-                print(food_item)
-            # food_item = json.dumps(food_item, ensure_ascii=False)
-            print(food_item)
-            print(type(food_item))
         return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list, "food_item": food_item})
     return templates.TemplateResponse("index.html", {"request": request, "food_items": food_items, "locations": location_list})
 
