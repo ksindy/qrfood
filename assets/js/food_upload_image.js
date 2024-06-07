@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    document.getElementById('imageInput').addEventListener('change', previewFile);
+
     // Show modal code
     function populateAndShowModal(item) {
         const modalImage = document.getElementById('modalImage');
