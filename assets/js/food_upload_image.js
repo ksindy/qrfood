@@ -1,29 +1,18 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Set variables if itemId is passed in via URL:
+    // set varialbes if itemId is passed in via url:
     const foodItemMeta = document.querySelector('meta[name="food-item"]');
     const foodItem = foodItemMeta ? JSON.parse(foodItemMeta.getAttribute("content")) : null;
     let itemId;
-    if (foodItem) {
+    if(foodItem) {
         itemId = document.getElementById("hiddenItemId").value = foodItem.id;
     }
 
-    // Preview new image in modal
+    // preview new image in modal
     function previewFile() {
-        console.log("previewFile function called");
         const preview = document.getElementById('modalImage');
         const file = document.getElementById('imageInput').files[0];
         const reader = new FileReader();
-
-        if (!preview) {
-            console.error("Preview element not found");
-            return;
-        }
-
-        if (!file) {
-            console.error("No file selected");
-            return;
-        }
-
+        console.log(preview)
         reader.onload = function (e) {
             // Set the preview image to the file's data URL
             preview.src = e.target.result;
@@ -43,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const modalExpirationDetails = document.getElementById('modalExpirationDetails');
 
         // Use a default image if "None" is provided
+        console.log(item)
         modalImage.src = item.image_url === 'None' || !item.image_url ? 'https://qr-app-images-dev.s3.us-east-2.amazonaws.com/default_food_photo.jpeg' : item.image_url;
         modalFoodName.value = item.food;
         modalFoodLocation.value = item.location;
@@ -73,6 +63,8 @@ document.addEventListener("DOMContentLoaded", function() {
         link.addEventListener('click', function(event) {
             event.preventDefault();
             itemId = this.dataset.itemId;
+            console.log(this.dataset.itemImage)
+
             populateAndShowModal({
                 id: itemId,
                 image_url: this.dataset.itemImage,
@@ -83,13 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Add listener to "save" button
-    document.getElementById('saveButton').addEventListener('click', function() {
-        const file = document.getElementById('imageInput').files[0];
-        handleImageUpload(file, itemId);
-    });
-
-    // Handle image upload to AWS and update database when user clicks save button
+    // Hande image upload to AWS and update database when user clicks save button
     function handleImageUpload(file, itemId) {
         if (!file) {
             console.error('No file selected for upload');
@@ -99,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('itemId', itemId);
+        console.log(itemId)
 
         fetch('/upload-image/', {
             method: 'POST',
@@ -117,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData2 = new FormData();
         formData2.append('image_url', "yes");
         formData2.append('item_id', itemId);
+        console.log(formData2);
         fetch(`/food/${itemId}/update/`, {
             method: 'POST',
             body: formData2
@@ -125,7 +113,9 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => console.log('Response:', data))
         .catch(error => console.error('Error:', error));
     }
-
-    // Add event listener for the image input change event
-    document.getElementById('imageInput').addEventListener('change', previewFile);
+    // Add listern to "save" button
+    document.getElementById('saveButton').addEventListener('click', function() {
+        const file = document.getElementById('imageInput').files[0];
+        handleImageUpload(file, itemId);
+        });
 });
