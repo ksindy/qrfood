@@ -128,7 +128,12 @@
                                     <tbody>
                                         {% for item in food_items %}
                                         <tr>
-                                            <td><a class="item-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-1" data-item-id="{{ item.id}}" data-item-food="{{ item.food }}" data-item-image="{{ item.image_url }}" data-item-expiration="{{ item.expiration_date }}" data-item-location="{{ item.location }}"><span style="color: rgb(0, 0, 0);">{{item.food}}</span></a></td>
+                                            <td>
+                                                <a class="item-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-1" data-item-id="{{ item.id}}" data-item-food="{{ item.food }}" data-item-image="{{ item.image_url }}" data-item-expiration="{{ item.expiration_date }}" data-item-location="{{ item.location }}">
+                                                    <img id="originalImage_{{ item.id }}" src="{{ item.image_url }}" alt="Food Image" style="width: 100px;">
+                                                    <span style="color: rgb(0, 0, 0);">{{item.food}}</span>
+                                                </a>
+                                            </td>
                                             <td>{{item.days_left}}</td>
                                             <td>{{item.location}}</td>
                                         </tr>

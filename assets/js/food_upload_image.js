@@ -1,18 +1,17 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // set varialbes if itemId is passed in via url:
+    // Set variables if itemId is passed in via URL:
     const foodItemMeta = document.querySelector('meta[name="food-item"]');
     const foodItem = foodItemMeta ? JSON.parse(foodItemMeta.getAttribute("content")) : null;
     let itemId;
-    if(foodItem) {
+    if (foodItem) {
         itemId = document.getElementById("hiddenItemId").value = foodItem.id;
     }
 
-    // preview new image in modal
+    // Preview new image in modal
     function previewFile() {
         const preview = document.getElementById('modalImage');
         const file = document.getElementById('imageInput').files[0];
         const reader = new FileReader();
-        console.log(preview)
         reader.onload = function (e) {
             // Set the preview image to the file's data URL
             preview.src = e.target.result;
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
         link.addEventListener('click', function(event) {
             event.preventDefault();
             itemId = this.dataset.itemId;
-            console.log(this.dataset.itemImage)
+            console.log(this.dataset.itemImage);
 
             populateAndShowModal({
                 id: itemId,
@@ -77,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Hande image upload to AWS and update database when user clicks save button
+    // Handle image upload to AWS and update database when user clicks save button
     function handleImageUpload(file, itemId) {
         if (!file) {
             console.error('No file selected for upload');
@@ -87,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('itemId', itemId);
-        console.log(itemId)
+        console.log(itemId);
 
         fetch('/upload-image/', {
             method: 'POST',
@@ -98,6 +97,19 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Upload successful', data);
             // Update the modal image or handle the response accordingly
             $('#modal-1').modal('hide');
+
+            // Assuming the original image element has a data attribute with the item ID for identification
+            const originalImageElement = document.querySelector(`.item-link[data-item-id="${itemId}"] img`);
+            if (originalImageElement) {
+                // Update the src of the original image
+                originalImageElement.src = URL.createObjectURL(file);
+            }
+
+            // Update the modal image
+            const modalImage = document.getElementById('modalImage');
+            if (modalImage) {
+                modalImage.src = URL.createObjectURL(file);
+            }
         })
         .catch(error => {
             console.error('Error uploading image:', error);
@@ -113,14 +125,16 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Update successful', data);})
+            console.log('Update successful', data);
+        })
         .catch(error => {
-                console.error('Error uploading image:', error);
-            });
+            console.error('Error uploading image:', error);
+        });
     }
-    // Add listern to "save" button
+
+    // Add listener to "save" button
     document.getElementById('saveButton').addEventListener('click', function() {
         const file = document.getElementById('imageInput').files[0];
         handleImageUpload(file, itemId);
-        });
+    });
 });
