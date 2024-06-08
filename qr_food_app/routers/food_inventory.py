@@ -15,6 +15,7 @@ templates_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templ
 templates = Jinja2Templates(directory=templates_path)
 router = APIRouter()
 app = FastAPI()
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 def get_months(days):
     if days > 30:
@@ -116,7 +117,7 @@ async def update_food_item(
         date_consumed = date_consumed if date_consumed is not None else item[7]
         location = location if location is not None else item[8]
         if image_url == 'yes' and item_id:
-            image_url = f"https://qr-app-images-dev.s3.us-east-2.amazonaws.com/{item_id}.jpg"
+            image_url = f"https://{BUCKET_NAME}.s3.us-east-2.amazonaws.com/{item_id}.jpg"
         image_url = image_url if image_url is not None else item[9]
     
         cursor.execute(
